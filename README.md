@@ -15,5 +15,5 @@ git clone https://github.com/Nolan-21-6-2005/BehaviorNet.git
 
 ### Cách chạy
 ```
-streamlit run sign_in.py
+streamlit run main.py
 ```
