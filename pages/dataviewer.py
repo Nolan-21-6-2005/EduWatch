@@ -14,11 +14,11 @@ cursor = conn.cursor()
 
 tab1, tab2, tab3, tab4 = st.tabs(["Camera", "Rooms", "Buildings", "Users"])
 
-with tab1:
-    #CRUD bảng camera 
-    if st.button("Thêm camera"):
+    with tab1:
+        #CRUD bảng camera 
+        if st.button("Thêm camera"):
         ctr.addCamera()
-    if st.button("Cập nhật camera"):
+        if st.button("Cập nhật camera"):
         ctr.updateCamera()            
     #if st.button("Xóa phòng"):
     #Truy vấn bảng camera
@@ -51,14 +51,14 @@ with tab3:
     """)
     st.table(buildings_table)
 with tab4:
-            users_table = cursor.execute("""
-                SELECT * FROM users
-            """)
-            st.table(users_table)
+    users_table = cursor.execute("""
+        SELECT * FROM users
+    """)
+    st.table(users_table)
         
-    elif st.session_state.shared_data == "Professor":
-        log_table = cursor.execute("""
-            SELECT * FROM violation_logs
-        """)
+#elif st.session_state.shared_data == "Professor":
+#    log_table = cursor.execute("""
+#        SELECT * FROM violation_logs
+#    """)
 conn.commit()
 conn.close()

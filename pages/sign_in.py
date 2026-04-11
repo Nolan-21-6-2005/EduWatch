@@ -27,7 +27,6 @@ def signin(username, password):
 
 if sign_in:
     if signin(username, password):
-        st.session_state.shared_data = role 
         st.switch_page("pages/dataviewer.py")
     else:
         st.error("Sai thông tin")
