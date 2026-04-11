@@ -7,7 +7,7 @@ from ultralytics import YOLO
 
 st.set_page_config(layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
-model = YOLO("yolov8n.pt")
+model = YOLO("model/yolov8n.pt")
 
 def start(number):
     while True:

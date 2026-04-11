@@ -2,23 +2,21 @@ import streamlit as st
 import sqlite3
 import sys
 from pathlib import Path
-import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "model" / "database.db"
 
-st.write("DB path:", os.path.abspath(DB_PATH))
-
 st.title("Đăng nhập tài khoản")
-username = st.text_input("Username:")
+username = st.text_input("Email hoac Username:")
 password = st.text_input("Password:", type = "password")
 role = st.selectbox(
     "Vai trò:",
     ("Professor", "Supervisory", "Admin"),
 )
+sign_in = st.button("Đăng nhập")
 
 def signin(username, password):
-    conn = sqlite3.connect(PATH_DB)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -27,12 +25,11 @@ def signin(username, password):
     """, (username, password))
 
     user = cursor.fetchone()
-    conn.commit()
     conn.close()
 
     return user is not None
 
-if st.button("Đăng nhập"):
+if sign_in:
     if signin(username, password):
         if role == "Admin" or role == "Professor":
             st.session_state.shared_data = role 
