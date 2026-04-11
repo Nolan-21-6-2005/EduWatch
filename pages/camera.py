@@ -4,6 +4,10 @@ import sqlite3
 import cv2
 
 from ultralytics import YOLO
+from modules import controller as ctr
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "model" / "database.db"
 
 st.set_page_config(layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])

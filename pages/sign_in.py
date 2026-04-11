@@ -9,10 +9,6 @@ DB_PATH = BASE_DIR / "model" / "database.db"
 st.title("Đăng nhập tài khoản")
 username = st.text_input("Email hoac Username:")
 password = st.text_input("Password:", type = "password")
-role = st.selectbox(
-    "Vai trò:",
-    ("Professor", "Supervisory", "Admin"),
-)
 sign_in = st.button("Đăng nhập")
 
 def signin(username, password):
@@ -31,11 +27,8 @@ def signin(username, password):
 
 if sign_in:
     if signin(username, password):
-        if role == "Admin" or role == "Professor":
-            st.session_state.shared_data = role 
-            st.switch_page("pages/dataviewer.py")
-        elif role == "Supervisor":
-            st.switch_page("pages/camera.py")
+        st.session_state.shared_data = role 
+        st.switch_page("pages/dataviewer.py")
     else:
         st.error("Sai thông tin")
 

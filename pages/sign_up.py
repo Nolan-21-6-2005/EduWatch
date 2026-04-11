@@ -10,9 +10,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "model" / "database.db"
 
 st.title("Đăng ký tài khoản")
-username = st.text_input("Email:")
+username = st.text_input("Username:")
+gender = st.selectbox("Giới tính", ["Nam", "Nữ", "Khác"])
+date = st.date_input("Ngày sinh")
+email = st.text_input("Email")
+phone = st.text_input("Số điện thoại")
 password = st.text_input("Password:", type = "password")
 check_password = st.text_input("Retype password:", type = "password")
+role = st.selectbox(
+    "Vai trò:",
+    ("Professor", "Supervisory", "Admin"),
+)
 sign_up = st.button("Đăng ký tài khoản")
 
 def is_strong_password(password):
@@ -25,17 +33,15 @@ def is_strong_password(password):
     )
 
 def signup(username, password, check_password):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    if is_strong_password(password) and password == check_password:
-        cursor.execute("""
-        INSERT INTO users (username, password)
-        VALUES (?, ?)
-        """, (username, password))
-        conn.commit()
-        conn.close()
-        return True
-    else: return False
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        if is_strong_password(password) and password == check_password:
+            cursor.execute("""
+            INSERT INTO users (username, password, email, gender, phone, date, role)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (username, password, email, gender, phone, date, role))
+            return True
+        else: return False
     
     
 if sign_up:
