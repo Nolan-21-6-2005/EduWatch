@@ -17,3 +17,5 @@ git clone https://github.com/Nolan-21-6-2005/BehaviorNet.git
 ```
 streamlit run main.py
 ```
+Xem thêm: 
+- Luồng hoạt động: [[flow]]
