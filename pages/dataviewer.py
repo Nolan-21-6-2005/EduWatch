@@ -6,26 +6,25 @@ import os
 from modules import controller as ctr
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "model" / "database.db"
+DB_PATH = BASE_DIR / "model" / "eduwatch.db"
 
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
-
 tab1, tab2, tab3, tab4 = st.tabs(["Camera", "Rooms", "Buildings", "Users"])
 
-    with tab1:
-        #CRUD bảng camera 
-        if st.button("Thêm camera"):
+with tab1:
+    #CRUD bảng camera 
+    if st.button("Thêm camera"):
         ctr.addCamera()
-        if st.button("Cập nhật camera"):
+    if st.button("Cập nhật camera"):
         ctr.updateCamera()            
     #if st.button("Xóa phòng"):
     #Truy vấn bảng camera
     camera_table = cursor.execute("""
-        SELECT * FROM camera
+        SELECT * FROM Cameras
     """)
-    st.table(camera_table)
+    st.data_editor(camera_table, num_rows="dynamic")
 with tab2:
     #CRUD bảng phòng
     if st.button("Thêm phòng"):
@@ -35,9 +34,9 @@ with tab2:
     #if st.button("Xóa phòng"):    
     #Truy vấn bảng phòng
     rooms_table = cursor.execute("""
-            SELECT * FROM rooms
+            SELECT * FROM Rooms
     """)
-    st.table(rooms_table)
+    st.data_editor(rooms_table, num_rows="dynamic")
 with tab3:
     if st.button("Thêm tòa nhà"):
         ctr.addCamera()
@@ -47,18 +46,13 @@ with tab3:
         #ctr.addBuildings()
                 
     buildings_table = cursor.execute("""
-        SELECT * FROM buildings
+        SELECT * FROM Buildings
     """)
-    st.table(buildings_table)
+    st.data_editor(buildings_table, num_rows="dynamic")
 with tab4:
     users_table = cursor.execute("""
-        SELECT * FROM users
+        SELECT * FROM Users
     """)
-    st.table(users_table)
-        
-#elif st.session_state.shared_data == "Professor":
-#    log_table = cursor.execute("""
-#        SELECT * FROM violation_logs
-#    """)
+    st.data_editor(users_table, num_rows="dynamic")
 conn.commit()
 conn.close()
