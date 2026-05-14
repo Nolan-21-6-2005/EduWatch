@@ -1,0 +1,21 @@
+# EduWatch
+- Log in
+- Dashboard
+	- Supervision
+		- Sidebar
+			- Username
+			- Logout
+		- Notification
+		- Camera 
+	- Security guard
+		- Sidebar
+			- Username
+			- Logout
+		- Camera
+	- Admin UI
+		- Sidebar
+			- Username
+			- Logout
+		- Notification
+		- Role + Database Management
+- Sign up
