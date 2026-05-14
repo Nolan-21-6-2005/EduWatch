@@ -1,0 +1,52 @@
+# EduWatch
+- data_model/
+	- eduwatch.db
+	- avatars/
+	- video/
+	- captures/
+- AI_model/
+	- yolo_eduwatch.py
+- src/
+	- database_query/
+		- buildings.py
+		- cameras.py
+		- rooms.py
+		- logs.py
+		- auth.py
+	- detector/
+		- detector.py
+		- camera_manager.py
+		- alert_manager.py
+		- detection.py
+	- utils/
+		- theme.py
+		- config.py 
+		- security.py
+		- logger.py
+		- helper.py
+	- app_router.py
+- view/
+	- pages/
+		- sign_in.py
+		- sign_up.py
+		- security_guard.py
+		- supervision.py
+		- admin.py
+		- reports.py
+		- logs.py
+		- request.py
+	- admin_utils/
+		- buildings.py
+		- cameras.py
+		- rooms.py
+	- component/
+		- header.py
+		- sidebar.py
+	- dashboard.py
+	- profile.py
+	- settings.py
+- requirement.txt
+- README.md
+- init_db.py
+- app.py
+
