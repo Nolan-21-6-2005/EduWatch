@@ -13,15 +13,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "App.md",
+                "file": "Request - Response.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Request - Response"
+            }
+          },
+          {
+            "id": "0b3d970f51b1c5c2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Request - Response.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "App"
+              "title": "Request - Response"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -78,7 +93,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "e023a5142826bf72",
@@ -94,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "App.md",
+                "file": "Request - Response.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +120,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for App"
+              "title": "Backlinks for Request - Response"
             }
           },
           {
@@ -113,12 +129,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "App.md",
+                "file": "Request - Response.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from App"
+              "title": "Outgoing links from Request - Response"
             }
           },
           {
@@ -156,13 +172,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "App.md",
+                "file": "Request - Response.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of App"
+              "title": "Outline of Request - Response"
             }
           }
         ]
@@ -183,12 +199,13 @@
       "bases:Create new base": false
     }
   },
-  "active": "05a39caed8c23adf",
+  "active": "0b3d970f51b1c5c2",
   "lastOpenFiles": [
-    "Detector.md",
+    "Untitled.md",
     "EduWatch.md",
+    "Detector.md",
     "App.md",
-    "Quan hệ giữa các thành phần.md",
+    "Request - Response.md",
     "Phân tích hệ thống EduWatch.md",
     "Thư mục/Cấu trúc thư mục EduWatch.md",
     "Thư mục/Cấu trúc thư mục.png"
