@@ -35,12 +35,6 @@ git push
 ```
 ## Cách chạy
 
-### Backend
 ```
-uvicorn main:app --reload
-```
-
-### Frontend
-```
-streamlit run main.py
+python app.py
 ```
