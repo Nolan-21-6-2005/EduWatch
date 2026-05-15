@@ -1,6 +1,6 @@
 import sqlite3
 
-def get_user_by_email(self, email):
+def get_user_by_email(email):
     conn = sqlite3.connect("eduwatch.db")
     cursor = conn.cursor()
 
