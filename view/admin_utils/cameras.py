@@ -1,5 +1,5 @@
 import nicegui as ui
-from cameras_database import insertCamera
+from cameras_database import insertCameras
 
 def addCamera():
     with ui.dialog() as dialog, ui.card():

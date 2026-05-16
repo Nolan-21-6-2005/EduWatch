@@ -1,4 +1,4 @@
-from nicegui import ui
+from nicegui import app, ui
 from src.services.login_services import login
 
 def show_sign_in():
@@ -22,8 +22,17 @@ def show_sign_in():
             border: none !important; 
         }
     """)
+    if app.storage.user.get("authenticated", False):
+        return ui.navigate.to("/")
 
-
+    def trigger_login():
+        # LƯU Ý: Truyền .value để lấy chuỗi chữ thực tế người dùng nhập
+        if login(email.value, password.value):
+            ui.notify("Đăng nhập thành công!", type="positive")
+            ui.navigate.to("/")  # Đăng nhập đúng thì chuyển hướng tại đây
+        else:
+            ui.notify("Mã giảng viên hoặc mật khẩu không chính xác!", type="negative")
+    
     # Container chính: Sử dụng grid 2 cột cố định
     with ui.row().classes("w-full min-h-screen items-center justify-center p-4 md:p-12"):
         with ui.grid(columns=2).classes("max-w-6xl w-full gap-8 lg:gap-20 items-center"):
@@ -87,12 +96,12 @@ def show_sign_in():
                             ui.label("Mật khẩu").classes(
                                 "text-sm font-bold text-gray-700 ml-1"
                             )
-                            ui.input(placeholder="••••••••", password=True).classes(
+                            password = ui.input(placeholder="••••••••", password=True).classes(
                                 "w-full"
                             ).props(
                                 "outlined color=green-7 bg-color=grey-1 prepend-icon=lock"
                             )
-
+                            password.on("keydown.enter", trigger_login)
                         # Row Ghi nhớ & Quên mk
                         with ui.row().classes("w-full justify-between items-center mt-1"):
                             ui.checkbox("Ghi nhớ").classes(
@@ -104,12 +113,9 @@ def show_sign_in():
 
                         # Button Đăng nhập
                         sign_in_btn = ui.button(
-                            "ĐĂNG NHẬP", on_click=lambda: ui.notify("Đang kết nối...")
-                        ).classes(
+                            "ĐĂNG NHẬP", on_click = trigger_login).classes(
                             "w-full h-14 bg-[#37bd74] text-white font-bold text-lg rounded-xl shadow-lg mt-2"
                         )
-                        if sign_in_btn:
-                            login(email)
                         # Hoặc
                         with ui.row().classes("w-full items-center gap-2 py-1"):
                             ui.separator().classes("col opacity-40")
@@ -120,3 +126,4 @@ def show_sign_in():
                         ui.button("Tạo tài khoản mới").props(
                             "outline color=green-7"
                         ).classes("w-full h-14 font-bold text-lg rounded-xl")
+     

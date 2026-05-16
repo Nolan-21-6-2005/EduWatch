@@ -1,122 +1,94 @@
+import time
 from nicegui import ui
+from src.services.detection_service import detector
 
 def show_detector():
     ui.add_css("style.css")
+    
+    # Khởi tạo biến rỗng trước để tránh lỗi UnboundLocalError khi hàm toggle gọi
+    status_label = None
+    status_label_sub = None
+    
+    # ===== 1. ĐỊNH NGHĨA LOGIC TRƯỚC =====
+    def toggle_ai(e):
+        if e.value:
+            detector.activate()
+            if status_label: status_label.set_text("Đang hoạt động")
+            if status_label_sub: status_label_sub.set_text("Đang hoạt động")
+            ui.notify("Đã bật nhận diện AI", type="info")
+        else:
+            detector.deactivate()
+            if status_label: status_label.set_text("Đã tạm dừng")
+            if status_label_sub: status_label_sub.set_text("Đã tạm dừng")
+            ui.notify("Đã tắt nhận diện AI", type="warning")
+            
+    # ===== 2. XÂY DỰNG GIAO DIỆN (CHÚ Ý CÁC KHỐI WITH) =====
+    with ui.row().classes("w-full h-full no-wrap gap-6"):
+        
+        # ===== LEFT: CAMERA AREA =====
+        with ui.column().classes("w-[70%] h-full"):
 
-    # --- 1. HEADER (SEARCH & TABS) ---
-    # Header này sẽ tự động cố định ở trên cùng
-    with ui.header().classes(
-        "header-custom text-black p-4 flex justify-between items-center"
-    ):
-        # Search Bar
-        with ui.row().classes("items-center bg-gray-200/50 rounded-lg px-3 py-1 w-80"):
-            ui.icon("search", color="gray")
-            ui.input(placeholder="Tòa nhà, Phòng học...").props(
-                "borderless dense"
-            ).classes("text-sm flex-1")
+            # Khối Tiêu đề
+            with ui.row().classes("w-full justify-between items-end mb-6"):
+                with ui.column().classes("gap-1"):
+                    ui.label("Giảng đường Nguyễn Đăng - P.102").classes("text-3xl font-black text-gray-900")
+                    ui.label("Phòng học đang trong ca thi số 2").classes("text-sm text-gray-400")
 
-        # Tabs
-        with ui.row().classes("gap-8 items-center"):
-            ui.label("Tổng quan").classes(
-                "text-green-700 font-bold border-b-2 border-green-500 pb-1 cursor-pointer"
-            )
-            ui.label("Phân tích").classes(
-                "text-gray-400 hover:text-green-700 cursor-pointer"
-            )
+                ui.button("Chế độ nhiều camera", icon="grid_view").props('outline color="green"').classes("rounded-xl")
 
-        # Icons bên phải Header
-        with ui.row().classes("items-center gap-3"):
-            ui.icon("notifications", color="gray").classes("cursor-pointer")
-            ui.icon("settings", color="gray").classes("cursor-pointer")
+            # 🟥 Grid Camera (Chỉ chứa đúng 4 ô camera)
+            with ui.grid(columns=2).classes("w-full gap-5"):
 
-    # --- 2. SIDEBAR BÊN TRÁI ---
-    with ui.element("div").classes("sidebar-fixed p-6"):
-        with ui.column().classes("w-full gap-8"):
-            ui.label("EduWatch VNUA").classes(
-                "text-xl font-black text-green-700 tracking-tighter"
-            )
+                # Ô CAMERA 01 (Luồng chạy thực tế tích hợp Tải lại tự động)
+                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm w-full"):
+                    camera_view = ui.image('/video_feed').classes("w-full h-auto")
+                    # Định kỳ làm mới nguồn ảnh loại bỏ cache
+                    ui.timer(0.03, lambda: camera_view.set_source(f'/video_feed?t={time.time()}'))
 
-            with ui.column().classes("w-full gap-2"):
-                menu = [
-                    ("videocam", "Giám sát trực tiếp", True),
-                    ("history", "Nhật ký vi phạm", False),
-                    ("analytics", "Thống kê báo cáo", False),
-                    ("settings", "Yêu cầu hệ thống", False),
-                ]
-                for icon, text, active in menu:
-                    curr_style = (
-                        "bg-green-100 text-green-700 font-bold"
-                        if active
-                        else "text-gray-400 hover:bg-gray-50"
-                    )
-                    with ui.row().classes(
-                        f"w-full p-3 rounded-xl items-center gap-3 cursor-pointer {curr_style}"
-                    ):
-                        ui.icon(icon)
-                        ui.label(text).classes("text-sm")
+                    with ui.row().classes("absolute top-3 left-3 right-3 justify-between items-center w-[95%]"):
+                        ui.label("Cam 01 - Trực tiếp").classes("bg-black/50 text-white text-xs px-2 py-1 rounded")
 
-    # --- 3. NHẬT KÝ BÊN PHẢI ---
-    with ui.element("div").classes("right-logs overflow-y-auto"):
-        ui.label("NHẬT KÝ VI PHẠM MỚI NHẤT").classes(
-            "text-[10px] font-black text-gray-400 tracking-widest mb-6"
-        )
-        for _ in range(3):
-            with ui.column().classes(
-                "w-full p-4 bg-gray-50 rounded-2xl mb-4 border border-gray-100"
-            ):
-                ui.label("14:30:05").classes("text-[10px] font-mono text-gray-400 mb-2")
-                ui.label("Sử dụng tài liệu trái phép").classes(
-                    "text-sm font-bold text-red-700 mb-2"
-                )
-                ui.image(
-                    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300"
-                ).classes("rounded-xl mb-4 h-20")
-                with ui.row().classes("w-full gap-2"):
-                    ui.button("Xác nhận").props("flat dense").classes(
-                        "bg-green-600 text-white flex-1 rounded-lg text-[10px]"
-                    )
-                    ui.button("Báo sai").props("flat dense").classes(
-                        "bg-gray-200 text-gray-600 flex-1 rounded-lg text-[10px]"
-                    )
+                # Ô CAMERA 02
+                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm"):
+                    ui.interactive_image('https://picsum.photos/id/237/600/400').classes("w-full h-auto")
+                    with ui.row().classes("absolute top-3 left-3 justify-between w-full pr-6"):
+                        ui.label("Cam 02 - Góc sau").classes("bg-black/50 text-white text-xs px-2 py-1 rounded")
+            
+                # Ô CAMERA 03
+                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm"):
+                    ui.interactive_image('https://picsum.photos/id/238/600/400').classes("w-full h-auto")
+                    with ui.row().classes("absolute top-3 left-3 justify-between w-full pr-6"):
+                        ui.label("Cam 03 - Dự phòng").classes("bg-black/50 text-white text-xs px-2 py-1 rounded")
+                
+                # Ô CAMERA 04 (Tương tự Cam 1 bằng thẻ HTML img)
+                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm w-full"):
+                    ui.html('<img src="/video_feed" class="w-full h-auto object-cover" />')
 
+            # 🟩 THANH ĐIỀU KHIỂN PHÍA DƯỚI (Đã tách độc lập ra ngoài lưới Grid Camera)
+            with ui.row().classes("w-full justify-between items-center bg-white p-4 rounded-xl shadow-sm mt-4"):
+                
+                # Nhãn hiển thị trạng thái động
+                status_label = ui.label("Đang hoạt động" if detector.is_active() else "Đã tạm dừng").classes("text-sm text-gray-500")
 
-    # --- 4. NỘI DUNG CHÍNH (CAMERA GRID) ---
-    with ui.element("div").classes("main-content"):
-        # Tiêu đề trang
-        with ui.row().classes("w-full justify-between items-end mb-6"):
-            with ui.column().classes("gap-1"):
-                ui.label("Giảng đường Nguyễn Đăng - P.102").classes(
-                    "text-2xl font-black headline"
-                )
-                ui.label("Phòng học đang trong ca thi số 2").classes(
-                    "text-xs text-gray-400"
-                )
-            ui.button("Chế độ nhiều camera", icon="grid_view").props(
-                'outline color="green"'
-            ).classes("rounded-xl")
+                # Cụm công tắc và Nhãn AI Network bên phải
+                with ui.row().classes("items-center gap-4"):
+                    with ui.column().classes("gap-0 items-end"):
+                        ui.label("TRÍ TUỆ NHÂN TẠO").classes("text-xs font-bold text-green-600")
+                        status_label_sub = ui.label("Đang hoạt động" if detector.is_active() else "Đã tạm dừng").classes("text-xs text-gray-400")
+                    
+                    # Nút gạt Switch gọi hàm
+                    ui.switch(value=detector.is_active(), on_change=toggle_ai).props("color=green")
+                
+        # ===== RIGHT: VIOLATION LOGS =====
+        with ui.column().classes("w-[30%] h-full bg-white rounded-3xl p-5 border border-gray-100 overflow-y-auto"):
+            ui.label("NHẬT KÝ VI PHẠM MỚI NHẤT").classes("text-xs font-black text-gray-400 tracking-widest mb-6")
 
-        # Grid Camera 2x2
-        with ui.row().classes("w-full grid grid-cols-2 gap-4"):
-            for i in range(1, 5):
-                with ui.element("div").classes(
-                "bg-black rounded-2xl overflow-hidden aspect-video relative"
-                ):
-                    ui.image(
-                        "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600"
-                    ).classes("w-full h-full object-cover opacity-60")
-                    ui.badge(f"CAM 0{i}", color="black").classes("absolute top-4 left-4")
-                    ui.badge("TRỰC TIẾP", color="green").classes("absolute top-4 right-4")
+            for _ in range(3):
+                with ui.column().classes("w-full p-4 bg-gray-50 rounded-2xl mb-4 border border-gray-100"):
+                    ui.label("14:30:05").classes("text-xs font-mono text-gray-400")
+                    ui.label("Sử dụng tài liệu trái phép").classes("text-sm font-bold text-red-700 mb-3")
+                    ui.image("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300").classes("rounded-xl mb-4 h-28 object-cover")
 
-        # Thanh điều khiển Floating phía dưới
-        with ui.row().classes(
-            "fixed bottom-10 left-[38%] bg-white shadow-2xl p-4 rounded-2xl items-center gap-6 border border-gray-100 z-[2000]"
-        ):
-            ui.button(icon="photo_camera").props('flat round color="gray"')
-            ui.button(icon="radio_button_checked").props('flat round color="red"').classes(
-            "animate-pulse"
-        )
-            ui.separator().props("vertical")
-            with ui.column().classes("gap-0"):
-                ui.label("AI ĐANG CHẠY").classes("text-[10px] font-black text-green-600")
-                ui.label("Phát hiện 02 vi phạm").classes("text-[9px] text-gray-400")
-                ui.switch(value=True).props('color="green"')
+                    with ui.row().classes("w-full gap-2"):
+                        ui.button("Xác nhận").props("flat dense").classes("bg-green-600 text-white flex-1 rounded-xl")
+                        ui.button("Báo sai").props("flat dense").classes("bg-gray-200 text-gray-600 flex-1 rounded-xl")
