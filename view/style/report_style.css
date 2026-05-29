@@ -1,0 +1,113 @@
+/* Tổng thể và Màu sắc chủ đạo */
+:root {
+  --primary-green: #2ca854;
+  --bg-light-green: #f5faf6;
+}
+
+/* Ẩn bớt các khoảng trống mặc định của Streamlit */
+.block-container {
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+/* Nút bấm Xuất PDF / EXCEL */
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Khối thẻ thông báo vi phạm phổ biến */
+.stat-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e8efea;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 15px;
+}
+.stat-title {
+  color: #7a869a;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.stat-content {
+  color: #2ca854;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Bảng dữ liệu */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.custom-table th {
+  color: #4a5568;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #edf2f7;
+}
+.custom-table td {
+  padding: 14px;
+  font-size: 14px;
+  color: #2d3748;
+  border-bottom: 1px solid #edf2f7;
+}
+
+/* Thanh hiển thị trạng thái hệ thống */
+.status-badge {
+  background-color: #2ca854;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Phần thông tin Admin góc dưới Sidebar */
+.admin-box {
+  background-color: #f5faf6;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+.admin-avatar {
+  width: 35px;
+  height: 35px;
+  background-color: #2ca854;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* Nút Đăng xuất */
+.logout-btn {
+  background: none;
+  border: none;
+  color: #2ca854;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 15px;
+  cursor: pointer;
+}

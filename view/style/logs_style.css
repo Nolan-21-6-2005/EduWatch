@@ -1,0 +1,73 @@
+/* Đổi màu nền chính của ứng dụng sang xám nhạt */
+.stApp {
+  background-color: #f8f9fa;
+}
+
+/* Làm đẹp khối bộ lọc */
+[data-testid="stForm"],
+.stHorizontalBlock {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 20px;
+}
+
+/* Tùy biến các nút Xuất dữ liệu ở góc phải */
+.export-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+}
+
+/* CSS tạo bảng dữ liệu thủ công dạng Card giống như hình mẫu */
+.violation-card {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.violation-card:first-child {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+.violation-card:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-bottom: none;
+}
+
+/* Label Huy hiệu Xác nhận */
+.btn-duyet {
+  color: #2cbd6c;
+  background-color: #e8f8f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+.btn-baosai {
+  color: #ff4b4b;
+  background-color: #feebeb;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Tiến trình / Phần trăm độ tin cậy */
+.confidence-tag {
+  color: #2cbd6c;
+  font-weight: bold;
+  margin-left: 8px;
+}

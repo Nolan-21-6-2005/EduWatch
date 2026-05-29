@@ -1,0 +1,8 @@
+[theme]
+# Nếu bạn muốn giao diện nền đen giống trong ảnh
+base="dark"
+primaryColor="#00ff88" # Màu xanh lá cây thương hiệu của bạn
+
+[general]
+# Ép ứng dụng luôn chạy ở chế độ tràn viền
+wideMode=true

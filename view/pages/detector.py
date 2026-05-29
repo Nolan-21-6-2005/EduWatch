@@ -1,94 +1,135 @@
-import time
-from nicegui import ui
-from src.services.detection_service import detector
+import streamlit as st
+from src.frontend.camera_controller import (
+    connect_camera,
+    start_camera,
+    activate_camera,
+    get_message
+)
+from utils.load_css import apply_css
 
 def show_detector():
-    ui.add_css("style.css")
-    
-    # Khởi tạo biến rỗng trước để tránh lỗi UnboundLocalError khi hàm toggle gọi
-    status_label = None
-    status_label_sub = None
-    
-    # ===== 1. ĐỊNH NGHĨA LOGIC TRƯỚC =====
-    def toggle_ai(e):
-        if e.value:
-            detector.activate()
-            if status_label: status_label.set_text("Đang hoạt động")
-            if status_label_sub: status_label_sub.set_text("Đang hoạt động")
-            ui.notify("Đã bật nhận diện AI", type="info")
-        else:
-            detector.deactivate()
-            if status_label: status_label.set_text("Đã tạm dừng")
-            if status_label_sub: status_label_sub.set_text("Đã tạm dừng")
-            ui.notify("Đã tắt nhận diện AI", type="warning")
-            
-    # ===== 2. XÂY DỰNG GIAO DIỆN (CHÚ Ý CÁC KHỐI WITH) =====
-    with ui.row().classes("w-full h-full no-wrap gap-6"):
+    backdground_color = st.get_option("theme.backgroundColor")
+
+    # =========================
+    # HIDE SIDEBAR & LOAD GLOBAL CSS
+    # =========================
+    st.markdown("""
+    <style>
+    section[data-testid="stSidebar"] {
+        width: 0px !impor tant;
+        min-width: 0px !important;
+    }
+
+    section[data-testid="stSidebar"] > div {
+      display: none !important;
+    }
+
+    button[kind="header"] {
+      display: none !important;
+    }
+    <style>
+    """, unsafe_allow_html=True)
+
+    # Đọc file CSS của Camera Panel (Thêm encoding='utf-8' để tránh lỗi font)
+    with open("view/style/detector_style.css", "r", encoding="utf-8") as f:
+        camera_css = f.read()
+
+    # =========================
+    # REAL STREAMLIT WIDGETS
+    # =========================
+    with st.sidebar:
+        current_model_state = st.session_state.get("last_model_state", False)
+        st.checkbox(
+            label="MODEL_TOGGLE_CONTROL",
+            key="last_model_state",
+            value=current_model_state,
+            on_change=lambda: activate_camera(st.session_state.last_model_state)
+        )
+        btn_hidden = st.button(label="BTN_CAMERA_CONTROL", key="btn_hid")
+
+    # =========================
+    # HANDLE EVENTS
+    # =========================
+    if btn_hidden:
+        start_camera()
+        st.rerun()
+
+    # =========================
+    # MAIN LAYOUT
+    # =========================
+    main_col1, main_col2 = st.columns([2, 1])
+
+    with main_col1:
+        connect_camera()
+        st.write("")
+        is_cam_running = st.session_state.get("camera_running", False)
+        is_model_active = st.session_state.get("last_model_state", False)
         
-        # ===== LEFT: CAMERA AREA =====
-        with ui.column().classes("w-[70%] h-full"):
+        # Định nghĩa màu sắc động cho Button dựa trên trạng thái camera
+        btn_color = "#ff4b4b" if is_cam_running else "#2cbd6c"
+        btn_label = "Stop Camera" if is_cam_running else "Start Camera"
+        checkbox_checked = "checked" if is_model_active else ""
 
-            # Khối Tiêu đề
-            with ui.row().classes("w-full justify-between items-end mb-6"):
-                with ui.column().classes("gap-1"):
-                    ui.label("Giảng đường Nguyễn Đăng - P.102").classes("text-3xl font-black text-gray-900")
-                    ui.label("Phòng học đang trong ca thi số 2").classes("text-sm text-gray-400")
-
-                ui.button("Chế độ nhiều camera", icon="grid_view").props('outline color="green"').classes("rounded-xl")
-
-            # 🟥 Grid Camera (Chỉ chứa đúng 4 ô camera)
-            with ui.grid(columns=2).classes("w-full gap-5"):
-
-                # Ô CAMERA 01 (Luồng chạy thực tế tích hợp Tải lại tự động)
-                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm w-full"):
-                    camera_view = ui.image('/video_feed').classes("w-full h-auto")
-                    # Định kỳ làm mới nguồn ảnh loại bỏ cache
-                    ui.timer(0.03, lambda: camera_view.set_source(f'/video_feed?t={time.time()}'))
-
-                    with ui.row().classes("absolute top-3 left-3 right-3 justify-between items-center w-[95%]"):
-                        ui.label("Cam 01 - Trực tiếp").classes("bg-black/50 text-white text-xs px-2 py-1 rounded")
-
-                # Ô CAMERA 02
-                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm"):
-                    ui.interactive_image('https://picsum.photos/id/237/600/400').classes("w-full h-auto")
-                    with ui.row().classes("absolute top-3 left-3 justify-between w-full pr-6"):
-                        ui.label("Cam 02 - Góc sau").classes("bg-black/50 text-white text-xs px-2 py-1 rounded")
+        # =========================
+        # CUSTOM UI (HTML COMPONENT)
+        # =========================
+        st.components.v1.html(f"""
+            <style>
+            /* Nhúng toàn bộ nội dung file CSS đã đọc vào đây */
+            {camera_css}
             
-                # Ô CAMERA 03
-                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm"):
-                    ui.interactive_image('https://picsum.photos/id/238/600/400').classes("w-full h-auto")
-                    with ui.row().classes("absolute top-3 left-3 justify-between w-full pr-6"):
-                        ui.label("Cam 03 - Dự phòng").classes("bg-black/50 text-white text-xs px-2 py-1 rounded")
-                
-                # Ô CAMERA 04 (Tương tự Cam 1 bằng thẻ HTML img)
-                with ui.card().classes("p-0 overflow-hidden rounded-xl relative shadow-sm w-full"):
-                    ui.html('<img src="/video_feed" class="w-full h-auto object-cover" />')
+            /* Chỉ giữ lại các thuộc tính có biến Python động */
+            .control-panel {{
+                background: {backdground_color};
+            }}
+            .action-btn {{
+                background-color: {btn_color};
+                color: white;
+                border: none;
+                padding: 10px 22px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+            }}
+            </style>
+            
+            <div class="control-panel">
+                <button class="action-btn" onclick="clickStreamlitButton()">
+                    {btn_label}
+                </button>
+                <div class="toggle-container">
+                    <label class="switch">
+                        <input type="checkbox" {checkbox_checked} onclick="clickStreamlitCheckbox(); event.stopPropagation();">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Activate Model</span>
+                </div>
+            </div>
+            
+            <script>
+            function clickStreamlitButton() {{
+                const buttons = window.parent.document.querySelectorAll("button");
+                for (let btn of buttons) {{
+                    if (btn.innerText && btn.innerText.includes("BTN_CAMERA_CONTROL")) {{
+                        btn.click();
+                        break;
+                    }}
+                }}
+            }}
 
-            # 🟩 THANH ĐIỀU KHIỂN PHÍA DƯỚI (Đã tách độc lập ra ngoài lưới Grid Camera)
-            with ui.row().classes("w-full justify-between items-center bg-white p-4 rounded-xl shadow-sm mt-4"):
-                
-                # Nhãn hiển thị trạng thái động
-                status_label = ui.label("Đang hoạt động" if detector.is_active() else "Đã tạm dừng").classes("text-sm text-gray-500")
+            function clickStreamlitCheckbox() {{
+                const labels = window.parent.document.querySelectorAll("label");
+                for (let label of labels) {{
+                    if (label.innerText && label.innerText.includes("MODEL_TOGGLE_CONTROL")) {{
+                        label.click();
+                        break;
+                    }}
+                }}
+            }}
+            </script>
+        """, height=90)
 
-                # Cụm công tắc và Nhãn AI Network bên phải
-                with ui.row().classes("items-center gap-4"):
-                    with ui.column().classes("gap-0 items-end"):
-                        ui.label("TRÍ TUỆ NHÂN TẠO").classes("text-xs font-bold text-green-600")
-                        status_label_sub = ui.label("Đang hoạt động" if detector.is_active() else "Đã tạm dừng").classes("text-xs text-gray-400")
-                    
-                    # Nút gạt Switch gọi hàm
-                    ui.switch(value=detector.is_active(), on_change=toggle_ai).props("color=green")
-                
-        # ===== RIGHT: VIOLATION LOGS =====
-        with ui.column().classes("w-[30%] h-full bg-white rounded-3xl p-5 border border-gray-100 overflow-y-auto"):
-            ui.label("NHẬT KÝ VI PHẠM MỚI NHẤT").classes("text-xs font-black text-gray-400 tracking-widest mb-6")
-
-            for _ in range(3):
-                with ui.column().classes("w-full p-4 bg-gray-50 rounded-2xl mb-4 border border-gray-100"):
-                    ui.label("14:30:05").classes("text-xs font-mono text-gray-400")
-                    ui.label("Sử dụng tài liệu trái phép").classes("text-sm font-bold text-red-700 mb-3")
-                    ui.image("https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300").classes("rounded-xl mb-4 h-28 object-cover")
-
-                    with ui.row().classes("w-full gap-2"):
-                        ui.button("Xác nhận").props("flat dense").classes("bg-green-600 text-white flex-1 rounded-xl")
-                        ui.button("Báo sai").props("flat dense").classes("bg-gray-200 text-gray-600 flex-1 rounded-xl")
+    with main_col2:
+        st.subheader("NHẬT KÝ VI PHẠM")
+        get_message()
