@@ -3,8 +3,9 @@ from view.component.sidebar.admin import get_selection
 from view.component.header import show_header
 from view.pages.detector import show_detector
 from view.pages.logs import show_logs
+from view.pages.statistic_report import show_report 
 
-def show_dashboard():
+def show_admin_dashboard():
     show_header()
     col1, col2 = st.columns([1,4])
     with col1:
@@ -15,7 +16,7 @@ def show_dashboard():
         elif selected == "Nhật ký vi phạm":
             show_logs()
         elif selected == "Thống kê báo cáo":
-            st.title("Thống kê báo cáo")
+            show_report()
 
 
 

@@ -76,7 +76,6 @@ def show_sign_up():
         .stButton button:hover {
             transform: translateY(-1px);
         }
-
         </style>
     """,unsafe_allow_html=True,)
 
@@ -93,6 +92,7 @@ def show_sign_up():
             unsafe_allow_html=True,
         )
         c1, c2 = st.columns(2)
+        
         with c1:
             username = st.text_input(
                 "Họ và tên",
@@ -105,10 +105,7 @@ def show_sign_up():
                 ["Nam", "Nữ", "Khác"]
             )
 
-
-
         with c2:
-
             email = st.text_input(
                 "Email",
                 placeholder="example@vnua.edu.vn",
@@ -163,19 +160,21 @@ def show_sign_up():
             response = requests.post(
                 "http://localhost:8000/signup",
                 json={
+                    "username": username,
+                    "gender": gender,
                     "email": email,
-                    "password": password
+                    "phone": phone,
+                    "date": date,
+                    "password": password,
+                    "check_password": check_password
+                    
                 }
             )
-
             data = response.json()
 
             if data["success"]:
-
                 st.success("Đăng ký thành công")
-
                 st.session_state["page"] = "login"
-
                 st.rerun()
 
             else:

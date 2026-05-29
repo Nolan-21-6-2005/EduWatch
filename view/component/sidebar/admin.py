@@ -1,5 +1,5 @@
 from streamlit_option_menu import option_menu
-from style_option_menu import OPTION_MENU_STYLES
+from view.style.style_option_menu import OPTION_MENU_STYLES
 import streamlit as st
 
 def get_selection():
@@ -9,7 +9,7 @@ def get_selection():
     with top:
         selected = option_menu(
             None, [
-                "Tổng quan", "Yêu cầu phê duyệt", "Thống kê báo cáo", 'Settings'
+                "Giám sát trực tiếp", "Quản lý người dùng", "Thống kê báo cáo", 'Settings'
             ],
             icons = [
                 'camera-video', 'journal', 'bar-chart', 'gear'
@@ -23,7 +23,7 @@ def get_selection():
 
         col1, col2 = st.columns([1, 3])
         with col1:
-            st.image("avatar.jpg", width=50)
+            st.image("data_model/avatar/avatar.jpg", width=50)
         
         with col2:
             email = st.session_state['email']

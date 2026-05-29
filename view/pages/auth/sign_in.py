@@ -78,6 +78,7 @@ def show_sign_in():
             if data["success"]:
                 st.session_state["email"] = data["email"]
                 st.session_state["page"] = "dashboard"
+                st.session_state["role"] = data["role"]
                 st.rerun()
             else:
                 st.error("Sai thông tin đăng nhập")

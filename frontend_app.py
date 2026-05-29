@@ -1,7 +1,8 @@
 import streamlit as st
 from view.pages.auth.sign_in import show_sign_in
 from view.pages.auth.sign_up import show_sign_up
-from view.dashboards.supervision import show_dashboard
+from view.dashboards.admin import show_admin_dashboard
+from view.dashboards.supervision import show_supervision_dashboard
 
 st.set_page_config(
     layout="wide",
@@ -20,7 +21,10 @@ if 'page' not in st.session_state:
 if st.session_state['page'] == 'login':
     show_sign_in()
 elif st.session_state['page'] == 'dashboard':
-    show_dashboard()
+    if st.session_state['role'] == 0:
+        show_admin_dashboard()
+    elif st.session_state['role'] == 1:
+        show_supervision_dashboard
 elif st.session_state['page'] == 'signup':
     show_sign_up()
 else:

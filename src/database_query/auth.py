@@ -12,6 +12,8 @@ def signin(email: str):
     """, (email,))
     user = cursor.fetchone()
     
+    print("Dữ liệu user lấy ra:", user) 
+    
     conn.close()
     return user
     
