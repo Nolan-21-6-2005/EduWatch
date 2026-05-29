@@ -24,7 +24,7 @@ elif st.session_state['page'] == 'dashboard':
     if st.session_state['role'] == 0:
         show_admin_dashboard()
     elif st.session_state['role'] == 1:
-        show_supervision_dashboard
+        show_supervision_dashboard()
 elif st.session_state['page'] == 'signup':
     show_sign_up()
 else:

@@ -9,7 +9,7 @@ def get_selection():
     with top:
         selected = option_menu(
             None, [
-                "Giám sát trực tiếp", "Nhật ký vi phạm", "Thống kê báo cáo", 'Settings'
+                "Giám sát trực tiếp", "Nhật ký vi phạm", "Xuất biên bản", 'Settings'
             ],
             icons = [
                 'camera-video', 'journal', 'bar-chart', 'gear'
