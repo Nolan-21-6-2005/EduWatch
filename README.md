@@ -1,7 +1,6 @@
 ## Dự án web AI nhận diện hành vi
 ## Review
-
-![review.webm](file:///run/user/1000/doc/77a90e0/review.webm)
+Video nằm ở folder doc.
 
 ## Cài đặt github
 Gói cài đặt: https://git-scm.com/install/windows
