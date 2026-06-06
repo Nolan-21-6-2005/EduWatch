@@ -1,0 +1,7 @@
+Các thư viện cần có:
+- fastApi.
+- streamlit.
+- streamlit-option-menu.
+- ultralytics.
+- opencv.
+
