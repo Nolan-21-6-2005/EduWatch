@@ -1,26 +1,39 @@
-import cv2
 import time
-import hashlib
-import sqlite3
+import cv2
+import streamlit as st
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
-import numpy as np # Nhớ import thêm thư viện numpy ở đầu file nhé bạn
 from utils.model_path import getmodel_path
+from fastapi.responses import StreamingResponse
 from ultralytics import YOLO
+from utils.camera_config import (
+    latest_detections,
+    last_detect_time,
+    is_running,
+    is_active,
+    COOLDOWN,
+    placeholder_frame,
+)
+
 router = APIRouter()
 
-latest_detections = []
-last_detect_time = {}
-is_running = True
-is_active = False
-
-COOLDOWN = 5
-placeholder_frame = np.ones((480, 640, 3), dtype=np.uint8) * 43 # Màu xám tối (#2b2b2b)
-cv2.putText(placeholder_frame, "CAMERA IS OFF", (160, 250), 
-            cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 100), 2, cv2.LINE_AA)
-
-def display(frame):
+# === Ham lay model ===
+@st.cache_resource
+def get_model():
+    return YOLO(getmodel_path())
     
+# === Ham ket noi camera ===
+@st.cache_resource
+def get_camera():
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print("Không tìm thấy camera")
+        return None
+    
+    return cap
+
+# === Ham hien thi khung hinh ===
+def display(frame):
     _, buffer = cv2.imencode('.jpg', frame)
     frame_bytes = buffer.tobytes()
 
@@ -31,24 +44,15 @@ def display(frame):
         b'\r\n'
     )
 
+cap = get_camera()
+model = get_model()
 
-model = YOLO(getmodel_path())
-def get_camera():
-    cap = cv2.VideoCapture(0)
-
-    if not cap.isOpened():
-        print("Không tìm thấy camera")
-        return None
-
-    return cap
-
+# === Ham nhan dien doi tuong === 
 def gen_frames(latest_detections, last_detect_time):
     try:
-        cap = get_camera()
-        
         while True:
             success, frame = cap.read()
-
+            
             if not success:
                 yield display(placeholder_frame)
                 time.sleep(0.1)
@@ -88,6 +92,7 @@ def gen_frames(latest_detections, last_detect_time):
     except Exception as e:
         print("ERROR:", e)
 
+#=== Backend FastAPI ===
 @router.get("/video")
 def video_feed():
     return StreamingResponse(

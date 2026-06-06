@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(layout="wide", page_title="Nhật ký vi phạm")
+
 def show_logs():
     # --- CONFIG TRANG (Đặt ở đầu file) ---
-    st.set_page_config(layout="wide", page_title="EduWatch VNUA - Nhật ký vi phạm")
 
     # --- 1. CHÈN CSS ĐỂ LÀM ĐẸP GIAO DIỆN (Nền xám nhạt, bo góc bộ lọc, màu sắc nút bấm) ---
 
@@ -26,12 +27,12 @@ def show_logs():
         st.write("")  # Tạo khoảng cách dọc nhẹ
         exp_col1, exp_col2, exp_col3 = st.columns([1, 1, 1])
         with exp_col1:
-            st.button("📊 XUẤT CSV", use_container_width=True)
+            st.button(":material/bar_chart: XUẤT CSV", width='content')
         with exp_col2:
-            st.button(":material/picture_as_pdf: XUẤT PDF", use_container_width=True)
+            st.button(":material/picture_as_pdf: XUẤT PDF", width='content')
         with exp_col3:
             # Nút chính màu xanh lam nổi bật
-            st.button("🗂️ XUẤT EXCEL", type="primary", use_container_width=True)
+            st.button(":material/table_view: XUẤT EXCEL", type="primary", width='content')
 
 
     # --- 3. KHU VỰC THÀNH PHẦN BỘ LỌC (FILTER BAR) ---
@@ -45,29 +46,32 @@ def show_logs():
         search_query = st.text_input(
             label="Tìm kiếm", placeholder="Tìm kiếm...", label_visibility="collapsed"
         )
+
     with filter_col2:
         time_filter = st.selectbox(
             "Thời gian",
             ["Hôm nay", "Hôm qua", "7 ngày qua", "Tháng này"],
             label_visibility="collapsed",
         )
+
     with filter_col3:
         building_filter = st.selectbox(
             "Tòa nhà",
             ["Giảng đường Nguyễn Đăng - ND.202", "Giảng đường Alpha", "Nhà hành chính"],
             label_visibility="collapsed",
         )
+
     with filter_col4:
         room_filter = st.selectbox(
             "Phòng", ["ND.202", "ND.101", "ND.305"], label_visibility="collapsed"
         )
+
     with filter_col5:
         type_filter = st.selectbox(
             "Loại vi phạm",
             ["Tất cả", "Phá hoại cơ sở vật chất", "Trao đổi bài", "Sử dụng điện thoại"],
             label_visibility="collapsed",
         )
-
 
     # --- 4. DANH SÁCH DỮ LIỆU VI PHẠM (HIỂN THỊ DẠNG LIST CHUYÊN NGHIỆP) ---
     st.write("")
@@ -83,6 +87,7 @@ def show_logs():
             "confidence": "65%",
             "img_placeholder": "https://via.placeholder.com/50x30/1a3a2a/ffffff?text=Evidence",
         },
+
         {
             "id": 2,
             "title": "Trao đổi bài",
@@ -92,6 +97,7 @@ def show_logs():
             "confidence": "82%",
             "img_placeholder": "https://via.placeholder.com/50x30/1a3a2a/ffffff?text=Evidence",
         },
+        
         {
             "id": 1,
             "title": "Sử dụng điện thoại",
@@ -148,7 +154,7 @@ def show_logs():
                 proof_col1, proof_col2 = st.columns([1, 1])
                 with proof_col1:
                     # Giả lập hộp đen/ảnh cắt bằng chứng camera từ hệ thống AI
-                    st.image(item["img_placeholder"], use_container_width=True)
+                    st.image(item["img_placeholder"], width = 'content')
                 with proof_col2:
                     st.markdown(
                         f"<p class='confidence-tag' style='margin-top: 5px;'>{item['confidence']}</p>",
@@ -161,11 +167,11 @@ def show_logs():
                 with btn_col1:
                     # Mỗi dòng truyền kèm một key duy nhất (dựa trên ID) để tránh xung đột nút bấm
                     if st.button(
-                        "DUYỆT", key=f"accept_{item['id']}", use_container_width=True
+                        "DUYỆT", key=f"accept_{item['id']}", width = 'content'
                     ):
                         st.success(f"Đã duyệt vi phạm số #{item['id']}")
                 with btn_col2:
                     if st.button(
-                        "BÁO SAI", key=f"reject_{item['id']}", use_container_width=True
+                        "BÁO SAI", key=f"reject_{item['id']}", width = 'content'
                     ):
                         st.error(f"Đã báo sai AI dòng số #{item['id']}")

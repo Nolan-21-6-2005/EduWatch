@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 #from src.services.camera_services import
 from fastapi.middleware.cors import CORSMiddleware
-from src.router.login_router import router as login_router
-from src.router.camera_router import router as camera_router
+from src.backend.login_router import router as login_router
+from src.backend.camera_router import router as camera_router
 
 app = FastAPI()
 

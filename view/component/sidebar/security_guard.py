@@ -3,22 +3,23 @@ from view.component.footer import show_footer
 from view.style.style_option_menu import OPTION_MENU_STYLES
 import streamlit as st
 
-def get_selection():
+def get_security_selection():
     top = st.container()
     bottom = st.container()
         
     with top:
         selected = option_menu(
             None, [
-                "Thống kê báo cáo", "Giám sát trực tiếp", "Nhật ký vi phạm", "Quản lý người dùng", "Danh sách tòa nhà"
+                "Giám sát an ninh", "Trạng thái thiết bị", "Báo cáo sự cố"
             ],
             icons = [
-                'bar-chart', 'camera-video', 'journal', 'people', 'building'
+                'shield-check', 'cpu', 'exclamation-triangle'
             ], 
             menu_icon="cast", 
             default_index=0,
             styles = OPTION_MENU_STYLES,
         )
+        
     with bottom:
         st.markdown("---")
 

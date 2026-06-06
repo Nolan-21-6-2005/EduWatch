@@ -1,0 +1,99 @@
+/* ===== GLOBAL ===== */
+* {
+  box-sizing:border-box;
+}
+
+html,
+body,
+.stApp {
+  background:#0B0E14;
+  overflow-x:hidden;
+}
+
+[data-testid="stHeader"] {
+  display:none;
+}
+
+/* 1. Căn chỉnh text nhãn của Toggle */
+[data-testid="stCheckbox"] label p {
+  font-size: 1.2rem !important;
+  width: 200px;
+  margin-bottom: 0px; /* Tránh lệch dòng */
+}
+
+/* === Nút toggle === */
+/* 2. Cấu hình thanh trượt (Track) */
+[data-testid="stCheckbox"] [data-baseweb="checkbox"] > div:first-child {
+  height: 2.2rem !important;
+  width: 3.5rem !important;
+  display: flex;
+  align-items: center; /* Căn giữa nút tròn theo chiều dọc */
+  padding: 0 7px;      /* Khoảng cách đệm 2 đầu thanh trượt */
+}
+
+/* 3. Cấu hình nút tròn gạt (Thumb) */
+[data-testid="stCheckbox"] [data-baseweb="checkbox"] > div:first-child > div {
+  height: 1.6rem !important;  /* Nhỏ hơn chiều cao track một chút để cân bằng */         
+  width: 1.6rem !important;
+  top: unset !important;       /* Reset lại vị trí tuyệt đối mặc định */
+  left: unset !important;
+}
+/* ===== CARD ===== */
+
+.card {
+    background:#161B22;
+    border:1px solid #21262D;
+    border-radius:12px;
+    padding:20px;
+}
+
+/* ===== BUTTON ===== */
+
+.stButton>button {
+    border-radius:10px;
+    font-weight:600;
+    min-height:42px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tạo lưới 2x2 bằng CSS Grid */
+.camera-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr); /* 2 cột bằng nhau */
+	gap: 12px; /* Khoảng cách giữa các ô */
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/* Định dạng chung cho từng hộp camera */
+.camera-box {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 4 / 3; /* Cố định tỷ lệ khung hình 4:3 cho cả 4 ô */
+	background-color: #1e1e1e;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Ép ảnh/video phủ kín hộp */
+.camera-box img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Nhãn đè lên góc camera cho chuyên nghiệp giống app camera thực tế */
+.camera-label {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	background: rgba(0, 0, 0, 0.6);
+	color: #fff;
+	padding: 2px 8px;
+	font-family: sans-serif;
+	font-size: 12px;
+	border-radius: 4px;
+	pointer-events: none;
+}

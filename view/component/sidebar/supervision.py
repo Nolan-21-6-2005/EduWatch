@@ -1,4 +1,5 @@
 from streamlit_option_menu import option_menu
+from view.component.footer import show_footer
 from view.style.style_option_menu import OPTION_MENU_STYLES
 import streamlit as st
 
@@ -9,10 +10,10 @@ def get_selection():
     with top:
         selected = option_menu(
             None, [
-                "Giám sát trực tiếp", "Nhật ký vi phạm", "Xuất biên bản", 'Settings'
+                "Giám sát trực tiếp", "Nhật ký vi phạm", "Xuất biên bản"
             ],
             icons = [
-                'camera-video', 'journal', 'bar-chart', 'gear'
+                'camera-video', 'journal', 'bar-chart'
             ], 
             menu_icon="cast", 
             default_index=0,
@@ -21,20 +22,7 @@ def get_selection():
         
     with bottom:
         st.markdown("---")
-        signout = st.button("Đăng xuất", width="stretch")
 
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image("data_model/avatar/avatar.jpg", width=50)
-        
-        with col2:
-            email = st.session_state['email']
-            role = st.session_state['role']
-            st.markdown(email)
-            st.caption(role)
-
-    if signout:
-        st.session_state['page'] = 'login'
-        st.rerun()
+        show_footer()
     return selected
 
