@@ -1,5 +1,4 @@
 async function loadDetections() {
-
     console.log("FETCHING...");
 
     let response = await fetch(

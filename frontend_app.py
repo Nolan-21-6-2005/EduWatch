@@ -10,8 +10,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-if 'email' not in st.session_state:
-    st.session_state['email'] = ''
+if 'professor_id' not in st.session_state:
+    st.session_state['professor_id'] = ''
 
 if 'role' not in st.session_state:
     st.session_state['role'] = ''

@@ -1,5 +1,5 @@
 import streamlit as st
-from src.frontend.camera_controller import (
+from src.frontend.camera_request import (
     connect_camera,
     start_camera,
     activate_camera,

@@ -1,4 +1,5 @@
 import streamlit as st
+from src.frontend.camera_request import connect_camera
 
 st.set_page_config(layout="wide", page_title="EduWatch VNUA - Bảo vệ")
 
@@ -33,50 +34,7 @@ def show_security_detector():
             
         st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
 
-        # Khởi tạo ma trận lưới 2x2 để hiển thị 4 góc Camera
-        grid_row1_col1, grid_row1_col2 = st.columns(2)
-        grid_row2_col1, grid_row2_col2 = st.columns(2)
-
-        # --- CAMERA 01: BÀN GIÁO VIÊN ---
-        with grid_row1_col1:
-            st.markdown("""
-                <div class="cam-box cam-bg-wood">
-                    <div class="cam-badge-title">Cam 01 - Bàn giáo viên</div>
-                    <div class="cam-badge-status status-live">TRỰC TIẾP</div>
-                    <div class="cam-info-footer">FPS: 30<br>Độ trễ: 12ms</div>
-                </div>
-            """, unsafe_allow_html=True)
-
-        # --- CAMERA 02: CUỐI LỚP ---
-        with grid_row1_col2:
-            st.markdown("""
-                <div class="cam-box cam-bg-gray">
-                    <div class="cam-badge-title">Cam 02 - Cuối lớp</div>
-                    <div class="cam-badge-status status-live">TRỰC TIẾP</div>
-                    <div class="cam-info-footer">FPS: 30<br>Độ trễ: 12ms</div>
-                </div>
-            """, unsafe_allow_html=True)
-
-        # --- CAMERA 03: CỬA CHÍNH ---
-        with grid_row2_col1:
-            st.markdown("""
-                <div class="cam-box cam-bg-brown">
-                    <div class="cam-badge-title">Cam 03 - Cửa chính</div>
-                    <div class="cam-badge-status status-live">TRỰC TIẾP</div>
-                    <div class="cam-info-footer">FPS: 30<br>Độ trễ: 12ms</div>
-                </div>
-            """, unsafe_allow_html=True)
-
-        # --- CAMERA 04: CỬA PHỤ (TRẠNG THÁI NGHỈ / TẮT) ---
-        with grid_row2_col2:
-            st.markdown("""
-                <div class="cam-box cam-bg-dark">
-                    <div class="cam-badge-title">Cam 04 - Cửa phụ</div>
-                    <div class="cam-badge-status status-idle">NGHỈ</div>
-                    <div class="cam-info-footer">FPS: 30<br>Độ trễ: 12ms</div>
-                </div>
-            """, unsafe_allow_html=True)
-
+        connect_camera()
     # ------------------------------------------
     # CỘT 3: PANEL TRẠNG THÁI CAMERA (BÊN PHẢI)
     # ------------------------------------------

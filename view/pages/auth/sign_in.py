@@ -3,7 +3,7 @@ import sqlite3
 import sys
 import requests
 from pathlib import Path
-
+from src.frontend.login_request import request_login
 
 def show_sign_in():
     # --- CAN THIỆP TRỰC TIẾP VÀO HỆ THỐNG STREAMLIT ĐỂ ÉP CO TRANG ---
@@ -59,31 +59,18 @@ def show_sign_in():
         with st.container(border=True):
             st.markdown("<h3 style='text-align: center; color: white; margin-bottom: 25px; font-weight: 600;'>Đăng nhập hệ thống</h3>", unsafe_allow_html=True)
             
-            email = st.text_input("Email:")
-            password = st.text_input("Password:", type="password")
+            professor_id = st.text_input("Mã giảng viên:")
+            password = st.text_input("Mật khẩu:", type="password")
             
             st.write("") # Khoảng cách nhỏ
             
             # Các nút bấm kéo giãn vừa khung
-            sign_in = st.button("Đăng nhập", use_container_width=True, type="primary")
-            sign_up = st.button("Đăng ký", use_container_width=True)
+            sign_in = st.button("Đăng nhập", width="stretch", type="primary")
+            sign_up = st.button("Đăng ký", width="stretch")
 
     # --- XỬ LÝ LOGIC SỰ KIỆN ---
     if sign_in:
-        try:
-            response = requests.post(
-                "http://localhost:8000/login", json={"email": email, "password": password}
-            )
-            data = response.json()
-            if data["success"]:
-                st.session_state["email"] = data["email"]
-                st.session_state["page"] = "dashboard"
-                st.session_state["role"] = data["role"]
-                st.rerun()
-            else:
-                st.error("Sai thông tin đăng nhập")
-        except Exception as e:
-            st.error("Không thể kết nối đến Server dịch vụ Backend.")
+        request_login(professor_id, password)
 
     if sign_up:
         st.session_state["page"] = "signup"

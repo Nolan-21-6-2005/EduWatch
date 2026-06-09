@@ -1,22 +1,22 @@
 import hashlib
 from pydantic import BaseModel
-from src.database_query.auth import signin
+from src.database_query.auth import login
 from fastapi import APIRouter
 
 router = APIRouter()
 
 class LoginData(BaseModel):
-    email: str
+    professor_id: str
     password: str
 
 @router.post("/login")
-def login(data: LoginData):
+def log_in(data: LoginData):
     try:
         input_hash = hashlib.sha256(
             data.password.encode()
         ).hexdigest()
         
-        user = signin(data.email)
+        user = login(data.professor_id)
         if not user:
             return {
             "success": False,
@@ -27,7 +27,7 @@ def login(data: LoginData):
         if input_hash == stored_hash:
             return {
                 "success": True,
-                "email": user[1],
+                "professor_id": user[1],
                 "role": user[3]
             }
         else:

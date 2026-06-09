@@ -1,5 +1,6 @@
 import streamlit as st
-import requests
+from datetime import datetime
+from src.frontend.signup_request import request_signup
 
 def show_sign_up():
     st.markdown("""
@@ -94,13 +95,19 @@ def show_sign_up():
         c1, c2 = st.columns(2)
         
         with c1:
-            username = st.text_input(
+            professor_id = st.text_input(
+                "Mã giảng viên",
+                placeholder="GV000",
+                icon=":material/badge:"
+            )
+
+            ho_ten = st.text_input(
                 "Họ và tên",
                 placeholder="Nguyễn Văn A",
                 icon=":material/person:"
             )
 
-            gender = st.selectbox(
+            gioi_tinh = st.selectbox(
                 "Giới tính",
                 ["Nam", "Nữ", "Khác"]
             )
@@ -112,15 +119,15 @@ def show_sign_up():
                 icon=":material/mail:"
             )
 
-            phone = st.text_input(
+            so_dien_thoai = st.text_input(
                 "Số điện thoại",
                 placeholder="0987xxxxxx",
                 icon=":material/call:"
             )
 
-        date = st.date_input(
-            "Ngày sinh",
-        )
+            ngay_sinh = st.date_input(
+                "Ngày sinh",
+            )
 
         password = st.text_input(
             "Mật khẩu",
@@ -156,32 +163,15 @@ def show_sign_up():
         if password != check_password:
             st.error("Mật khẩu không khớp")
             return
-        try:
-            response = requests.post(
-                "http://localhost:8000/signup",
-                json={
-                    "username": username,
-                    "gender": gender,
-                    "email": email,
-                    "phone": phone,
-                    "date": date,
-                    "password": password,
-                    "check_password": check_password
-                    
-                }
-            )
-            data = response.json()
-
-            if data["success"]:
-                st.success("Đăng ký thành công")
-                st.session_state["page"] = "login"
-                st.rerun()
-
-            else:
-                st.error("Email hoặc số điện thoại đã tồn tại")
-
-        except Exception:
-            st.error("Không thể kết nối đến Backend Server")
+        created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        status = 0
+        role = -1
+        anh_dai_dien = "data_model/avatars/default.png"
+        
+        request_signup(professor_id, role, password, 
+                       ho_ten, ngay_sinh, gioi_tinh, 
+                       email, so_dien_thoai, anh_dai_dien, 
+                       created_at, status)
 
     # =========================
     # BACK LOGIN

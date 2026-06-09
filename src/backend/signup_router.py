@@ -1,38 +1,68 @@
-import hashlib
-from auth import signin
 from fastapi import APIRouter
 from pydantic import BaseModel
-from auth import signup
-from fastapi import APIRouter
+from src.database_query.auth import signup
+from datetime import datetime
+import hashlib
+import traceback
+import re
 
 router = APIRouter()
 
-class LoginData(BaseModel):
-    username: str
+class signupData(BaseModel):
+    professor_id: str
     password: str
+    role: int
+    ho_ten: str
+    ngay_sinh: str
+    gioi_tinh: str
     email: str
-    gender: str
-    phone: str
-    date: str
-    role: str
-    
+    so_dien_thoai: str
+    anh_dai_dien: str
+    created_at: str
+    status: int
+
+#Kiểm tra độ mạnh của mật khẩu
+def is_strong_password(password):
+    return (
+        len(password) >= 8 and
+        re.search(r"[A-Z]", password) and      # chữ hoa
+        re.search(r"[a-z]", password) and      # chữ thường
+        re.search(r"[0-9]", password) and      # số
+        re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)  # ký tự đặc biệt
+    )
+
 @router.post("/signup")
-def login(data: LoginData):
+def sign_up(data: signupData):
     try:
+        if is_strong_password(data.password):
         
-        user = signup(
-            data.username,
-            data.password,
-            data.email,
-            data.gender,
-            data.phone,
-            data.date,
-            data.role
-        )
-        if not user:
+            password_hash = hashlib.sha256(
+                data.password.encode()
+            ).hexdigest()
+
+            user = signup(
+                data.professor_id,
+                password_hash,
+                data.role,
+                data.ho_ten,
+                data.ngay_sinh,
+                data.gioi_tinh,
+                data.email,
+                data.so_dien_thoai,
+                data.anh_dai_dien,
+                data.created_at,
+                data.status,
+            )
+
+            if user:
+                return {
+                    "success": True,
+                    "message": "Đăng ký thành công",
+                }
+        else: 
             return {
                 "success": False,
-                "message": "User not found"
+                "message": "Mật khẩu chưa hợp lệ"
             }
-        
-        
+    except Exception as e:
+        print(traceback.format_exc())    
