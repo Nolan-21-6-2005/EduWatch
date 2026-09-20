@@ -1,102 +1,54 @@
+import base64
+import sqlite3
+from pathlib import Path
+
 import streamlit as st
+
+from utils.database_path import getdatabase_path
+from view.component.admin_table import render_admin_table
 
 st.set_page_config(layout="wide", page_title="Quản lý người dùng")
 
-def show_user():
 
-    st.subheader("Quản lý người dùng")
-    st.caption(
-        "Theo dõi tài khoản EduWatch VNUA. Admin có thể đổi vai trò hoặc khóa tài khoản."
+def show_user():
+    st.markdown(
+        """
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Quản lý người dùng</h1>
+                <p class="page-header-subtitle">Theo dõi tài khoản EduWatch VNUA, vai trò và trạng thái hoạt động.</p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+
+    with sqlite3.connect(getdatabase_path()) as conn:
+        db_users = conn.execute(
+            """
+            SELECT id, ma_giang_vien, ho_ten, so_dien_thoai, role, status
+            FROM Users
+            ORDER BY id
+            """
+        ).fetchall()
+
+    default_avatar = Path(__file__).resolve().parents[3] / "data_model" / "avatar" / "default.jpg"
+    avatar_data = ""
+    if default_avatar.exists():
+        encoded = base64.b64encode(default_avatar.read_bytes()).decode("ascii")
+        avatar_data = f"data:image/jpeg;base64,{encoded}"
 
     users = [
         {
-            "id": 1,
-            "name": "Bảo vệ Nguyễn Đăng",
-            "phone": "0900000003",
-            "username": "BV01",
-            "role": "Bảo vệ",
-        },
-        {
-            "id": 2,
-            "name": "Nguyễn Văn A",
-            "phone": "0900000002",
-            "username": "GV123",
-            "role": "Giảng viên",
-        },
-        {
-            "id": 3,
-            "name": "Admin VNUA",
-            "phone": "0900000001",
-            "username": "AD01",
-            "role": "Admin",
-        },
+            "id": row[0],
+            "name": row[2],
+            "phone": row[3] or "",
+            "username": row[1],
+            "role": row[4],
+            "status": row[5],
+            "avatar": avatar_data,
+        }
+        for row in db_users
     ]
 
-    # Header
-    header = st.columns([0.6, 2.2, 1.8, 1.5, 1.2, 1.5, 1])
-
-    headers = [
-        "STT",
-        "Họ tên",
-        "SĐT",
-        "Tài khoản",
-        "Chi tiết",
-        "Vai trò",
-        "Tùy chọn",
-    ]
-
-    for col, title in zip(header, headers):
-        with col:
-            st.caption(f"**{title}**")
-
-    # Rows
-    for user in users:
-
-        with st.container(border=True):
-
-            cols = st.columns([0.6, 2.2, 1.8, 1.5, 1.2, 1.5, 1])
-
-            cols[0].write(user["id"])
-            cols[1].write(user["name"])
-            cols[2].write(user["phone"])
-            cols[3].write(user["username"])
-
-            with cols[4]:
-                if st.button(
-                    "Chi tiết",
-                    key=f"detail_{user['id']}"
-                ):
-                    st.session_state.selected_user = user
-
-            with cols[5]:
-                role = st.selectbox(
-                    "Role",
-                    ["Bảo vệ", "Giảng viên", "Admin"],
-                    index=[
-                        "Bảo vệ",
-                        "Giảng viên",
-                        "Admin",
-                    ].index(user["role"]),
-                    label_visibility="collapsed",
-                    key=f"role_{user['id']}"
-                )
-
-            with cols[6]:
-
-                with st.popover("⋮"):
-
-                    st.button(
-                        "Khóa tài khoản",
-                        key=f"lock_{user['id']}"
-                    )
-
-                    st.button(
-                        "Đặt lại mật khẩu",
-                        key=f"reset_{user['id']}"
-                    )
-
-                    st.button(
-                        "Xóa",
-                        key=f"delete_{user['id']}"
-                    )
+    render_admin_table("users", users, height=620)

@@ -1,27 +1,26 @@
-# Cấu hình giao diện cho streamlit-option-menu
+# Giữ tương thích nếu project còn sử dụng streamlit-option-menu ở nơi khác.
+# Phong cách đồng bộ với giao diện Medcare: nền trắng, bo góc mềm,
+# trạng thái chọn dùng xanh dương, màu nhận diện chính vẫn là xanh EduWatch.
 OPTION_MENU_STYLES = {
-    # Bỏ nền menu
     "container": {
-        "padding": "0!important",
+        "padding": "4px!important",
         "background-color": "transparent",
     },
-    # Icon
     "icon": {
-        "font-size": "20px",
-        "color": "#43b581",
-    },
-    # Item thường
-    "nav-link": {
         "font-size": "18px",
-        "text-align": "left",
-        "margin": "4px 0px",
-        "padding": "12px 16px",
-        "border-radius": "12px",
-        "background-color": "transparent",
+        "color": "#7B8794",
     },
-    # Item được chọn
+    "nav-link": {
+        "font-size": "14px",
+        "text-align": "left",
+        "margin": "3px 0px",
+        "padding": "10px 12px",
+        "border-radius": "11px",
+        "background-color": "transparent",
+        "color": "#687483",
+    },
     "nav-link-selected": {
-        "background-color": "#43b581",
-        "color": "white",
+        "background-color": "#EDF4FF",
+        "color": "#3478F6",
     },
 }

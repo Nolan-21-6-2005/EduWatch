@@ -1,7 +1,6 @@
-Các thư viện cần có:
-- fastApi.
-- streamlit.
-- streamlit-option-menu.
-- ultralytics.
-- opencv.
-
+fastapi
+streamlit
+streamlit-navigation-bar
+ultralytics
+opencv-python
+requests

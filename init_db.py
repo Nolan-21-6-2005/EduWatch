@@ -1,19 +1,19 @@
 import sqlite3
 import os
 import hashlib
+from pathlib import Path
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def init_db():
-    db_dir = 'data'
-    db_path = os.path.join(db_dir, 'eduwatch.db')
+    db_dir = Path(__file__).resolve().parent / 'data_model'
+    db_path = db_dir / 'eduwatch.db'
 
-    if not os.path.exists(db_dir):
-        os.makedirs(db_dir)
+    db_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(str(db_path))
         c = conn.cursor()
         c.execute("PRAGMA foreign_keys = ON;")
 
@@ -62,7 +62,13 @@ def init_db():
             image_path TEXT, 
             confidence REAL, 
             is_confirmed INTEGER DEFAULT 0,
+            review_status TEXT DEFAULT 'pending',
             FOREIGN KEY(camera_id) REFERENCES Cameras(id) ON DELETE SET NULL)''')
+
+        # Tương thích với database cũ: bổ sung trạng thái duyệt nếu bảng đã tồn tại.
+        columns = [row[1] for row in c.execute("PRAGMA table_info(Violation_Logs)").fetchall()]
+        if "review_status" not in columns:
+            c.execute("ALTER TABLE Violation_Logs ADD COLUMN review_status TEXT DEFAULT 'pending'")
 
         # 4. Bang System_Requests
         c.execute('''CREATE TABLE IF NOT EXISTS System_Requests
@@ -93,6 +99,23 @@ def init_db():
                 for cam in cams:
                     c.execute("INSERT OR IGNORE INTO Cameras (room_id, vi_tri_goc, video_source) VALUES (?, ?, ?)", 
                               (cam[0], cam[1], f"data/videos/sample_{i}.mp4"))
+
+        # Dữ liệu mẫu cho panel nhật ký vi phạm. Chỉ thêm khi database chưa có log.
+        violation_count = c.execute("SELECT COUNT(*) FROM Violation_Logs").fetchone()[0]
+        if violation_count == 0:
+            sample_image = "data_model/evidence/review_frame.jpg"
+            sample_logs = [
+                (61, "Sử dụng tài liệu trái phép", "2026-09-19 14:30:05", sample_image, 0.985, 0, "pending"),
+                (62, "Trao đổi bài", "2026-09-19 14:28:12", sample_image, 0.721, 0, "pending"),
+                (63, "Sử dụng điện thoại", "2026-09-19 14:24:37", sample_image, 0.913, 0, "pending"),
+                (64, "Rời khỏi vị trí", "2026-09-19 14:20:11", sample_image, 0.874, 0, "pending"),
+            ]
+            c.executemany(
+                """INSERT INTO Violation_Logs
+                (camera_id, loai_vi_pham, thoi_gian, image_path, confidence, is_confirmed, review_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                sample_logs,
+            )
 
         # Tai khoan mau voi Ma Giang Vien
         users = [

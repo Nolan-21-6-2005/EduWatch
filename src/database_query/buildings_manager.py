@@ -2,14 +2,14 @@ from utils.database_path import getdatabase_path
 from pathlib import Path
 import sqlite3
 
-def get_buildings(building_id):
+def get_buildings():
     conn = sqlite3.connect(getdatabase_path())
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id ten_toa FROM Buildings
-        WHERE is_deleted = ? AND id = ?
-    """, (0, building_id))
+        SELECT id, ten_toa FROM Buildings
+        WHERE is_deleted = ?
+    """, (0, ))
     building = cursor.fetchall()
     print("Dữ liệu user lấy ra:", building) 
     
@@ -37,8 +37,8 @@ def get_cameras(room_id: int):
 
     cursor.execute("""
         SELECT id, vi_tri_goc FROM Cameras
-        WHERE is_deleted = ? AND 
-    """, (0, building_id))
+        WHERE status = ? AND room_id = ? 
+    """, (1, room_id))
     
     camera = cursor.fetchall()
     print("Dữ liệu user lấy ra:", camera) 

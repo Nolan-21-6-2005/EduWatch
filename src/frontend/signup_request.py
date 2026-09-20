@@ -34,7 +34,6 @@ def request_signup(professor_id, role, password,
         st.write("JSON:", data)
         
         if data["success"]:
-            st.session_state["page"] = "login"
             st.rerun()
         else:
             st.error("Lỗi")

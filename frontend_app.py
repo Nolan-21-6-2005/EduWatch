@@ -1,32 +1,52 @@
 import streamlit as st
-from view.pages.auth.sign_in import show_sign_in
-from view.pages.auth.sign_up import show_sign_up
-from view.dashboards.admin import show_admin_dashboard
-from view.dashboards.supervision import show_supervision_dashboard
-from view.dashboards.security_guard import show_security_dashboard 
+
+from helper.script_loader import load_file
+from view.component.footer import show_footer
+from view.component.topbar import show_topbar
+from view.navigation import SIGN_IN_PAGE, SIGN_UP_PAGE, get_pages_for_role
+
 
 st.set_page_config(
+    page_title="EduWatch",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded",
 )
 
-if 'professor_id' not in st.session_state:
-    st.session_state['professor_id'] = ''
+css = load_file("view/style/style.css")
+st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
-if 'role' not in st.session_state:
-    st.session_state['role'] = ''
 
-if 'page' not in st.session_state:
-    st.session_state['page'] = 'login'
+# professor_id và role là trạng thái đăng nhập duy nhất cần giữ.
+# Không cần session_state["page"] nữa vì st.navigation quản lý trang.
+if "professor_id" not in st.session_state:
+    st.session_state["professor_id"] = ""
 
-if st.session_state['page'] == 'login':
-    show_sign_in()
-elif st.session_state['page'] == 'dashboard':
-    match st.session_state['role']:
-        case 0: show_admin_dashboard()
-        case 1: show_supervision_dashboard()
-        case 2: show_security_dashboard()
-elif st.session_state['page'] == 'signup':
-    show_sign_up()
+if "role" not in st.session_state:
+    st.session_state["role"] = ""
+
+
+logged_in = bool(st.session_state["professor_id"]) and st.session_state["role"] in (0, 1, 2)
+
+if logged_in:
+
+    show_topbar()
+
+    # Logo được đặt ở entrypoint, trước st.navigation().
+    # st.logo() sẽ tự hiển thị logo trong sidebar và dùng icon_image khi sidebar thu gọn.
+    logo_path = "view/asset/eduwatch_logo.png"
+    icon_path = "view/asset/eduwatch_icon.png"
+    st.logo(logo_path, size="large", icon_image=icon_path)
+
+    # Navigation tự tạo menu trong sidebar.
+    pages = get_pages_for_role(st.session_state["role"])
+    pg = st.navigation(pages, position="sidebar", expanded=True)
+
+    # Footer nằm dưới menu navigation.
+    show_footer()
 else:
-    st.error("Page not found")
+    # Khi chưa đăng nhập, chỉ cho phép đi giữa Đăng nhập và Đăng ký.
+    pg = st.navigation(
+        [SIGN_IN_PAGE, SIGN_UP_PAGE],
+        position="hidden",
+    )
+pg.run()

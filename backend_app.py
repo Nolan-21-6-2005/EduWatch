@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.backend.login_router import router as login_router
 from src.backend.signup_router import router as signup_router
 from src.backend.camera_router import router as camera_router
+from src.backend.violation_router import router as violation_router
 
 app = FastAPI()
 
@@ -21,4 +22,5 @@ app.add_middleware(
 app.include_router(login_router)
 app.include_router(signup_router)
 app.include_router(camera_router)
+app.include_router(violation_router)
 
