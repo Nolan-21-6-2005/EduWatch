@@ -33,10 +33,11 @@ git commit -m "message"
 ## Đẩy file
 
 ```
-git push
+git push -u origin master
 ```
 ## Cách chạy
 
 ```
-python app.py
+uvicorn backend_app:app
+streamlit run frontend_app.py
 ```
