@@ -100,22 +100,8 @@ def init_db():
                     c.execute("INSERT OR IGNORE INTO Cameras (room_id, vi_tri_goc, video_source) VALUES (?, ?, ?)", 
                               (cam[0], cam[1], f"data/videos/sample_{i}.mp4"))
 
-        # Dữ liệu mẫu cho panel nhật ký vi phạm. Chỉ thêm khi database chưa có log.
-        violation_count = c.execute("SELECT COUNT(*) FROM Violation_Logs").fetchone()[0]
-        if violation_count == 0:
-            sample_image = "data_model/evidence/review_frame.jpg"
-            sample_logs = [
-                (61, "Sử dụng tài liệu trái phép", "2026-09-19 14:30:05", sample_image, 0.985, 0, "pending"),
-                (62, "Trao đổi bài", "2026-09-19 14:28:12", sample_image, 0.721, 0, "pending"),
-                (63, "Sử dụng điện thoại", "2026-09-19 14:24:37", sample_image, 0.913, 0, "pending"),
-                (64, "Rời khỏi vị trí", "2026-09-19 14:20:11", sample_image, 0.874, 0, "pending"),
-            ]
-            c.executemany(
-                """INSERT INTO Violation_Logs
-                (camera_id, loai_vi_pham, thoi_gian, image_path, confidence, is_confirmed, review_status)
-                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                sample_logs,
-            )
+        # Không seed dữ liệu vi phạm giả.
+        # Violation_Logs chỉ nhận dữ liệu từ pipeline phát hiện thật của backend.
 
         # Tai khoan mau voi Ma Giang Vien
         users = [

@@ -1,0 +1,19 @@
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1100px) {
+  .page-header { align-items: flex-start; flex-direction: column; }
+  .camera-grid { height: 580px; }
+  .camera-box.selected { height: 580px; }
+}
+
+@media (max-width: 720px) {
+  h1 { font-size: 1.55rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  section.main > div[data-testid="stMainBlockContainer"],
+  [data-testid="stAppViewContainer"] .main .block-container {
+    padding: 1rem 0.75rem 1.5rem !important;
+  }
+  .camera-grid { height: 420px; gap: 9px; }
+  .camera-box.selected { height: 420px; }
+}

@@ -1,0 +1,455 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    overflow-x: hidden;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+.camera-shell {
+    width: 100%;
+    padding: 0 0 8px;
+    box-sizing: border-box;
+}
+
+/* ---------- Header phòng: breadcrumb + tiêu đề + chế độ nhiều camera ---------- */
+.room-head {
+    margin: 0 0 18px;
+}
+
+.room-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #6b7680;
+    margin-bottom: 6px;
+}
+
+.room-breadcrumb .sep {
+    font-size: 15px;
+    line-height: 1;
+    color: #8a949e;
+}
+
+.room-breadcrumb .current {
+    color: #2dbb6d;
+    font-weight: 700;
+}
+
+.room-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px 30px;
+}
+
+.room-title-row h1 {
+    margin: 0;
+    color: #1d211f;
+    font-size: 27px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+}
+
+.multi-cam-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    border: 0;
+    background: transparent;
+    color: #2dbb6d;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.multi-cam-btn:hover {
+    color: #229a59;
+}
+
+/* ---------- Lưới 4 camera ----------
+   Các style trong camera_stream.css của Streamlit không đi vào iframe.
+   Vì vậy iframe phải tự khai báo toàn bộ layout của camera-grid. */
+.camera-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    height: 600px;
+    box-sizing: border-box;
+}
+
+.camera-box {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    border: 1.5px solid #1b1f23;
+    border-radius: 28px;
+    background: #dfe4e8;
+    box-shadow: 0 14px 30px rgba(24, 33, 47, 0.10);
+    cursor: pointer;
+}
+
+.camera-box img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Khi chọn một camera: camera lớn bên trái, 3 thumbnail xếp dọc bên phải. */
+.camera-grid.expanded {
+    grid-template-columns: minmax(0, 3fr) minmax(150px, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.camera-box.selected {
+    width: auto;
+    height: auto;
+    grid-column: 1;
+    grid-row: 1 / 4;
+}
+
+.camera-box.selected img {
+    object-fit: contain;
+    background: #111827;
+}
+
+.camera-box.thumbnail {
+    width: auto;
+    height: auto;
+}
+
+.camera-box.hidden {
+    display: none;
+}
+
+/* Nhãn tên + badge trạng thái nằm cùng hàng ở góc trên trái. */
+.camera-badges {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.camera-label {
+    position: static;
+    padding: 7px 12px;
+    background: rgba(18, 22, 26, 0.86);
+    color: #fff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.camera-status {
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.camera-status.live {
+    background: #35bd73;
+}
+
+.camera-status.idle {
+    background: rgba(255, 255, 255, 0.34);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Nút phóng to hiện khi hover, đặt dưới hàng badge để không đè lên nhau. */
+.camera-toolbar {
+    position: absolute;
+    top: 58px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+}
+
+.camera-box:hover .camera-toolbar {
+    opacity: 1;
+}
+
+.camera-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 9px;
+    background: rgba(24,33,47,0.72);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-btn:hover {
+    background: rgba(24,33,47,0.92);
+}
+
+.camera-box.idle img {
+    filter: brightness(.82) saturate(.9);
+}
+
+.camera-idle-note {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 4px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.camera-stats {
+    position: absolute;
+    right: 18px;
+    bottom: 14px;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.86);
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ---------- Thanh điều khiển ---------- */
+.camera-control-bar {
+    margin-top: 22px;
+    min-height: 88px;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #ffffff;
+    border: 1px solid #e9edf0;
+    border-radius: 24px;
+    box-shadow: 0 8px 28px rgba(24, 33, 47, 0.07);
+    box-sizing: border-box;
+}
+
+.control-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 0 0 auto;
+}
+
+.control-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 54px;
+    padding: 0 30px;
+    border: 0;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+}
+
+.control-btn:active {
+    transform: scale(.98);
+}
+
+.snapshot-btn {
+    background: #e6e9eb;
+    color: #1d2329;
+}
+
+.snapshot-btn:hover {
+    background: #dbe0e3;
+}
+
+.record-btn {
+    background: #fff1f2;
+    color: #d84c58;
+}
+
+.record-btn:hover {
+    background: #ffe7e9;
+}
+
+.record-btn.active {
+    background: #ffe2e5;
+    color: #c93645;
+}
+
+.record-dot {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.record-dot::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.control-divider {
+    width: 1px;
+    height: 44px;
+    background: #e2e7eb;
+    margin: 0 6px 0 auto;
+}
+
+.detector-control {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: flex-end;
+}
+
+.detector-copy {
+    text-align: left;
+    line-height: 1.15;
+}
+
+.detector-label {
+    color: #2dbb6d;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.detector-state {
+    margin-top: 4px;
+    color: #29323d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.detector-switch {
+    position: relative;
+    width: 58px;
+    height: 32px;
+    flex: 0 0 58px;
+    border: 0;
+    border-radius: 999px;
+    padding: 0;
+    background: #cfd6db;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.detector-switch.on {
+    background: #2dbb6d;
+}
+
+.detector-knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 7px rgba(24, 33, 47, .18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2dbb6d;
+    transition: left .2s ease, color .2s ease;
+}
+
+.detector-switch.on .detector-knob {
+    left: 30px;
+}
+
+.detector-switch.off .detector-knob {
+    color: #87929b;
+}
+
+@media (max-width: 900px) {
+    .camera-grid {
+        height: 520px;
+    }
+
+    .camera-grid.expanded {
+        grid-template-columns: minmax(0, 2.4fr) minmax(120px, 1fr);
+    }
+
+    .camera-control-bar {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+    }
+
+    .control-divider {
+        display: none;
+    }
+
+    .detector-control {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 560px) {
+    .camera-grid {
+        height: 520px;
+        gap: 10px;
+    }
+
+    .camera-grid.expanded {
+        grid-template-columns: minmax(0, 2fr) minmax(100px, 1fr);
+    }
+
+    .room-title-row h1 {
+        font-size: 22px !important;
+    }
+
+    .camera-control-bar {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+    }
+
+    .control-divider {
+        display: none;
+    }
+
+    .detector-control {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

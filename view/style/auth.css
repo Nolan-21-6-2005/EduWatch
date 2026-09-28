@@ -1,0 +1,16 @@
+/* =========================================================
+   AUTH PAGES — VẪN CÙNG HỆ THỐNG THIẾT KẾ
+   ========================================================= */
+.intro-section h2 {
+  font-size: 2.15rem !important;
+  font-weight: 750 !important;
+  line-height: 1.28 !important;
+  color: var(--ew-text) !important;
+  margin-bottom: 0.9rem !important;
+}
+
+.intro-section p {
+  font-size: 0.95rem !important;
+  color: var(--ew-muted) !important;
+  line-height: 1.7 !important;
+}

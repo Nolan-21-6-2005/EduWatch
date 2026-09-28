@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>__CAMERA_CSS__</style>
+</head>
+<body>
+<div class="camera-shell">
+  <div class="room-head">
+    <div class="room-breadcrumb">
+      <span>__BUILDING__</span><span class="sep">›</span><span class="current">__ROOM__</span>
+    </div>
+    <div class="room-title-row">
+      <h1>__TITLE__</h1>
+      <button class="multi-cam-btn" onclick="showAllCameras()">__ICON_GRID__<span>Chế độ nhiều camera</span></button>
+    </div>
+  </div>
+  <div id="grid" class="camera-grid">__TILES__</div>
+  <div class="camera-control-bar">
+    <div class="control-actions">
+      <button class="control-btn snapshot-btn" onclick="takeSnapshot()">__ICON_CAMERA__<span>Chụp ảnh</span></button>
+      <button id="recordButton" class="control-btn record-btn" onclick="toggleRecording()">
+        <span class="record-dot"></span><span id="recordText">Ghi hình</span>
+      </button>
+    </div>
+    <div class="control-divider"></div>
+    <div class="detector-control">
+      <div class="detector-copy">
+        <div class="detector-label">TRÍ TUỆ NHÂN TẠO</div>
+        <div id="detectorState" class="detector-state">Đang hoạt động</div>
+      </div>
+      <button id="detectorSwitch" class="detector-switch on" onclick="toggleDetector()" aria-label="Bật tắt detector">
+        <span class="detector-knob">__ICON_AI__</span>
+      </button>
+    </div>
+  </div>
+</div>
+<script>__CAMERA_JS__</script>
+</body>
+</html>

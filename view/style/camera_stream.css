@@ -1,0 +1,83 @@
+/* =========================================================
+   CAMERA UI
+   ========================================================= */
+.camera-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  height: 600px;
+  box-sizing: border-box;
+}
+
+.camera-box {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--ew-border-strong);
+  border-radius: 14px;
+  background: #e7ecf0;
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba(24, 33, 47, 0.08);
+}
+
+.camera-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-box.hidden { display: none; }
+
+.camera-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(24, 33, 47, 0.78);
+  color: #fff;
+  padding: 5px 9px;
+  font-family: sans-serif;
+  font-size: 12px;
+  border-radius: 7px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.camera-toolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.camera-box:hover .camera-toolbar { opacity: 1; }
+
+.camera-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 9px;
+  background: rgba(24,33,47,0.72);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-btn:hover { background: rgba(24,33,47,0.92); }
+
+.camera-grid.expanded {
+  grid-template-columns: minmax(0, 3fr) minmax(150px, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.camera-box.selected { width: 100%; height: 700px; }
+.camera-box.selected img { object-fit: contain; background: #111827; }

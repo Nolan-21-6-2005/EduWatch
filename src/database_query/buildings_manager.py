@@ -45,3 +45,28 @@ def get_cameras(room_id: int):
     
     conn.close()
     return camera
+
+
+def get_first_camera_id(building_name: str, room_name: str):
+    """Lấy camera hoạt động đầu tiên của phòng được chọn, nếu tồn tại."""
+    conn = sqlite3.connect(getdatabase_path())
+    try:
+        row = conn.execute(
+            """
+            SELECT c.id
+            FROM Cameras c
+            JOIN Rooms r ON r.id = c.room_id
+            JOIN Buildings b ON b.id = r.building_id
+            WHERE c.status = 1
+              AND r.is_deleted = 0
+              AND b.is_deleted = 0
+              AND (b.ten_toa = ? OR b.ten_toa = ?)
+              AND r.ten_phong = ?
+            ORDER BY c.id
+            LIMIT 1
+            """,
+            (building_name, building_name.replace("Giảng đường ", ""), room_name),
+        ).fetchone()
+        return row[0] if row else None
+    finally:
+        conn.close()

@@ -37,7 +37,7 @@ def get_pages_for_role(role: int):
     """Trả về danh sách trang Dashboard tương ứng với role."""
 
     if role == 0:
-        return {"Quản trị": [
+        return [
             st.Page(
                 show_statistic_report,
                 title="Thống kê báo cáo",
@@ -67,55 +67,51 @@ def get_pages_for_role(role: int):
                 title="Quản lý người dùng",
                 icon=":material/group:",
                 url_path="users",
-            )]
-        }
+            ),
+        ]
 
     if role == 1:
-        return {
-            "Giám sát": [
-                st.Page(
-                    show_detector,
-                    title="Giám sát trực tiếp",
-                    icon=":material/videocam:",
-                    url_path="monitoring",
-                ),
-                st.Page(
-                    show_logs,
-                    title="Nhật ký vi phạm",
-                    icon=":material/menu_book:",
-                    url_path="logs",
-                ),
-                st.Page(
-                    show_field_report,
-                    title="Xuất biên bản",
-                    icon=":material/description:",
-                    url_path="field-report",
-                ),
-            ]
-        }
+        return [
+            st.Page(
+                show_detector,
+                title="Giám sát trực tiếp",
+                icon=":material/videocam:",
+                url_path="monitoring",
+            ),
+            st.Page(
+                show_logs,
+                title="Nhật ký vi phạm",
+                icon=":material/menu_book:",
+                url_path="logs",
+            ),
+            st.Page(
+                show_field_report,
+                title="Xuất biên bản",
+                icon=":material/description:",
+                url_path="field-report",
+            ),
+        ]
 
     if role == 2:
-        return {
-            "An ninh": [
-                st.Page(
-                    show_security_detector,
-                    title="Giám sát an ninh",
-                    icon=":material/shield:",
-                    url_path="security-monitoring",
-                ),
-                st.Page(
-                    show_device_state,
-                    title="Trạng thái thiết bị",
-                    icon=":material/devices:",
-                    url_path="device-state",
-                ),
-                st.Page(
-                    show_issue_report,
-                    title="Báo cáo sự cố",
-                    icon=":material/report_problem:",
-                    url_path="issue-report",
-                ),
-            ]
-        }
+        return [
+            st.Page(
+                show_security_detector,
+                title="Giám sát an ninh",
+                icon=":material/shield:",
+                url_path="security-monitoring",
+            ),
+            st.Page(
+                show_device_state,
+                title="Trạng thái thiết bị",
+                icon=":material/devices:",
+                url_path="device-state",
+            ),
+            st.Page(
+                show_issue_report,
+                title="Báo cáo sự cố",
+                icon=":material/report_problem:",
+                url_path="issue-report",
+            ),
+        ]
 
-    return {}
+    return []

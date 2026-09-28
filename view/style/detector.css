@@ -1,0 +1,210 @@
+/* =========================================================
+   DETECTOR - VIOLATION FEED IFRAME
+   ========================================================= */
+.st-key-log_list {
+  margin-top: 0 !important;
+}
+
+.st-key-log_list iframe {
+  display: block !important;
+  width: 100% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Trên trang giám sát, panel nhật ký chạm sát mép phải viewport. */
+body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-container {
+  padding-right: 0 !important;
+}
+
+/* =========================================================
+   DETECTOR - HEADER / FILTERS / CAMERA CONTROL BAR
+   ========================================================= */
+.st-key-detector_header {
+  margin-bottom: 0.65rem !important;
+}
+
+.detector-page-header {
+  padding: 0.2rem 0.1rem 0.55rem !important;
+}
+
+.detector-page-header h1 {
+  margin: 0 !important;
+  color: var(--ew-text) !important;
+  font-size: 2rem !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.detector-page-header p {
+  margin: 0.35rem 0 0 !important;
+  color: var(--ew-muted) !important;
+  font-size: 0.9rem !important;
+}
+
+/* Hàng lọc phía trên camera: tab loại phòng + chọn giảng đường / phòng. */
+.st-key-detector_filters {
+  margin: 0.25rem 0 1.1rem !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* --- Tab "Phòng thi / Phòng thường" (st.segmented_control) --- */
+.st-key-room_type [role="radiogroup"],
+.st-key-room_type [data-baseweb="button-group"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 4px !important;
+  background: #e6eae8 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+}
+
+.st-key-room_type button {
+  min-height: 40px !important;
+  padding: 0 26px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #1d211f !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.st-key-room_type button p {
+  color: inherit !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+}
+
+.st-key-room_type button[aria-checked="true"],
+.st-key-room_type button[aria-pressed="true"],
+.st-key-room_type button[data-selected="true"],
+.st-key-room_type button[kind="segmented_controlActive"],
+.st-key-room_type button[data-testid="stBaseButton-segmented_controlActive"] {
+  background: #35bd73 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 14px rgba(45, 187, 109, 0.28) !important;
+}
+
+/* --- Selectbox giảng đường / phòng dạng pill --- */
+.st-key-detector_filters [data-baseweb="select"] > div,
+.st-key-detector_filters [data-testid="stSelectbox"] .react-aria-ComboBox [role="group"] {
+  min-height: 44px !important;
+  height: 44px !important;
+  border-radius: 999px !important;
+  border: 1px solid #e2e7eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 3px 12px rgba(24, 33, 47, 0.035) !important;
+}
+
+.st-key-detector_filters [data-baseweb="select"] > div:focus-within,
+.st-key-detector_filters [data-testid="stSelectbox"] .react-aria-ComboBox [role="group"]:focus-within {
+  border-color: #b8dfc8 !important;
+  box-shadow: 0 0 0 3px rgba(45, 187, 109, 0.10) !important;
+}
+
+.st-key-detector_filters [data-baseweb="select"] [role="button"] {
+  border-radius: 999px !important;
+}
+
+/* Để iframe camera không tạo khoảng trống phía trên. */
+.st-key-detector_header + iframe {
+  margin-top: 0 !important;
+}
+
+/* Nhật ký: iframe sát mép phải. */
+.st-key-log_list {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.st-key-log_list iframe {
+  width: 100% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-container {
+  padding-right: 0 !important;
+}
+
+@media (max-width: 1100px) {
+  .detector-page-header h1 {
+    font-size: 1.7rem !important;
+  }
+}
+
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   DETECTOR - NHẬT KÝ VI PHẠM DÍNH SÁT TOPBAR + MÉP PHẢI
+   ========================================================= */
+
+/* 1) Bỏ padding phải của khung nội dung (chỉ trên trang có panel nhật ký).
+      Dùng stMainBlockContainer nên chạy được trên các bản Streamlit mới. */
+[data-testid="stMainBlockContainer"]:has(.st-key-log_list) {
+  padding-right: 0 !important;
+}
+
+/* 2) Hai cột main / nhật ký không còn khe hở ở giữa;
+      cột camera tự chừa lề phải để không dính vào panel. */
+[data-testid="stHorizontalBlock"]:has(.st-key-log_list) {
+  gap: 0 !important;
+  align-items: stretch !important;
+}
+
+[data-testid="stColumn"]:has(.st-key-detector_filters) {
+  padding-right: 1.5rem !important;
+}
+
+/* 3) Panel dính sát topbar: triệt tiêu khoảng cách 1rem giữa spacer và nội dung,
+      cao đúng bằng phần còn lại của màn hình và đứng yên khi cuộn trang.
+      Sticky phải gắn vào lớp bọc ngoài (stLayoutWrapper) vì lớp này nằm trực tiếp
+      trong cột cao bằng cả hàng, nên mới có "quãng đường" để đứng yên. */
+[data-testid="stLayoutWrapper"]:has(> .st-key-log_list) {
+  position: sticky !important;
+  top: 4.25rem !important;
+  margin-top: -1rem !important;
+  height: auto !important;
+}
+
+/* Streamlit gán flex: 1 1 0% cho các khối này nên "height" bị bỏ qua;
+   flex: 0 0 auto trả quyền quyết định chiều cao về cho height. */
+.st-key-log_list,
+.st-key-log_list [data-testid="stElementContainer"] {
+  flex: 0 0 auto !important;
+  height: calc(100vh - 4.25rem) !important;
+  min-height: 520px;
+  margin: 0 !important;
+  background: #ffffff !important;
+}
+
+.st-key-log_list {
+  border-left: 1px solid #e4e9ee !important;
+}
+
+.st-key-log_list iframe {
+  height: calc(100vh - 4.25rem) !important;
+  min-height: 520px;
+  background: #ffffff !important;
+}
+
+/* Màn hình hẹp: cột xếp chồng, trả panel về dạng thường. */
+@media (max-width: 900px) {
+  [data-testid="stHorizontalBlock"]:has(.st-key-log_list) { gap: 1rem !important; }
+  [data-testid="stColumn"]:has(.st-key-detector_filters) { padding-right: 0 !important; }
+  [data-testid="stLayoutWrapper"]:has(> .st-key-log_list) { position: static !important; margin-top: 0 !important; }
+  .st-key-log_list,
+  .st-key-log_list [data-testid="stElementContainer"],
+  .st-key-log_list iframe { height: 850px !important; }
+}

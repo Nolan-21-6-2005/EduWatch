@@ -1,0 +1,179 @@
+/* EduWatch — violation log surfaces */
+.violation-panel {
+    width: 100%;
+    color: #18212f;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.violation-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.violation-panel-title {
+    margin: 0;
+    color: #26303d;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .06em;
+}
+.violation-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2dbb6d;
+    box-shadow: 0 0 0 4px rgba(45,187,109,.12);
+}
+.violation-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.violation-card {
+    background: #fff;
+    border: 1px solid #e4e9ee;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 6px 22px rgba(24,33,47,.055);
+}
+.violation-card:hover { border-color: #cfe8d9; }
+.violation-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+.violation-meta { min-width: 0; }
+.violation-camera {
+    color: #687584;
+    font-size: 11px;
+    font-weight: 650;
+}
+.violation-time {
+    margin-top: 3px;
+    color: #26303d;
+    font-size: 11px;
+    font-weight: 700;
+}
+.violation-status {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.violation-status.pending { color: #a66a00; background: #fff5df; }
+.violation-status.confirmed { color: #208552; background: #eaf8ef; }
+.violation-status.wrong { color: #c53d4a; background: #fff0f1; }
+
+.violation-name {
+    margin: 10px 0 4px;
+    color: #26303d;
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 750;
+}
+.violation-location {
+    margin-bottom: 9px;
+    color: #97a1ad;
+    font-size: 10px;
+    font-weight: 550;
+}
+.violation-evidence {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 8.5;
+    border: 1px solid #e7ecf1;
+    border-radius: 12px;
+    background: #f1f4f6;
+}
+.violation-evidence img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+.violation-evidence-empty {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #97a1ad;
+    font-size: 10px;
+}
+.violation-confidence {
+    position: absolute;
+    left: 8px;
+    bottom: 7px;
+    padding: 5px 7px;
+    border-radius: 7px;
+    color: #fff;
+    background: #d13e4c;
+    font-size: 9px;
+    font-weight: 800;
+}
+.violation-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 9px;
+}
+.violation-actions button {
+    min-height: 34px;
+    border: 1px solid #e4e9ee;
+    border-radius: 999px;
+    background: #fff;
+    color: #566273;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 750;
+    cursor: pointer;
+}
+.violation-actions .confirm {
+    border-color: #2dbb6d;
+    background: #2dbb6d;
+    color: #fff;
+}
+.violation-actions .wrong:hover { background: #f7f9fb; }
+.violation-actions button:disabled { opacity: .55; cursor: default; }
+.violation-empty {
+    padding: 38px 14px;
+    border: 1px dashed #dce3e8;
+    border-radius: 14px;
+    color: #97a1ad;
+    background: #fff;
+    text-align: center;
+    font-size: 11px;
+}
+.violation-footer {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+.violation-footer a {
+    width: 100%;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #2dbb6d;
+    border-radius: 999px;
+    color: #13804a;
+    background: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: .05em;
+}
+.violation-row-title { color: #26303d; font-weight: 700; }
+.violation-row-sub { display: block; margin-top: 2px; color: #97a1ad; font-size: 11px; }
+.confidence-high { color: #208552; }
+.confidence-mid { color: #a66a00; }
+.confidence-low { color: #c53d4a; }
+@media (max-width: 850px) {
+    .violation-card { padding: 10px; }
+}

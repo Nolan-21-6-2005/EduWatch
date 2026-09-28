@@ -1,0 +1,151 @@
+/* =========================================================
+   EDUWATCH CUSTOM TOPBAR
+   Lấy cảm hứng từ giao diện Medcare.
+   Không ẩn header của Streamlit để giữ nút sidebar mặc định.
+   ========================================================= */
+
+/* Vùng cố định dành cho topbar. */
+.ew-topbar-spacer {
+  height: 4.25rem;
+  width: 100%;
+}
+
+/* Container tạo bằng st.container(key="ew_topbar"). */
+.st-key-ew_topbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 17.2rem !important;
+  right: 0 !important;
+  height: 4.25rem !important;
+  z-index: 900 !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0.58rem 1.45rem !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-bottom: 1px solid #e7ebef !important;
+  box-shadow: 0 1px 10px rgba(24, 33, 47, 0.035) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+.st-key-ew_topbar > div {
+  width: 100% !important;
+}
+
+/* Search box */
+.st-key-ew_topbar [data-baseweb="input"] > div {
+  min-height: 40px !important;
+  height: 40px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: #e9ecee !important;
+  box-shadow: none !important;
+  padding-left: 0.8rem !important;
+}
+
+.st-key-ew_topbar [data-baseweb="input"] input {
+  color: #4e5a68 !important;
+  font-size: 0.91rem !important;
+  background: transparent !important;
+}
+
+.st-key-ew_topbar [data-baseweb="input"] input::placeholder {
+  color: #7b8794 !important;
+  opacity: 1 !important;
+}
+
+/* Topbar tabs */
+.st-key-ew_topbar .stButton > button {
+  min-height: 40px !important;
+  height: 40px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  padding: 0.35rem 0.2rem !important;
+}
+
+.st-key-ew_topbar .stButton > button:hover {
+  color: #159a56 !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
+/* Tổng quan là tab đang được chọn trong mockup. */
+.st-key-topbar_overview > button {
+  color: #138f4f !important;
+  border-bottom: 2px solid #21b66a !important;
+  border-radius: 0 !important;
+}
+
+/* Nút icon */
+.st-key-ew_topbar .st-key-topbar_notifications > button,
+.st-key-ew_topbar .st-key-topbar_settings > button {
+  color: #65778d !important;
+  font-size: 1.15rem !important;
+}
+
+.st-key-ew_topbar .st-key-topbar_notifications > button:hover,
+.st-key-ew_topbar .st-key-topbar_settings > button:hover {
+  color: #159a56 !important;
+}
+
+/* Khi sidebar được thu gọn, topbar chuyển sát mép trái. Streamlit
+   cung cấp aria-expanded cho trạng thái sidebar. */
+body:has(section[data-testid="stSidebar"][aria-expanded="false"]) .st-key-ew_topbar {
+  left: 0 !important;
+}
+
+/* Giữ nút mở sidebar của Streamlit ở trên topbar. */
+[data-testid="stSidebarCollapsedControl"] {
+  z-index: 1200 !important;
+}
+
+
+/* Đồng bộ chiều rộng sidebar với mockup. Trạng thái đóng vẫn do
+   cơ chế toggle mặc định của Streamlit quản lý. */
+section[data-testid="stSidebar"][aria-expanded="true"] {
+  width: 276px !important;
+  min-width: 276px !important;
+  max-width: 276px !important;
+}
+
+/* Sidebar mở: logo/navigation nằm dưới topbar, giống mockup. */
+section[data-testid="stSidebar"][aria-expanded="true"] {
+  z-index: 1001 !important;
+}
+
+@media (max-width: 900px) {
+  .st-key-ew_topbar {
+    left: 0 !important;
+    padding-left: 4rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .st-key-ew_topbar .stButton > button {
+    font-size: 0.82rem !important;
+  }
+}
+
+.stMainBlockContainer {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+
+/* =========================================
+   STREAMLIT DEFAULT HEADER / SIDEBAR TOGGLE
+   ========================================= */
+
+/* Giữ header và nút toggle mặc định để người dùng luôn mở/đóng sidebar được. */
+header[data-testid="stHeader"] {
+  display: block !important;
+}
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"] {
+  display: flex !important;
+}

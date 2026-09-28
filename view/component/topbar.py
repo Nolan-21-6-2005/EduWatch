@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_navigation_bar import st_navbar
 
 def show_topbar():
     """Hiển thị topbar tùy biến theo giao diện EduWatch."""

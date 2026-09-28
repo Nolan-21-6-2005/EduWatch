@@ -1,0 +1,362 @@
+/* =========================================================
+   EDUWATCH — MEDCARE-INSPIRED GLOBAL UI
+   Chỉ override giao diện Streamlit bằng CSS, không thay đổi
+   logic/API của các page.
+   ========================================================= */
+
+:root {
+  --ew-bg: #eef2f5;
+  --ew-surface: #ffffff;
+  --ew-surface-soft: #f7f9fb;
+  --ew-border: #e4e9ee;
+  --ew-border-strong: #d7dee6;
+  --ew-text: #18212f;
+  --ew-muted: #7b8794;
+  --ew-green: #2dbb6d;
+  --ew-green-dark: #229a59;
+  --ew-green-soft: #e9f8ef;
+  --ew-blue: #3478f6;
+  --ew-blue-soft: #edf4ff;
+  --ew-danger: #e25563;
+  --ew-danger-soft: #fff0f1;
+  --ew-warning: #e7a92b;
+  --ew-warning-soft: #fff7e5;
+  --ew-radius: 16px;
+  --ew-shadow: 0 6px 22px rgba(24, 33, 47, 0.055);
+}
+
+
+/* =========================================================
+   GLOBAL / APP CANVAS
+   ========================================================= */
+* { box-sizing: border-box; }
+
+html, body, .stApp {
+  background: var(--ew-bg) !important;
+  color: var(--ew-text) !important;
+  overflow-x: hidden;
+}
+
+.stApp {
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Vùng nội dung chính: tạo khoảng thở giống Medcare */
+section.main > div[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewContainer"] .main .block-container {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 1.35rem 1.55rem 2.25rem !important;
+}
+
+/* Không để header mặc định phủ lên nội dung */
+header[data-testid="stHeader"] {
+  display: none !important;
+}
+
+header[data-testid="stHeader"] > div {
+  background: transparent !important;
+}
+
+/* Header mặc định và nút thu/mở sidebar của Streamlit đều bị ẩn.
+   Sidebar dashboard luôn giữ trạng thái mở. */
+header[data-testid="stHeader"] {
+  display: none !important;
+}
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"] {
+  display: none !important;
+}
+
+
+
+/* =========================================================
+   SIDEBAR — BỐ CỤC GIỐNG MEDCARE
+   ========================================================= */
+section[data-testid="stSidebar"] {
+  background: var(--ew-surface) !important;
+  border-right: 1px solid var(--ew-border) !important;
+  box-shadow: 4px 0 18px rgba(24, 33, 47, 0.035) !important;
+}
+
+section[data-testid="stSidebar"] > div:first-child {
+  padding: 1rem 0.9rem 1rem !important;
+}
+
+/* Logo do st.logo() render */
+section[data-testid="stSidebar"] img {
+  object-fit: contain;
+}
+
+/* Navigation container */
+div[data-testid="stSidebarNav"] {
+  padding: 0.45rem 0.25rem 0.75rem !important;
+  background: transparent !important;
+}
+
+div[data-testid="stSidebarNav"] ul {
+  gap: 0.22rem !important;
+}
+
+div[data-testid="stSidebarNav"] li {
+  margin: 0 !important;
+}
+
+div[data-testid="stSidebarNav"] a {
+  min-height: 44px !important;
+  padding: 0.62rem 0.78rem !important;
+  border-radius: 15px !important;
+  color: #687483 !important;
+  font-size: 0.94rem !important;
+  font-weight: 500 !important;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+div[data-testid="stSidebarNav"] a:hover {
+  background: #f2f7f4 !important;
+  color: var(--ew-green-dark) !important;
+}
+
+div[data-testid="stSidebarNav"] a[aria-current="page"] {
+  background: #edf5ff !important;
+  color: var(--ew-blue) !important;
+  font-weight: 650 !important;
+  box-shadow: inset 3px 0 0 var(--ew-blue);
+}
+
+div[data-testid="stSidebarNav"] a[aria-current="page"] span {
+  color: var(--ew-blue) !important;
+}
+
+div[data-testid="stSidebarNav"] span {
+  font-size: 0.94rem !important;
+}
+
+div[data-testid="stSidebarNav"] svg {
+  width: 1.12rem !important;
+  height: 1.12rem !important;
+}
+
+
+/* =========================================================
+   TYPOGRAPHY / PAGE HEADER
+   ========================================================= */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ew-text) !important;
+  letter-spacing: -0.02em !important;
+}
+
+h1 { font-size: 2rem !important; font-weight: 750 !important; }
+h2 { font-size: 1.55rem !important; font-weight: 720 !important; }
+h3 { font-size: 1.18rem !important; font-weight: 680 !important; }
+
+[data-testid="stCaptionContainer"] p,
+.stCaption {
+  color: var(--ew-muted) !important;
+}
+
+/* Khoảng cách giữa các block — tránh giao diện dính nhau */
+[data-testid="stVerticalBlock"] > [data-testid="element-container"] {
+  margin-bottom: 0.25rem;
+}
+
+
+/* =========================================================
+   CARDS / BORDER CONTAINERS
+   ========================================================= */
+[data-testid="stVerticalBlockBorderWrapper"] {
+  background: var(--ew-surface) !important;
+  border: 1px solid var(--ew-border) !important;
+  border-radius: var(--ew-radius) !important;
+  box-shadow: var(--ew-shadow) !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] > div {
+  border-radius: inherit !important;
+}
+
+
+/* =========================================================
+   NATIVE BUTTON — HACK CSS
+   ========================================================= */
+.stButton > button,
+[data-testid="stDownloadButton"] > button,
+button[kind="secondary"],
+button[kind="tertiary"] {
+  min-height: 40px !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--ew-border) !important;
+  background: var(--ew-surface) !important;
+  color: #4e5a68 !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  transition: all 0.16s ease !important;
+}
+
+.stButton > button:hover,
+[data-testid="stDownloadButton"] > button:hover,
+button[kind="secondary"]:hover,
+button[kind="tertiary"]:hover {
+  border-color: #cbd5df !important;
+  background: #f8fafc !important;
+  color: var(--ew-text) !important;
+  transform: translateY(-1px);
+}
+
+.stButton > button[kind="primary"],
+button[kind="primary"] {
+  background: var(--ew-green) !important;
+  border-color: var(--ew-green) !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 13px rgba(45, 187, 109, 0.18) !important;
+}
+
+.stButton > button[kind="primary"]:hover,
+button[kind="primary"]:hover {
+  background: var(--ew-green-dark) !important;
+  border-color: var(--ew-green-dark) !important;
+  color: #ffffff !important;
+}
+
+.stButton > button:focus-visible,
+[data-testid="stDownloadButton"] > button:focus-visible {
+  outline: 3px solid rgba(45, 187, 109, 0.16) !important;
+  outline-offset: 1px !important;
+}
+
+/* Icon-only buttons */
+button[kind="tertiary"] {
+  min-width: 40px !important;
+  padding: 0.45rem 0.65rem !important;
+}
+
+
+/* =========================================================
+   INPUT / SELECTBOX / DATE INPUT — HACK CSS
+   ========================================================= */
+[data-baseweb="input"],
+[data-baseweb="select"],
+[data-baseweb="textarea"] {
+  border-radius: 20px !important;
+}
+
+[data-baseweb="input"] > div,
+[data-baseweb="select"] > div,
+[data-baseweb="textarea"] > div {
+  background: #f8fafb !important;
+  border: 1px solid var(--ew-border) !important;
+  border-radius: 20px !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+}
+
+[data-baseweb="input"] > div:focus-within,
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="textarea"] > div:focus-within {
+  border-color: #a9dcbc !important;
+  box-shadow: 0 0 0 3px rgba(45, 187, 109, 0.08) !important;
+}
+
+[data-baseweb="input"] input,
+[data-baseweb="select"] input,
+[data-baseweb="textarea"] textarea {
+  color: var(--ew-text) !important;
+  font-size: 0.92rem !important;
+}
+
+[data-baseweb="select"] [role="option"] {
+  border-radius: 18px !important;
+}
+
+[data-baseweb="popover"] {
+  border: 1px solid var(--ew-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 14px 34px rgba(24, 33, 47, 0.12) !important;
+}
+
+label[data-testid="stWidgetLabel"] p {
+  color: #566273 !important;
+  font-size: 0.86rem !important;
+  font-weight: 600 !important;
+}
+
+
+/* =========================================================
+   METRIC CARDS — GIỐNG CÁC KPI CARD TRONG MEDCARE
+   ========================================================= */
+div[data-testid="stMetric"] {
+  background: var(--ew-surface) !important;
+  border: 1px solid var(--ew-border) !important;
+  border-radius: 14px !important;
+  padding: 1rem 1.1rem !important;
+  min-height: 105px !important;
+}
+
+div[data-testid="stMetricLabel"] p {
+  color: #657181 !important;
+  font-size: 0.86rem !important;
+  font-weight: 600 !important;
+}
+
+div[data-testid="stMetricValue"] {
+  color: var(--ew-text) !important;
+  font-size: 1.75rem !important;
+  font-weight: 730 !important;
+}
+
+
+/* =========================================================
+   DATAFRAME / TABLE NATIVE — HACK CSS
+   ========================================================= */
+div[data-testid="stDataFrame"] {
+  border: 1px solid var(--ew-border) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  background: var(--ew-surface) !important;
+  box-shadow: var(--ew-shadow) !important;
+}
+
+div[data-testid="stDataFrame"] iframe {
+  border-radius: 14px !important;
+}
+
+
+/* =========================================================
+   CHECKBOX / TOGGLE
+   ========================================================= */
+[data-testid="stCheckbox"] label p {
+  color: #566273 !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+}
+
+[data-testid="stCheckbox"] [data-baseweb="checkbox"] > div:first-child {
+  border-radius: 999px !important;
+}
+
+[data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
+  border-radius: 999px !important;
+}
+
+.st-key-ai_toggle {
+  transform: scale(1.12);
+  transform-origin: right center;
+}
+
+
+/* =========================================================
+   ALERTS / TOASTS
+   ========================================================= */
+[data-testid="stAlert"] {
+  border-radius: 11px !important;
+  border: 1px solid var(--ew-border) !important;
+}
+
+
+/* =========================================================
+   POPOVER
+   ========================================================= */
+[data-testid="stPopover"] button {
+  border-radius: 10px !important;
+}

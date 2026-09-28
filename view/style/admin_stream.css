@@ -1,0 +1,141 @@
+/* =========================================================
+   CUSTOM TABLES ALREADY PRESENT IN PROJECT
+   ========================================================= */
+.table-header-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  padding: 11px 20px;
+  background: #f7f9fb;
+  border-bottom: 1px solid var(--ew-border);
+  color: #7a8694;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.table-row-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid #edf0f3;
+  align-items: center;
+  background: #fff;
+}
+.table-row-grid:last-child { border-bottom: none; }
+.cell-text { font-size: 0.86rem; color: #566273; }
+.cell-bold { font-weight: 650; color: var(--ew-text); }
+
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  background: var(--ew-surface);
+  border: 1px solid var(--ew-border);
+  border-radius: 14px;
+  box-shadow: var(--ew-shadow);
+}
+.history-table th {
+  padding: 12px 14px;
+  text-align: left;
+  background: #f7f9fb;
+  color: #748090;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--ew-border);
+}
+.history-table td {
+  padding: 13px 14px;
+  color: #536071;
+  font-size: 0.84rem;
+  border-bottom: 1px solid #edf0f3;
+}
+.history-table tr:last-child td { border-bottom: none; }
+
+
+/* =========================================================
+   MEDCARE-LIKE TABLE COMPONENTS
+   ========================================================= */
+.ew-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--ew-surface);
+  border: 1px solid var(--ew-border);
+  border-radius: 15px;
+  box-shadow: var(--ew-shadow);
+}
+
+.ew-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ew-table th {
+  padding: 12px 13px;
+  background: #f7f9fb;
+  color: #788493;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 1px solid var(--ew-border);
+  white-space: nowrap;
+}
+
+.ew-table td {
+  padding: 12px 13px;
+  background: #fff;
+  color: #4d5968;
+  font-size: 0.84rem;
+  border-bottom: 1px solid #edf0f3;
+  vertical-align: middle;
+}
+
+.ew-table tbody tr:hover td { background: #fbfcfd; }
+.ew-table tbody tr:last-child td { border-bottom: none; }
+
+.ew-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 9px;
+  border: 1px solid #e3e8ed;
+}
+
+.ew-primary-text { color: var(--ew-text); font-weight: 650; }
+.ew-secondary-text { display: block; color: #8a95a2; font-size: 0.73rem; margin-top: 2px; }
+
+.ew-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.ew-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ew-status.ok { background: var(--ew-green-soft); color: #26945a; }
+.ew-status.off { background: var(--ew-danger-soft); color: #c84654; }
+.ew-status.pending { background: var(--ew-warning-soft); color: #a87508; }
+
+.ew-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--ew-border);
+  background: #fff;
+  color: #687584;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

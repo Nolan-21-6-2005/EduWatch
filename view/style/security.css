@@ -1,0 +1,48 @@
+/* =========================================================
+   SECURITY / STATUS PANELS
+   ========================================================= */
+.status-panel,
+.data-card-box,
+.custom-card-form {
+  background: var(--ew-surface);
+  border: 1px solid var(--ew-border);
+  border-radius: 14px;
+  box-shadow: var(--ew-shadow);
+}
+
+.status-panel { padding: 1rem 1.05rem; }
+.status-panel-title {
+  color: var(--ew-text);
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--ew-border);
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 0.78rem 0;
+  border-bottom: 1px solid #edf0f3;
+}
+.status-row:last-child { border-bottom: none; }
+.status-name { color: #4f5b69; font-size: 0.9rem; }
+
+.badge-pill,
+.status-badge,
+.status-badge-waiting {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pill-active { background: var(--ew-green-soft); color: #238b52; }
+.pill-error { background: var(--ew-danger-soft); color: #c33c4a; }
+.status-badge-waiting { background: var(--ew-warning-soft); color: #a86f00; }
