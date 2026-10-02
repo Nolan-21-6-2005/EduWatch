@@ -7,18 +7,6 @@ st.set_page_config(layout="wide", page_title="Nhật ký vi phạm")
 
 
 def show_logs():
-    st.markdown(
-        """
-        <div class="page-header">
-            <div>
-                <h1 class="page-header-title">Nhật ký vi phạm</h1>
-                <p class="page-header-subtitle">Dữ liệu được lấy trực tiếp từ Violation_Logs, kèm bằng chứng, độ tin cậy và trạng thái xác nhận.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
     # Bộ lọc lấy danh sách trực tiếp từ DB, không còn danh sách giả.
     all_rows = get_violation_logs()
     buildings = {row["building_id"]: row["ten_toa"] for row in all_rows if row["building_id"] is not None}
@@ -83,6 +71,70 @@ def show_logs():
     data = []
     from src.database_query.violation_logs import _image_data_uri
     from datetime import datetime
+    
+    c1, c2, c3 = st.columns(3, gap="small")
+    
+    total_confirmed_violation = sum(
+        1
+        for row in filtered_rows
+        if (row["review_status"] or "pending") == "confirmed"
+    )
+    
+    total_wrong_violation = sum(
+        1
+        for row in filtered_rows
+        if (row["review_status"] or "pending") == "wrong"
+    )
+    
+    average_confidence = (
+        sum(float(row["confidence"] or 0) for row in filtered_rows)
+        / len(filtered_rows)
+        if filtered_rows
+        else 0
+    )
+    
+    
+    with c1:
+        st.html(
+            f'''
+            <div class="ew-bottom-stat">
+                <div class="ew-bottom-icon green">♣</div>
+                <div>
+                    <span>Vi phạm báo đúng</span>
+                    <strong>{total_confirmed_violation}</strong>
+                    <small>Tổng số vi phạm báo đúng</small>
+                </div>
+            </div>
+            ''',
+        )
+
+    with c2:
+        st.html(
+            f'''
+            <div class="ew-bottom-stat">
+                <div class="ew-bottom-icon blue">◆</div>
+                <div>
+                    <span>Vi phạm báo sai</span>
+                    <strong>{total_wrong_violation}</strong>
+                    <small>Tổng số vi phạm báo sai</small>
+                </div>
+            </div>
+            ''',
+        )
+
+    with c3:
+        st.html(
+            f'''
+            <div class="ew-bottom-stat">
+                <div class="ew-bottom-icon orange">◇</div>
+                <div>
+                    <span>Độ chính xác</span>
+                    <strong>{average_confidence}</strong>
+                    <small>Mức tin cậy của AI</small>
+                </div>
+            </div>
+            ''',
+        )
 
     for row in filtered_rows:
         raw_time = str(row["thoi_gian"] or "")

@@ -24,7 +24,7 @@ EVIDENCE_DIR = BASE_DIR / "data_model" / "evidence"
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _save_violation(label: str, confidence: float, frame, camera_id: int | None):
+def _save_violation(label: str, confidence: float, frame, camera_id: int | None, session: str):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     image_path = EVIDENCE_DIR / f"detection_{timestamp}.jpg"
     if not cv2.imwrite(str(image_path), frame):
@@ -34,13 +34,14 @@ def _save_violation(label: str, confidence: float, frame, camera_id: int | None)
         cursor = conn.execute(
             """
             INSERT INTO Violation_Logs
-            (camera_id, loai_vi_pham, thoi_gian, image_path, confidence, is_confirmed, review_status)
-            VALUES (?, ?, ?, ?, ?, 0, 'pending')
+            (camera_id, loai_vi_pham, thoi_gian, session, image_path, confidence, is_confirmed, review_status)
+            VALUES (?, ?, ?, ?, ?, ?, 0, 'pending')
             """,
             (
                 camera_id,
                 label,
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                session,
                 str(image_path.relative_to(BASE_DIR)) if image_path else None,
                 confidence,
             ),
@@ -81,7 +82,7 @@ cap = get_camera()
 model = get_model()
 
 # === Ham nhan dien doi tuong === 
-def gen_frames(latest_detections, last_detect_time, camera_id=None):
+def gen_frames(latest_detections, last_detect_time, camera_id=None, session="study"):
     try:
         while True:
             success, frame = cap.read()
@@ -114,7 +115,7 @@ def gen_frames(latest_detections, last_detect_time, camera_id=None):
                                 "confidence": conf
                             })
                             try:
-                                _save_violation(label, conf, frame, camera_id)
+                                _save_violation(label, conf, frame, camera_id, session)
                             except sqlite3.Error as error:
                                 print("Không thể lưu violation log:", error)
 
@@ -133,7 +134,7 @@ def gen_frames(latest_detections, last_detect_time, camera_id=None):
 @router.get("/video")
 def video_feed(camera_id: int | None = None):
     return StreamingResponse(
-        gen_frames(latest_detections, last_detect_time, camera_id),
+        gen_frames(latest_detections, last_detect_time, camera_id, session),
         media_type='multipart/x-mixed-replace; boundary=frame')
 
 @router.get("/detections")       

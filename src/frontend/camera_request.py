@@ -29,7 +29,7 @@ def _camera_tile(cam):
       {note}{stats}
     </div>'''
 
-def connect_camera(building_label="Giảng đường Nguyễn Đăng", room_label="Phòng 102", room_short="P.102", camera_id=None):
+def connect_camera(building_label="Giảng đường Nguyễn Đăng", room_label="Phòng 102", room_short="P.102", camera_id=None, session="study"):
     live_src = "http://localhost:8000/video" + (f"?camera_id={int(camera_id)}" if camera_id else "")
     img_src = "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=900"
     cameras = [

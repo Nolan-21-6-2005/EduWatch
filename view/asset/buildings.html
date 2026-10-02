@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>__BUILDINGS_CSS__</style>
+</head>
+<body>
+<div class="location-manager" id="location-app">
+  <div class="location-grid">
+    <section class="location-card" data-kind="building">
+      <div class="location-card-header">
+        <div><h2>Tòa nhà</h2><p>Danh sách tòa nhà trong hệ thống</p></div>
+        <button class="add-btn" data-add="building">+ THÊM</button>
+      </div>
+      <div class="location-list" id="building-list"></div>
+    </section>
+
+    <section class="location-card" data-kind="room">
+      <div class="location-card-header">
+        <div><h2>Phòng</h2><p id="room-helper">Chọn một tòa nhà</p></div>
+        <button class="add-btn" data-add="room" id="add-room" disabled>+ THÊM</button>
+      </div>
+      <div class="location-list" id="room-list"></div>
+    </section>
+
+    <section class="location-card" data-kind="camera">
+      <div class="location-card-header">
+        <div><h2>Góc camera</h2><p id="camera-helper">Chọn một phòng học</p></div>
+        <button class="add-btn" data-add="camera" id="add-camera" disabled>+ THÊM</button>
+      </div>
+      <div class="location-list" id="camera-list"></div>
+    </section>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h3 id="modal-title">Thêm</h3><button class="modal-close" id="modal-close">×</button></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+window.__LOCATIONS__ = __BUILDINGS_DATA__;
+window.__API_BASE__ = "__API_BASE__";
+</script>
+<script>__BUILDINGS_JS__</script>
+</body>
+</html>

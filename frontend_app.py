@@ -22,6 +22,7 @@ css_files = [
     "view/style/responsive.css",
     "view/style/topbar.css",
     "view/style/detector.css",
+    "view/style/calendar.css"
 ]
 css = "\n".join(load_file(path) for path in css_files)
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)

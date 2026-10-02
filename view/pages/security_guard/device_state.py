@@ -4,18 +4,6 @@ st.set_page_config(layout="wide", page_title="Trạng thái thiết bị")
 
 
 def show_device_state():
-    st.markdown(
-        """
-        <div class="page-header">
-            <div>
-                <h1 class="page-header-title">Trạng thái thiết bị</h1>
-                <p class="page-header-subtitle">Chọn tòa nhà và phòng để xem trạng thái các camera.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
     select_col1, select_col2 = st.columns(2, gap="medium")
     with select_col1:
         building = st.selectbox(

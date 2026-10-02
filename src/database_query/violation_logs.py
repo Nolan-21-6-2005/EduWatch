@@ -118,3 +118,144 @@ def violation_table_rows(limit: int | None = None):
             "image": _image_data_uri(row["image_path"]),
         })
     return result
+
+
+def get_violation_report_kpis(
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> dict:
+    conditions = ["1 = 1"]
+    params: list = []
+
+    if start_date:
+        conditions.append("date(v.thoi_gian) >= date(?)")
+        params.append(start_date)
+
+    if end_date:
+        conditions.append("date(v.thoi_gian) <= date(?)")
+        params.append(end_date)
+
+    where_clause = " AND ".join(conditions)
+
+    query = f"""
+        SELECT
+            COUNT(*) AS total_predictions,
+
+            SUM(
+                CASE
+                    WHEN COALESCE(v.review_status, 'pending') = 'confirmed'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS confirmed_count,
+
+            SUM(
+                CASE
+                    WHEN COALESCE(v.review_status, 'pending') = 'wrong'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS wrong_count,
+
+            SUM(
+                CASE
+                    WHEN COALESCE(v.review_status, 'pending') = 'pending'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS pending_count
+
+        FROM Violation_Logs v
+        WHERE {where_clause}
+    """
+
+    with sqlite3.connect(getdatabase_path()) as conn:
+        row = conn.execute(query, params).fetchone()
+
+    return {
+        "total_predictions": int(row[0] or 0),
+        "confirmed": int(row[1] or 0),
+        "wrong": int(row[2] or 0),
+        "pending": int(row[3] or 0),
+    }
+
+def get_report_table(
+    start_date: str | None = None,
+    end_date: str | None = None,
+):
+    conditions = ["1 = 1"]
+    params = []
+
+    if start_date:
+        conditions.append("date(v.thoi_gian) >= date(?)")
+        params.append(start_date)
+
+    if end_date:
+        conditions.append("date(v.thoi_gian) <= date(?)")
+        params.append(end_date)
+
+    where_clause = " AND ".join(conditions)
+
+    query = f"""
+        SELECT
+            date(v.thoi_gian) AS date,
+            b.ten_toa AS building,
+            r.ten_phong AS room,
+            v.session AS session,
+
+            COUNT(*) AS total_violations,
+
+            SUM(
+                CASE
+                    WHEN COALESCE(v.review_status, 'pending') = 'confirmed'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS confirmed,
+
+            SUM(
+                CASE
+                    WHEN COALESCE(v.review_status, 'pending') = 'wrong'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS wrong,
+
+            SUM(
+                CASE
+                    WHEN COALESCE(v.review_status, 'pending') = 'pending'
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS pending
+
+        FROM Violation_Logs v
+
+        LEFT JOIN Cameras c
+            ON c.id = v.camera_id
+
+        LEFT JOIN Rooms r
+            ON r.id = c.room_id
+
+        LEFT JOIN Buildings b
+            ON b.id = r.building_id
+
+        WHERE {where_clause}
+
+        GROUP BY
+            date(v.thoi_gian),
+            b.ten_toa,
+            r.ten_phong,
+            v.session
+
+        ORDER BY
+            date(v.thoi_gian) DESC,
+            b.ten_toa,
+            r.ten_phong
+    """
+
+    with sqlite3.connect(getdatabase_path()) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(query, params).fetchall()
+
+    return [dict(row) for row in rows]

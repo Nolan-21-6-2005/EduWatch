@@ -10,6 +10,10 @@ BUILDING_NAMES = {
     "Giảng đường ND": "Giảng đường Nguyễn Đăng",
 }
 
+SESSION_MAP = {
+    "Phòng thi": "exam",
+    "Phòng thường": "study",
+}
 
 def _room_number(room: str) -> str:
     """ND102 -> 102 (nếu không có số thì trả nguyên chuỗi)."""
@@ -28,7 +32,7 @@ def show_detector():
             )
 
             with tab_col:
-                st.segmented_control(
+                room_type = st.segmented_control(
                     "Loại phòng",
                     ("Phòng thi", "Phòng thường"),
                     default="Phòng thường",
@@ -53,6 +57,7 @@ def show_detector():
                     key="room",
                     label_visibility="collapsed",
                 )
+        session = SESSION_MAP[room_type]
 
         room_no = _room_number(room)
 
@@ -65,6 +70,7 @@ def show_detector():
             room_label=f"Phòng {room_no}",
             room_short=f"P.{room_no}",
             camera_id=camera_id,
+            session=session,
         )
 
     with log_col:

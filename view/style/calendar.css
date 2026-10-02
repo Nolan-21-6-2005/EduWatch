@@ -1,0 +1,152 @@
+/* =========================================================
+   EDUWATCH CALENDAR
+   ========================================================= */
+
+.ew-calendar-card {
+    width: 280px auto;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e8edf0;
+    border-radius: 16px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 4px 14px rgba(30, 45, 60, 0.06);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.ew-calendar-header {
+    display: grid;
+
+    grid-template-columns: 32px 1fr 32px;
+
+    align-items: center;
+
+    margin-bottom: 16px;
+}
+
+.ew-calendar-header strong {
+    text-align: center;
+
+    color: #243447;
+
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ew-calendar-arrow {
+    width: 32px;
+    height: 32px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #243447;
+
+    font-size: 0.85rem;
+
+    cursor: default;
+}
+
+
+/* =========================================================
+   CALENDAR GRID
+   ========================================================= */
+
+.ew-calendar-grid {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr)) !important;
+
+    gap: 6px !important;
+
+    width: 100% !important;
+}
+
+
+/* =========================================================
+   DAY
+   ========================================================= */
+
+.ew-calendar-day {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #64748b;
+
+    font-size: 0.80rem;
+    font-weight: 500;
+
+    border-radius: 50%;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   WEEKDAY
+   ========================================================= */
+
+.ew-calendar-weekday {
+    aspect-ratio: auto;
+
+    height: 28px;
+
+    color: #94a3b8;
+
+    font-size: 0.7rem;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.ew-calendar-empty {
+    visibility: hidden;
+}
+
+
+/* =========================================================
+   TODAY
+   ========================================================= */
+
+.ew-calendar-active {
+    background: #20a85d;
+
+    color: #ffffff;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.ew-calendar-day:not(.ew-calendar-empty):not(.ew-calendar-active):hover {
+    background: #eef8f2;
+
+    color: #159957;
+}

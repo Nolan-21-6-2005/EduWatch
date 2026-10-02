@@ -4,18 +4,6 @@ st.set_page_config(layout="wide", page_title="Báo cáo sự cố")
 
 
 def show_issue_report():
-    st.markdown(
-        """
-        <div class="page-header">
-            <div>
-                <h1 class="page-header-title">Báo cáo sự cố</h1>
-                <p class="page-header-subtitle">Gửi thông tin sự cố kỹ thuật để bộ phận phụ trách tiếp nhận và xử lý.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
     with st.container(border=True):
         st.markdown("<h3 style='margin-top:0;'>Thông tin sự cố</h3>", unsafe_allow_html=True)
         col1, col2 = st.columns(2, gap="medium")

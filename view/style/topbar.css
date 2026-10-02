@@ -1,151 +1,214 @@
 /* =========================================================
-   EDUWATCH CUSTOM TOPBAR
-   Lấy cảm hứng từ giao diện Medcare.
-   Không ẩn header của Streamlit để giữ nút sidebar mặc định.
+   TOPBAR
    ========================================================= */
 
-/* Vùng cố định dành cho topbar. */
 .ew-topbar-spacer {
-  height: 4.25rem;
-  width: 100%;
+    height: 60px !important;
+    width: 100% !important;
 }
 
-/* Container tạo bằng st.container(key="ew_topbar"). */
 .st-key-ew_topbar {
-  position: fixed !important;
-  top: 0 !important;
-  left: 17.2rem !important;
-  right: 0 !important;
-  height: 4.25rem !important;
-  z-index: 900 !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 0.58rem 1.45rem !important;
-  background: rgba(255, 255, 255, 0.94) !important;
-  border-bottom: 1px solid #e7ebef !important;
-  box-shadow: 0 1px 10px rgba(24, 33, 47, 0.035) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 276px !important;
+    right: 0 !important;
+
+    /* Streamlit tự gán width:100% cho mọi stHorizontalBlock (kể cả chính
+       khối này). Với position:fixed, width:100% tính theo viewport chứ
+       không tự co theo left/right, nên thanh bar bị tràn ra ngoài đúng
+       bằng bề rộng sidebar. Đặt lại width:auto để left/right quyết định
+       độ rộng thật. */
+    width: auto !important;
+
+    height: 60px !important;
+
+    z-index: 1000 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+
+    padding: 8px 18px !important;
+
+    box-sizing: border-box !important;
+
+    background: #ffffff !important;
+    border-bottom: 1px solid #e7ebef !important;
+    box-shadow: 0 1px 8px rgba(24, 33, 47, 0.035) !important;
 }
 
-.st-key-ew_topbar > div {
-  width: 100% !important;
+/* st.container(..., horizontal=True) khiến CHÍNH .st-key-ew_topbar là hàng
+   flex (nó đã có data-testid="stHorizontalBlock" ngay trên class này), chứ
+   KHÔNG có hàng flex con nào nằm bên trong. Vì vậy mọi rule bên dưới phải
+   nhắm thẳng vào các div con trực tiếp của .st-key-ew_topbar, không phải
+   một [data-testid="stHorizontalBlock"] lồng bên trong (không tồn tại). */
+
+
+/* =========================================================
+   SEARCH — BÁM SÁT BÊN TRÁI
+   (dùng streamlit-searchbox: custom component chạy trong iframe riêng,
+   nên CSS của trang KHÔNG thể len vào bên trong iframe đó — phần giao diện
+   bên trong ô search (nền, bo góc, mũi tên dropdown...) phải chỉnh qua
+   tham số `style_overrides` của st_searchbox, không phải qua CSS này.
+   CSS ở đây chỉ lo phần BÊN NGOÀI: kích thước/khoảng cách của ô chứa
+   iframe trong hàng topbar.) */
+
+.st-key-ew_topbar > div:first-child {
+    flex: 0 0 auto !important;
+    width: 300px !important;
+    margin-right: auto !important;
 }
 
-/* Search box */
-.st-key-ew_topbar [data-baseweb="input"] > div {
-  min-height: 40px !important;
-  height: 40px !important;
-  border: none !important;
-  border-radius: 999px !important;
-  background: #e9ecee !important;
-  box-shadow: none !important;
-  padding-left: 0.8rem !important;
+.st-key-ew_topbar [data-testid="stCustomComponentV1"] {
+    width: 100% !important;
+    border: none !important;
+    display: block !important;
 }
 
-.st-key-ew_topbar [data-baseweb="input"] input {
-  color: #4e5a68 !important;
-  font-size: 0.91rem !important;
-  background: transparent !important;
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.st-key-ew_topbar .stButton {
+    width: auto !important;
+    margin: 0 !important;
 }
 
-.st-key-ew_topbar [data-baseweb="input"] input::placeholder {
-  color: #7b8794 !important;
-  opacity: 1 !important;
-}
-
-/* Topbar tabs */
 .st-key-ew_topbar .stButton > button {
-  min-height: 40px !important;
-  height: 40px !important;
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #64748b !important;
-  box-shadow: none !important;
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
-  padding: 0.35rem 0.2rem !important;
+    height: 40px !important;
+    min-height: 40px !important;
+
+    border: none !important;
+    border-radius: 8px !important;
+
+    background: transparent !important;
+
+    color: #64748b !important;
+
+    box-shadow: none !important;
+
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+
+    padding: 0 12px !important;
 }
 
 .st-key-ew_topbar .stButton > button:hover {
-  color: #159a56 !important;
-  background: transparent !important;
-  transform: none !important;
-}
+    background: #f5f7f8 !important;
+    color: #159957 !important;
 
-/* Tổng quan là tab đang được chọn trong mockup. */
-.st-key-topbar_overview > button {
-  color: #138f4f !important;
-  border-bottom: 2px solid #21b66a !important;
-  border-radius: 0 !important;
-}
-
-/* Nút icon */
-.st-key-ew_topbar .st-key-topbar_notifications > button,
-.st-key-ew_topbar .st-key-topbar_settings > button {
-  color: #65778d !important;
-  font-size: 1.15rem !important;
-}
-
-.st-key-ew_topbar .st-key-topbar_notifications > button:hover,
-.st-key-ew_topbar .st-key-topbar_settings > button:hover {
-  color: #159a56 !important;
-}
-
-/* Khi sidebar được thu gọn, topbar chuyển sát mép trái. Streamlit
-   cung cấp aria-expanded cho trạng thái sidebar. */
-body:has(section[data-testid="stSidebar"][aria-expanded="false"]) .st-key-ew_topbar {
-  left: 0 !important;
-}
-
-/* Giữ nút mở sidebar của Streamlit ở trên topbar. */
-[data-testid="stSidebarCollapsedControl"] {
-  z-index: 1200 !important;
+    transform: none !important;
 }
 
 
-/* Đồng bộ chiều rộng sidebar với mockup. Trạng thái đóng vẫn do
-   cơ chế toggle mặc định của Streamlit quản lý. */
+/* =========================================================
+   SYSTEM ONLINE — SÁT BÊN PHẢI
+   ========================================================= */
+
+.st-key-topbar_system > button {
+    min-width: 145px !important;
+    width: 145px !important;
+
+    border-radius: 9px !important;
+
+    background: #20a85d !important;
+    border: 1px solid #20a85d !important;
+
+    color: #ffffff !important;
+
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+}
+
+.st-key-topbar_system > button:hover {
+    background: #1c9855 !important;
+    border-color: #1c9855 !important;
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.st-key-topbar_notifications > button,
+.st-key-topbar_settings > button {
+    width: 40px !important;
+    min-width: 40px !important;
+
+    padding: 0 !important;
+
+    border-radius: 50% !important;
+
+    background: #f7f8f9 !important;
+
+    color: #64748b !important;
+
+    font-size: 1.05rem !important;
+}
+
+.st-key-topbar_notifications > button:hover,
+.st-key-topbar_settings > button:hover {
+    background: #eef2f4 !important;
+    color: #159957 !important;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
 section[data-testid="stSidebar"][aria-expanded="true"] {
-  width: 276px !important;
-  min-width: 276px !important;
-  max-width: 276px !important;
+    width: 276px !important;
+    min-width: 276px !important;
+    max-width: 276px !important;
+
+    z-index: 1001 !important;
 }
 
-/* Sidebar mở: logo/navigation nằm dưới topbar, giống mockup. */
-section[data-testid="stSidebar"][aria-expanded="true"] {
-  z-index: 1001 !important;
-}
-
-@media (max-width: 900px) {
-  .st-key-ew_topbar {
+body:has(
+    section[data-testid="stSidebar"][aria-expanded="false"]
+) .st-key-ew_topbar {
     left: 0 !important;
-    padding-left: 4rem !important;
-    padding-right: 0.75rem !important;
-  }
-
-  .st-key-ew_topbar .stButton > button {
-    font-size: 0.82rem !important;
-  }
-}
-
-.stMainBlockContainer {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
 }
 
 
-/* =========================================
-   STREAMLIT DEFAULT HEADER / SIDEBAR TOGGLE
-   ========================================= */
+/* =========================================================
+   STREAMLIT HEADER
+   ========================================================= */
 
-/* Giữ header và nút toggle mặc định để người dùng luôn mở/đóng sidebar được. */
+/* Header mặc định của Streamlit có z-index ~999990 (cao hơn hẳn topbar của
+   mình) và nền trắng đặc, nên dù để display:block nó vẫn đè kín, che mất
+   toàn bộ topbar bên dưới dù topbar vẫn tồn tại đúng vị trí trong DOM.
+   Giữ header hiển thị (để còn nút thu gọn sidebar) nhưng cho nó trong suốt
+   và không chặn click, rồi mở lại pointer-events cho đúng nút thu gọn. */
 header[data-testid="stHeader"] {
-  display: block !important;
+    display: block !important;
+    background: transparent !important;
+    pointer-events: none !important;
+}
+
+/* Bên trong header còn [data-testid="stToolbar"] (chứa nút Deploy, menu ⋮)
+   tự đặt lại pointer-events:auto, ghi đè pointer-events:none của header
+   cha — khiến nó vẫn chặn click dù trong suốt. Tắt luôn phần tử này. */
+[data-testid="stToolbar"] {
+    pointer-events: none !important;
 }
 
 [data-testid="stSidebarCollapseButton"],
 [data-testid="stSidebarCollapsedControl"] {
-  display: flex !important;
+    display: flex !important;
+    z-index: 1200 !important;
+    pointer-events: auto !important;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.stMainBlockContainer {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }

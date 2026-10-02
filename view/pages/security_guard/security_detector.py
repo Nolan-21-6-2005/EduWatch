@@ -9,18 +9,6 @@ def show_security_detector():
     col_main_cam, col_right_status = st.columns([3, 1], gap="medium")
 
     with col_main_cam:
-        st.markdown(
-            """
-            <div class="page-header">
-                <div>
-                    <h1 class="page-header-title">Giám sát an ninh</h1>
-                    <p class="page-header-subtitle">Theo dõi camera và trạng thái an ninh tại khu vực được chọn.</p>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
         filter_col1, filter_col2 = st.columns(2, gap="small")
         with filter_col1:
             st.selectbox("Tòa nhà", ["Giảng đường A", "Giảng đường B", "Giảng đường Nguyễn Đăng"])

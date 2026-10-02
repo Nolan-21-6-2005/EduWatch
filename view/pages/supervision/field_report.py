@@ -4,18 +4,6 @@ st.set_page_config(layout="wide", page_title="Xuất biên bản ca thi")
 
 
 def show_report():
-    st.markdown(
-        """
-        <div class="page-header">
-            <div>
-                <h1 class="page-header-title">Xuất biên bản ca thi</h1>
-                <p class="page-header-subtitle">Tạo biên bản từ thông tin ca thi và ghi chú của giám sát.</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
     _, form_center, _ = st.columns([1, 2, 1])
     with form_center:
         with st.container(border=True):
