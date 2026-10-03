@@ -11,6 +11,9 @@ from src.database_query.violation_logs import (
     get_violation_report_kpis,
 )
 
+from view.component.violation_pie_chart import (
+    render_violation_pie_chart,
+)
 
 <<<<<<< HEAD
 def show_report():
@@ -160,7 +163,7 @@ def show_report():
         render_calendar()
 
     with col2:
-        render_violation_type_chart(
+        render_violation_pie_chart(
             start_date=start_date_str,
             end_date=end_date_str,
         )

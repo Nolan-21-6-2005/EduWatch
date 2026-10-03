@@ -1,0 +1,35 @@
+<div class="pie-card">
+    <h4 class="pie-title">
+        Phân loại vi phạm
+    </h4>
+    <div class="pie-chart">
+        <svg
+            class="pie-svg"
+            viewBox="0 0 36 36"
+            aria-label="Biểu đồ phân loại vi phạm"
+        >
+            <!-- Vòng nền -->
+            <circle
+                class="pie-background"
+                cx="18"
+                cy="18"
+                r="16"
+            ></circle>
+            <!-- Các phần của biểu đồ -->
+            {{PIE_SEGMENTS}}
+        </svg>
+        <!-- Nội dung giữa biểu đồ -->
+        <div class="pie-center">
+            <span class="pie-total">
+                {{TOTAL}}
+            </span>
+            <span class="pie-caption">
+                CA VI PHẠM
+            </span>
+        </div>
+    </div>
+    <!-- Chú thích -->
+    <div class="pie-legend">
+        {{LEGEND}}
+    </div>
+</div>

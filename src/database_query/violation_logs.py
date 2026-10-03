@@ -259,3 +259,34 @@ def get_report_table(
         rows = conn.execute(query, params).fetchall()
 
     return [dict(row) for row in rows]
+
+def get_violation_type_distribution(
+    start_date: str,
+    end_date: str,
+):
+    with sqlite3.connect(getdatabase_path()) as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                loai_vi_pham,
+                COUNT(*) AS total
+            FROM Violation_Logs
+            WHERE DATE(thoi_gian)
+                BETWEEN ? AND ?
+            GROUP BY loai_vi_pham
+            ORDER BY total DESC
+            """,
+            (start_date, end_date),
+        )
+
+        rows = cursor.fetchall()
+
+        return [
+            {
+                "type": row[0],
+                "total": row[1],
+            }
+            for row in rows
+        ]

@@ -1,7 +1,38 @@
 import sqlite3
-
+import math
+import html
+import streamlit as st
 from utils.database_path import getdatabase_path
 
+from src.database_query.violation_logs import (
+    get_violation_type_distribution,
+)
+
+def get_violation_type_distribution(
+    start_date: str,
+    end_date: str,
+):
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT loai_vi_pham, COUNT(*) AS total FROM Violation_Logs
+            WHERE DATE(thoi_gian) BETWEEN ? AND ?
+            GROUP BY loai_vi_pham
+            ORDER BY total DESC
+        """,
+        (
+            start_date,
+            end_date,
+        ),
+    )
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return rows
 
 def get_violation_type_statistics(
     *,
@@ -46,5 +77,6 @@ def get_violation_type_statistics(
         }
         for row in rows
     ]
+
     
 

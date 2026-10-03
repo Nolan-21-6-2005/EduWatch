@@ -1,0 +1,158 @@
+.pie-card {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow:
+        10px 30px 40px
+        rgba(0, 70, 37, 0.04);
+}
+
+
+/* ================================
+   TITLE
+   ================================ */
+
+.pie-title {
+    margin: 0 0 28px 0;
+    font-family:
+        "Manrope",
+        "Public Sans",
+        Arial,
+        sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #191c1c;
+}
+
+
+/* ================================
+   CHART
+   ================================ */
+
+.pie-chart {
+    width: 190px;
+    height: 190px;
+    margin: 0 auto 28px auto;
+    position: relative;
+}
+
+
+.pie-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transform: rotate(-90deg);
+}
+
+
+/* Vòng nền */
+
+.pie-background {
+    fill: none;
+    stroke: #e1e3e2;
+    stroke-width: 3;
+}
+
+
+/* Các segment */
+
+.pie-segment {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: butt;
+}
+
+
+/* ================================
+   CENTER
+   ================================ */
+
+.pie-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+
+.pie-total {
+    font-family:
+        "Manrope",
+        "Public Sans",
+        Arial,
+        sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 800;
+    color: #191c1c;
+}
+
+
+.pie-caption {
+    margin-top: 5px;
+    font-family:
+        "Public Sans",
+        Arial,
+        sans-serif;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #6d7a6f;
+    text-transform: uppercase;
+}
+
+
+/* ================================
+   LEGEND
+   ================================ */
+
+.pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pie-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.pie-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-family:
+        "Public Sans",
+        Arial,
+        sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #3d4a40;
+}
+
+.pie-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+}
+
+.pie-percentage {
+    font-family:
+        "Public Sans",
+        Arial,
+        sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #191c1c;
+}
