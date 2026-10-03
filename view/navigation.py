@@ -1,20 +1,9 @@
-"""Khai báo các trang của ứng dụng.
-
+"""
 File này chỉ lo việc điều hướng.
 Nội dung từng trang vẫn nằm trong view/pages/.
 """
 
 import streamlit as st
-
-from view.pages.detector import show_detector
-from view.pages.logs import show_logs
-from view.pages.admin.statistic_report import show_report as show_statistic_report
-from view.pages.admin.user_management import show_user
-from view.pages.admin.buildings_management import show_buildings
-from view.pages.security_guard.security_detector import show_security_detector
-from view.pages.security_guard.device_state import show_device_state
-from view.pages.security_guard.issue_report import show_issue_report
-from view.pages.supervision.field_report import show_report as show_field_report
 
 # Trang đăng nhập/đăng ký.
 SIGN_IN_PAGE = st.Page(
@@ -32,6 +21,12 @@ SIGN_UP_PAGE = st.Page(
     url_path="signup",
 )
 
+PROFILE_PAGE = st.Page(
+    "view/pages/profile.py",
+    title="Trang cá nhân",
+    url_path="profile",
+    visibility="hidden"
+)
 
 def get_pages_for_role(role: int):
     """Trả về danh sách trang Dashboard tương ứng với role."""
@@ -39,79 +34,82 @@ def get_pages_for_role(role: int):
     if role == 0:
         return [
             st.Page(
-                show_statistic_report,
+                "view/pages/admin/statistic_report.py",
                 title="Thống kê báo cáo",
                 icon=":material/bar_chart:",
                 url_path="statistics",
             ),
             st.Page(
-                show_detector,
+                "view/pages/detector.py",
                 title="Giám sát trực tiếp",
                 icon=":material/videocam:",
                 url_path="monitoring",
             ),
             st.Page(
-                show_logs,
+                "view/pages/logs.py",
                 title="Nhật ký vi phạm",
                 icon=":material/menu_book:",
                 url_path="logs",
             ),
             st.Page(
-                show_buildings,
+                "view/pages/admin/buildings_management.py",
                 title="Danh sách tòa nhà",
                 icon=":material/apartment:",
                 url_path="buildings",
             ),
             st.Page(
-                show_user,
+                "view/pages/admin/user_management.py",
                 title="Quản lý người dùng",
                 icon=":material/group:",
                 url_path="users",
             ),
+            PROFILE_PAGE,
         ]
 
     if role == 1:
         return [
             st.Page(
-                show_detector,
+                "view/pages/detector.py",
                 title="Giám sát trực tiếp",
                 icon=":material/videocam:",
                 url_path="monitoring",
             ),
             st.Page(
-                show_logs,
+                "view/pages/logs.py",
                 title="Nhật ký vi phạm",
                 icon=":material/menu_book:",
                 url_path="logs",
             ),
             st.Page(
-                show_field_report,
+                "view/pages/supervision/field_report.py",
                 title="Xuất biên bản",
                 icon=":material/description:",
                 url_path="field-report",
             ),
+            PROFILE_PAGE,
         ]
 
     if role == 2:
         return [
             st.Page(
-                show_security_detector,
+                "view/pages/security_guard/security_detector.py",
                 title="Giám sát an ninh",
                 icon=":material/shield:",
                 url_path="security-monitoring",
             ),
             st.Page(
-                show_device_state,
+                "view/pages/security_guard/device_state.py",
                 title="Trạng thái thiết bị",
                 icon=":material/devices:",
                 url_path="device-state",
             ),
             st.Page(
-                show_issue_report,
+                "view/pages/security_guard/issue_report.py",
                 title="Báo cáo sự cố",
                 icon=":material/report_problem:",
                 url_path="issue-report",
             ),
+            PROFILE_PAGE,
         ]
 
     return []

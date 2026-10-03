@@ -5,6 +5,7 @@ from src.backend.login_router import router as login_router
 from src.backend.signup_router import router as signup_router
 from src.backend.camera_router import router as camera_router
 from src.backend.violation_router import router as violation_router
+from src.backend.buildings_router import router as buildings_router
 
 app = FastAPI()
 
@@ -23,4 +24,5 @@ app.include_router(login_router)
 app.include_router(signup_router)
 app.include_router(camera_router)
 app.include_router(violation_router)
+app.include_router(buildings_router)
 

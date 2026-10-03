@@ -1,36 +1,17 @@
 import streamlit as st
 
-from src.database_query.buildings_manager import get_buildings, get_cameras, get_rooms
-from view.component.admin_table import render_admin_table
-
 st.set_page_config(layout="wide", page_title="Quản lý tòa nhà")
 
 
-def show_buildings():
-    st.markdown(
-        """
-        <div class="page-header">
-            <div>
-                <h1 class="page-header-title">Danh sách tòa nhà</h1>
-                <p class="page-header-subtitle">Quản lý tòa nhà, phòng học và số lượng camera theo dữ liệu hiện có.</p>
-            </div>
+st.markdown(
+    """
+    <div class="page-header">
+        <div>
+            <h1 class="page-header-title">Danh sách tòa nhà</h1>
+            <p class="page-header-subtitle">Quản lý tòa nhà, phòng học và các góc camera từ dữ liệu SQLite của EduWatch.</p>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    building_rows = []
-    for building in get_buildings():
-        rooms = get_rooms(building[0])
-        camera_count = sum(len(get_cameras(room[0])) for room in rooms)
-        building_rows.append(
-            {
-                "id": building[0],
-                "name": building[1],
-                "rooms": len(rooms),
-                "cameras": camera_count,
-                "status": 1,
-            }
-        )
-
-    render_admin_table("buildings", building_rows, height=620)
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+st.iframe("http://localhost:8000/locations/panel", height=760)

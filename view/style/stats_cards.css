@@ -1,0 +1,48 @@
+/* =========================================================
+   CARD CHUNG CHO TRANG THỐNG KÊ: lịch / biểu đồ đường / biểu đồ tròn
+   (key của st.container -> class .st-key-<key>)
+   File này phải được nạp trong frontend_app.py, vì violation.css
+   chỉ dành cho iframe FastAPI.
+   ========================================================= */
+
+.st-key-calendar,
+.st-key-violation_trend,
+.st-key-pie_chart {
+    background: #ffffff !important;
+    border: 1px solid #e7ebef !important;
+    border-radius: 16px !important;
+    padding: 22px 22px 18px 22px !important;
+    box-shadow: 0 2px 10px rgba(24, 33, 47, 0.04) !important;
+    box-sizing: border-box !important;
+    min-height: 440px;
+}
+
+/* Tiêu đề dùng chung */
+.ew-card-title {
+    margin: 0 0 16px 0 !important;
+    font-family: "Manrope", "Public Sans", Arial, sans-serif;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #191c1c !important;
+}
+
+.ew-card-empty {
+    padding: 80px 0;
+    text-align: center;
+    color: #8b96a2;
+    font-size: 0.9rem;
+}
+
+/* Pie chart tự vẽ .pie-card riêng: bỏ viền/bóng/nền để không bị "card trong card" */
+.st-key-pie_chart .pie-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+
+.st-key-pie_chart .pie-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 16px !important;
+}

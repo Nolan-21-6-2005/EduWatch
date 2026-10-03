@@ -1,0 +1,206 @@
+/* =========================================================
+   EDUWATCH PROFILE PAGE
+   Standalone stylesheet for view/pages/profile.py
+   ========================================================= */
+
+body:has(.ew-profile-page) .stMainBlockContainer {
+    padding-top: 20px !important;
+}
+
+body:has(.ew-profile-page) .ew-profile-page {
+    display: block;
+    height: 0;
+    overflow: hidden;
+}
+
+.ew-profile-title {
+    color: #0f172a;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.ew-profile-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 24px;
+    max-width: 760px;
+}
+
+body:has(.ew-profile-page) .ew-profile-card-marker + div [data-testid="stVerticalBlockBorderWrapper"],
+body:has(.ew-profile-page) .ew-profile-password-marker + div [data-testid="stVerticalBlockBorderWrapper"] {
+    background: #ffffff;
+    border: 0 !important;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+    padding: 28px;
+    overflow: visible;
+    max-width: 960px;
+}
+
+body:has(.ew-profile-page) .ew-profile-password-marker + div {
+    margin-top: 24px;
+}
+
+.ew-profile-left {
+    text-align: center;
+}
+
+.ew-profile-avatar {
+    width: 124px;
+    height: 124px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 6px solid #e8f8ed;
+    display: block;
+    margin: 0 auto;
+    background: #f8fafc;
+}
+
+.ew-profile-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 42px;
+}
+
+.ew-profile-name {
+    margin-top: 20px;
+    color: #0f172a;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.ew-profile-code {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.ew-profile-role {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: #37bd74;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ew-profile-upload-title {
+    margin-top: 22px;
+    padding: 10px 12px;
+    border-radius: 8px 8px 0 0;
+    background: #37bd74;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+}
+
+.ew-profile-upload-note {
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.ew-profile-upload-plus {
+    font-size: 22px;
+    line-height: 1;
+}
+
+body:has(.ew-profile-page) [data-testid="stFileUploader"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 0 8px 8px !important;
+    background: #ffffff !important;
+}
+
+body:has(.ew-profile-page) [data-testid="stFileUploader"] label {
+    display: none !important;
+}
+
+body:has(.ew-profile-page) [data-testid="stFileUploaderDropzone"] {
+    min-height: 72px !important;
+    padding: 10px 12px !important;
+    border: 0 !important;
+    background: #ffffff !important;
+}
+
+.ew-profile-field {
+    margin-bottom: 12px;
+    padding: 11px 13px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.ew-profile-field-label {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.ew-profile-field-value {
+    margin-top: 4px;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.ew-profile-input-label {
+    margin: 2px 0 6px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+body:has(.ew-profile-page) .st-key-profile_phone input {
+    min-height: 46px !important;
+    background: #ffffff !important;
+    border: 1px dashed #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    color: #111827 !important;
+    font-size: 15px !important;
+}
+
+.ew-profile-section-title {
+    margin-bottom: 18px;
+    color: #111827;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+body:has(.ew-profile-page) .st-key-profile_save button,
+body:has(.ew-profile-page) .stFormSubmitButton > button {
+    margin-top: 10px !important;
+    min-width: 170px !important;
+    border-radius: 8px !important;
+    background: #37bd74 !important;
+    border-color: #37bd74 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+body:has(.ew-profile-page) .st-key-profile_save button:hover,
+body:has(.ew-profile-page) .stFormSubmitButton > button:hover {
+    background: #2e9f62 !important;
+    border-color: #2e9f62 !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 800px) {
+    body:has(.ew-profile-page) .ew-profile-card-marker + div [data-testid="stVerticalBlockBorderWrapper"],
+    body:has(.ew-profile-page) .ew-profile-password-marker + div [data-testid="stVerticalBlockBorderWrapper"] {
+        padding: 18px;
+    }
+
+    .ew-profile-title {
+        font-size: 24px;
+    }
+}

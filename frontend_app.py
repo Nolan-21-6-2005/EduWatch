@@ -22,6 +22,9 @@ css_files = [
     "view/style/responsive.css",
     "view/style/topbar.css",
     "view/style/detector.css",
+    "view/style/calendar.css",
+    "view/style/stats_cards.css",
+    "view/style/profile.css"
 ]
 css = "\n".join(load_file(path) for path in css_files)
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -47,9 +50,10 @@ if logged_in:
     logo_path = "view/asset/eduwatch_logo.png"
     icon_path = "view/asset/eduwatch_icon.png"
     st.logo(logo_path, size="large", icon_image=icon_path)
-
+    
     # Navigation phẳng: mỗi st.Page là một mục trực tiếp trong sidebar.
     pages = get_pages_for_role(st.session_state["role"])
+    
     pg = st.navigation(pages, position="sidebar", expanded=True)
 
     # Footer nằm dưới menu navigation.
@@ -60,4 +64,5 @@ else:
         [SIGN_IN_PAGE, SIGN_UP_PAGE],
         position="hidden",
     )
+    
 pg.run()

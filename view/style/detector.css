@@ -51,7 +51,9 @@ body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-conta
 
 /* --- Tab "Phòng thi / Phòng thường" (st.segmented_control) --- */
 .st-key-room_type [role="radiogroup"],
-.st-key-room_type [data-baseweb="button-group"] {
+.st-key-room_type [data-baseweb="button-group"],
+.st-key-report_period [role="radiogroup"],
+.st-key-report_period [data-baseweb="button-group"] {
   display: inline-flex !important;
   align-items: center !important;
   gap: 2px !important;
@@ -61,7 +63,8 @@ body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-conta
   border-radius: 999px !important;
 }
 
-.st-key-room_type button {
+.st-key-room_type button,
+.st-key-report_period button {
   min-height: 40px !important;
   padding: 0 26px !important;
   border: 0 !important;
@@ -72,7 +75,8 @@ body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-conta
   transform: none !important;
 }
 
-.st-key-room_type button p {
+.st-key-room_type button p,
+.st-key-report_period button p {
   color: inherit !important;
   font-size: 0.95rem !important;
   font-weight: 700 !important;
@@ -82,7 +86,12 @@ body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-conta
 .st-key-room_type button[aria-pressed="true"],
 .st-key-room_type button[data-selected="true"],
 .st-key-room_type button[kind="segmented_controlActive"],
-.st-key-room_type button[data-testid="stBaseButton-segmented_controlActive"] {
+.st-key-room_type button[data-testid="stBaseButton-segmented_controlActive"],
+.st-key-report_period button[aria-checked="true"],
+.st-key-report_period button[aria-pressed="true"],
+.st-key-report_period button[data-selected="true"],
+.st-key-report_period button[kind="segmented_controlActive"],
+.st-key-report_period button[data-testid="stBaseButton-segmented_controlActive"] {
   background: #35bd73 !important;
   color: #ffffff !important;
   box-shadow: 0 6px 14px rgba(45, 187, 109, 0.28) !important;

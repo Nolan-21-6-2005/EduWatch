@@ -1,0 +1,91 @@
+/* =========================================================
+   EDUWATCH CALENDAR (st.button thật, không còn là HTML tĩnh)
+   ========================================================= */
+
+.st-key-calendar [data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+}
+
+.st-key-calendar [data-testid="stColumn"] {
+    min-width: 0 !important;
+}
+
+/* Tiêu đề tháng */
+.ew-cal-title {
+    margin: 0 !important;
+    text-align: center;
+    font-size: 1rem !important;
+}
+
+/* Hàng thứ */
+.ew-cal-weekday {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+/* Ô ngày */
+.st-key-calendar button {
+    position: relative;
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    border: 1.5px solid transparent !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+}
+
+.st-key-calendar button p {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+}
+
+.st-key-calendar button[data-testid="stBaseButton-tertiary"]:hover {
+    background: #eef8f2 !important;
+}
+
+/* Ngày đang chọn */
+.st-key-calendar button[data-testid="stBaseButton-primary"] {
+    background: #20a85d !important;
+}
+
+.st-key-calendar button[data-testid="stBaseButton-primary"] p {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Nút chuyển tháng / hôm nay / bỏ chọn: dạng chữ, không tròn */
+.st-key-cal_prev button,
+.st-key-cal_next button,
+.st-key-cal_today button,
+.st-key-cal_clear button {
+    border-radius: 8px !important;
+}
+
+.st-key-cal_today button p,
+.st-key-cal_clear button p {
+    font-size: 0.75rem !important;
+    color: #159957 !important;
+    font-weight: 600 !important;
+}
+
+/* Chú thích */
+.ew-cal-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 0.7rem;
+}
+
+.ew-cal-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #20a85d;
+}

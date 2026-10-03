@@ -58,6 +58,7 @@ def init_db():
             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
             camera_id INTEGER, 
             loai_vi_pham TEXT NOT NULL, 
+            session TEXT, 
             thoi_gian TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
             image_path TEXT, 
             confidence REAL, 
@@ -67,6 +68,8 @@ def init_db():
 
         # Tương thích với database cũ: bổ sung trạng thái duyệt nếu bảng đã tồn tại.
         columns = [row[1] for row in c.execute("PRAGMA table_info(Violation_Logs)").fetchall()]
+        if "session" not in columns:
+            c.execute("ALTER TABLE Violation_Logs ADD COLUMN session TEXT")
         if "review_status" not in columns:
             c.execute("ALTER TABLE Violation_Logs ADD COLUMN review_status TEXT DEFAULT 'pending'")
 

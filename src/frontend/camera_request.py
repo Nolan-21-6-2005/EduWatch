@@ -29,16 +29,37 @@ def _camera_tile(cam):
       {note}{stats}
     </div>'''
 
-def connect_camera(building_label="Giảng đường Nguyễn Đăng", room_label="Phòng 102", room_short="P.102", camera_id=None):
-    live_src = "http://localhost:8000/video" + (f"?camera_id={int(camera_id)}" if camera_id else "")
+def connect_camera(
+    building_label = "Giảng đường Nguyễn Đăng", 
+    room_label = "Phòng 102", 
+    room_short = "P.102", 
+    camera_id: int = None, 
+    session="study"
+):
+    params = []
+
+    if camera_id is not None:
+        params.append(f"camera_id={int(camera_id)}")
+
+    if session:
+        params.append(f"session={session}")
+
+    live_src = "http://localhost:8000/video"
+
+    if params:
+        live_src += "?" + "&".join(params)
+
     img_src = "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=900"
+    
     cameras = [
         {"name":"Cam 01 - Dãy trước","src":live_src,"status":"live","fps":30,"latency":12},
         {"name":"Cam 02 - Góc sau","src":img_src,"status":"live","fps":30,"latency":11},
         {"name":"Cam 03 - Từ trên cao","src":img_src,"status":"idle","idle_text":"CAM 03: KHÔNG PHÁT HIỆN CHUYỂN ĐỘNG"},
         {"name":"Cam 04 - Khu vực bục giảng","src":img_src,"status":"live","fps":30,"latency":14},
     ]
+    
     tiles = "".join(_camera_tile(cam) for cam in cameras)
+    
     replacements = {
         "__CAMERA_CSS__": _CAMERA_CSS,
         "__BUILDING__": html_lib.escape(building_label),
@@ -50,7 +71,9 @@ def connect_camera(building_label="Giảng đường Nguyễn Đăng", room_labe
         "__TILES__": tiles,
         "__CAMERA_JS__": _CAMERA_JS.replace("__TOGGLE_CAMERA__", load_file("src/frontend/toggle_camera.js")),
     }
+    
     html = _CAMERA_HTML
+    
     for key, value in replacements.items():
         html = html.replace(key, value)
     st.iframe(html, height=IFRAME_HEIGHT)
