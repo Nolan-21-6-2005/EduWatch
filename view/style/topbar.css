@@ -12,12 +12,18 @@
     top: 0 !important;
     left: 276px !important;
     right: 0 !important;
+<<<<<<< HEAD
 
     /* Streamlit tự gán width:100% cho mọi stHorizontalBlock (kể cả chính
        khối này). Với position:fixed, width:100% tính theo viewport chứ
        không tự co theo left/right, nên thanh bar bị tràn ra ngoài đúng
        bằng bề rộng sidebar. Đặt lại width:auto để left/right quyết định
        độ rộng thật. */
+=======
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+    
+>>>>>>> 81d7401 (update)
     width: auto !important;
 
     height: 60px !important;
@@ -37,6 +43,7 @@
     box-shadow: 0 1px 8px rgba(24, 33, 47, 0.035) !important;
 }
 
+<<<<<<< HEAD
 /* st.container(..., horizontal=True) khiến CHÍNH .st-key-ew_topbar là hàng
    flex (nó đã có data-testid="stHorizontalBlock" ngay trên class này), chứ
    KHÔNG có hàng flex con nào nằm bên trong. Vì vậy mọi rule bên dưới phải
@@ -91,12 +98,64 @@
     font-size: 0.85rem !important;
     font-weight: 500 !important;
 
+=======
+.st-key-topbar_search {
+    background: #ffffff !important;
+    position: relative !important;
+    z-index: 10000 !important;
+    overflow: visible !important;
+}
+
+.st-key-ew_topbar > div:first-child {
+    flex: 0 0 auto !important;
+    width: 300px !important;
+    margin-right: auto !important;
+
+    /* QUAN TRỌNG: .st-key-ew_topbar có align-items:center. Khi dropdown mở,
+       streamlit-searchbox tự tăng chiều cao iframe (40px -> ~260px) để
+       chứa danh sách gợi ý. Với align-items:center, phần tử flex cao hơn
+       sẽ phình ĐỐI XỨNG quanh tâm — tức phình cả lên trên lẫn xuống dưới,
+       đẩy nửa trên lên âm cả tọa độ (khuất sau header/topbar), làm lệch vị
+       trí ô input và lộ ra nền sai màu. Neo vào mép trên để nó chỉ phình
+       xuống dưới như một dropdown bình thường, ô input đứng yên tại chỗ. */
+    align-self: flex-start !important;
+}
+
+.st-key-ew_topbar [data-testid="stCustomComponentV1"] {
+    width: 100% !important;
+    border: none !important;
+    display: block !important;
+    background: #ffffff !important;
+}
+
+.st-key-ew_topbar iframe {
+    position: relative !important;
+    z-index: 10002 !important;
+}
+
+.st-key-ew_topbar .stButton {
+    width: auto !important;
+    margin: 0 !important;
+}
+
+.st-key-ew_topbar .stButton > button {
+    height: 40px !important;
+    min-height: 40px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: #64748b !important;
+    box-shadow: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+>>>>>>> 81d7401 (update)
     padding: 0 12px !important;
 }
 
 .st-key-ew_topbar .stButton > button:hover {
     background: #f5f7f8 !important;
     color: #159957 !important;
+<<<<<<< HEAD
 
     transform: none !important;
 }
@@ -117,6 +176,18 @@
 
     color: #ffffff !important;
 
+=======
+    transform: none !important;
+}
+
+.st-key-topbar_system > button {
+    min-width: 145px !important;
+    width: 145px !important;
+    border-radius: 9px !important;
+    background: #20a85d !important;
+    border: 1px solid #20a85d !important;
+    color: #ffffff !important;
+>>>>>>> 81d7401 (update)
     font-size: 0.78rem !important;
     font-weight: 600 !important;
 }
@@ -127,15 +198,19 @@
     color: #ffffff !important;
 }
 
+<<<<<<< HEAD
 
 /* =========================================================
    ICON
    ========================================================= */
 
+=======
+>>>>>>> 81d7401 (update)
 .st-key-topbar_notifications > button,
 .st-key-topbar_settings > button {
     width: 40px !important;
     min-width: 40px !important;
+<<<<<<< HEAD
 
     padding: 0 !important;
 
@@ -145,6 +220,12 @@
 
     color: #64748b !important;
 
+=======
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #f7f8f9 !important;
+    color: #64748b !important;
+>>>>>>> 81d7401 (update)
     font-size: 1.05rem !important;
 }
 
@@ -154,16 +235,22 @@
     color: #159957 !important;
 }
 
+<<<<<<< HEAD
 
 /* =========================================================
    SIDEBAR
    ========================================================= */
 
+=======
+>>>>>>> 81d7401 (update)
 section[data-testid="stSidebar"][aria-expanded="true"] {
     width: 276px !important;
     min-width: 276px !important;
     max-width: 276px !important;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 81d7401 (update)
     z-index: 1001 !important;
 }
 
@@ -173,6 +260,7 @@ body:has(
     left: 0 !important;
 }
 
+<<<<<<< HEAD
 
 /* =========================================================
    STREAMLIT HEADER
@@ -183,15 +271,20 @@ body:has(
    toàn bộ topbar bên dưới dù topbar vẫn tồn tại đúng vị trí trong DOM.
    Giữ header hiển thị (để còn nút thu gọn sidebar) nhưng cho nó trong suốt
    và không chặn click, rồi mở lại pointer-events cho đúng nút thu gọn. */
+=======
+>>>>>>> 81d7401 (update)
 header[data-testid="stHeader"] {
     display: block !important;
     background: transparent !important;
     pointer-events: none !important;
 }
 
+<<<<<<< HEAD
 /* Bên trong header còn [data-testid="stToolbar"] (chứa nút Deploy, menu ⋮)
    tự đặt lại pointer-events:auto, ghi đè pointer-events:none của header
    cha — khiến nó vẫn chặn click dù trong suốt. Tắt luôn phần tử này. */
+=======
+>>>>>>> 81d7401 (update)
 [data-testid="stToolbar"] {
     pointer-events: none !important;
 }
@@ -201,12 +294,20 @@ header[data-testid="stHeader"] {
     display: flex !important;
     z-index: 1200 !important;
     pointer-events: auto !important;
+<<<<<<< HEAD
 }
 
 
 /* =========================================================
    MAIN
    ========================================================= */
+
+.stMainBlockContainer {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+=======
+>>>>>>> 81d7401 (update)
+}
 
 .stMainBlockContainer {
     padding-top: 0 !important;

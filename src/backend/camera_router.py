@@ -9,14 +9,7 @@ from utils.model_path import getmodel_path
 from utils.database_path import getdatabase_path
 from fastapi.responses import StreamingResponse
 from ultralytics import YOLO
-from utils.camera_config import (
-    latest_detections,
-    last_detect_time,
-    is_running,
-    is_active,
-    COOLDOWN,
-    placeholder_frame,
-)
+import utils.camera_config as camera_state
 
 router = APIRouter()
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -24,7 +17,17 @@ EVIDENCE_DIR = BASE_DIR / "data_model" / "evidence"
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 
 
+<<<<<<< HEAD
 def _save_violation(label: str, confidence: float, frame, camera_id: int | None, session: str):
+=======
+def _save_violation(
+    label: str, 
+    confidence: float, 
+    frame, 
+    camera_id: int | None, 
+    session: str
+):
+>>>>>>> 81d7401 (update)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     image_path = EVIDENCE_DIR / f"detection_{timestamp}.jpg"
     if not cv2.imwrite(str(image_path), frame):
@@ -34,12 +37,17 @@ def _save_violation(label: str, confidence: float, frame, camera_id: int | None,
         cursor = conn.execute(
             """
             INSERT INTO Violation_Logs
+<<<<<<< HEAD
             (camera_id, loai_vi_pham, thoi_gian, session, image_path, confidence, is_confirmed, review_status)
+=======
+            (camera_id, loai_vi_pham, session, thoi_gian, image_path, confidence, is_confirmed, review_status)
+>>>>>>> 81d7401 (update)
             VALUES (?, ?, ?, ?, ?, ?, 0, 'pending')
             """,
             (
                 camera_id,
                 label,
+                session,
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 session,
                 str(image_path.relative_to(BASE_DIR)) if image_path else None,
@@ -82,22 +90,31 @@ cap = get_camera()
 model = get_model()
 
 # === Ham nhan dien doi tuong === 
+<<<<<<< HEAD
 def gen_frames(latest_detections, last_detect_time, camera_id=None, session="study"):
+=======
+def gen_frames(
+    latest_detections, 
+    last_detect_time, 
+    camera_id: int = None, 
+    session: str = "study"
+):
+>>>>>>> 81d7401 (update)
     try:
         while True:
             success, frame = cap.read()
             
             if not success:
-                yield display(placeholder_frame)
+                yield display(camera_state.placeholder_frame)
                 time.sleep(0.1)
                 continue
 
-            if not is_running:
-                yield display(placeholder_frame)
+            if not camera_state.is_running:
+                yield display(camera_state.placeholder_frame)
                 time.sleep(0.1)
                 continue
 
-            if is_active:
+            if camera_state.is_active:
                 results = model(frame, imgsz=320)
 
                 for box in results[0].boxes:
@@ -109,10 +126,10 @@ def gen_frames(latest_detections, last_detect_time, camera_id=None, session="stu
                         current_time = time.time()
                         last_time = last_detect_time.get(label, 0)
 
-                        if current_time - last_time > COOLDOWN:
+                        if current_time - last_time > camera_state.COOLDOWN:
                             latest_detections.append({
                                 "label": label,
-                                "confidence": conf
+                                "confidence": conf,
                             })
                             try:
                                 _save_violation(label, conf, frame, camera_id, session)
@@ -132,37 +149,45 @@ def gen_frames(latest_detections, last_detect_time, camera_id=None, session="stu
 
 #=== Backend FastAPI ===
 @router.get("/video")
-def video_feed(camera_id: int | None = None):
+def video_feed(
+        camera_id: int | None = None, 
+        session: str = "study"
+    ):
     return StreamingResponse(
+<<<<<<< HEAD
         gen_frames(latest_detections, last_detect_time, camera_id, session),
+=======
+        gen_frames(
+            camera_state.latest_detections, 
+            camera_state.last_detect_time, 
+            camera_id, 
+            session
+        ),
+>>>>>>> 81d7401 (update)
         media_type='multipart/x-mixed-replace; boundary=frame')
 
 @router.get("/detections")       
 def detections():
-    data = list(latest_detections)
+    data = list(camera_state.latest_detections)
     return data
 
 @router.post("/start")
 def start_camera():
-    global is_running
-    is_running = True
+    camera_state.is_running = True
     return {"status": "started"}
 
 @router.post("/stop")
 def stop_camera():
-    global is_running
-    is_running = False
+    camera_state.is_running = False
     return {"status": "stopped"}
 
 @router.post("/model/start")
 def activate():
-    global is_active
-    is_active = True
+    camera_state.is_active = True
     return {"predict": "started"}
 
 @router.post("/model/stop")
 def deactivate():
-    global is_active
-    is_active = False
+    camera_state.is_active = False
     return {"predict": "stopped"}
 

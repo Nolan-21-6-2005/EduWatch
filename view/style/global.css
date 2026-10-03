@@ -351,6 +351,17 @@ div[data-testid="stDataFrame"] iframe {
   transform-origin: right center;
 }
 
+/* Push account footer to the actual bottom of the expanded sidebar. */
+section[data-testid="stSidebar"] { position: relative !important; }
+.st-key-ew_sidebar_footer {
+  position: fixed !important;
+  left: 12px !important;
+  bottom: 12px !important;
+  width: 256px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #d4e2d8 !important;
+  z-index: 1000 !important;
+}
 
 /* =========================================================
    ALERTS / TOASTS
