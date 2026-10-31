@@ -1,0 +1,752 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    overflow-x: hidden;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+.camera-shell {
+    width: 100%;
+    padding: 0 0 8px;
+    box-sizing: border-box;
+}
+
+/* ---------- Header phòng: breadcrumb + tiêu đề + chế độ nhiều camera ---------- */
+.room-head {
+    margin: 0 0 18px;
+}
+
+.room-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #6f8076;
+    margin-bottom: 6px;
+}
+
+.room-breadcrumb .sep {
+    font-size: 15px;
+    line-height: 1;
+    color: #899e92;
+}
+
+.room-breadcrumb .current {
+    color: #4ca66b;
+    font-weight: 700;
+}
+
+.room-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px 30px;
+}
+
+.room-title-row h1 {
+    margin: 0;
+    color: #1d211f;
+    font-size: 27px !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+}
+
+.multi-cam-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    border: 0;
+    background: transparent;
+    color: #4ca66b;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.multi-cam-btn:hover {
+    color: #378653;
+}
+
+/* ---------- Lưới 4 camera ----------
+   Các style trong camera_stream.css của Streamlit không đi vào iframe.
+   Vì vậy iframe phải tự khai báo toàn bộ layout của camera-grid. */
+.camera-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    height: 600px;
+    box-sizing: border-box;
+}
+
+.camera-box {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    border: 1.5px solid #1e2320;
+    border-radius: 28px;
+    background: #d8e8de;
+    box-shadow: 0 14px 30px rgba(25, 59, 38, 0.10);
+    cursor: pointer;
+}
+
+.camera-box img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Khi chọn một camera: camera lớn bên trái, 3 thumbnail xếp dọc bên phải. */
+.camera-grid.expanded {
+    grid-template-columns: minmax(0, 3fr) minmax(150px, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.camera-box.selected {
+    width: auto;
+    height: auto;
+    grid-column: 1;
+    grid-row: 1 / 4;
+}
+
+.camera-box.selected img {
+    object-fit: contain;
+    background: #24382c;
+}
+
+.camera-box.thumbnail {
+    width: auto;
+    height: auto;
+}
+
+.camera-box.hidden {
+    display: none;
+}
+
+/* Nhãn tên + badge trạng thái nằm cùng hàng ở góc trên trái. */
+.camera-badges {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.camera-label {
+    position: static;
+    padding: 7px 12px;
+    background: rgba(18, 22, 26, 0.86);
+    color: #fff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.camera-status {
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.camera-status.live {
+    background: #4ca66b;
+}
+
+.camera-status.idle {
+    background: rgba(255, 255, 255, 0.34);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Nút phóng to hiện khi hover, đặt dưới hàng badge để không đè lên nhau. */
+.camera-toolbar {
+    position: absolute;
+    top: 58px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+}
+
+.camera-box:hover .camera-toolbar {
+    opacity: 1;
+}
+
+.camera-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 9px;
+    background: rgba(25, 59, 38,0.72);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-btn:hover {
+    background: rgba(25, 59, 38,0.92);
+}
+
+.camera-box.idle img {
+    filter: brightness(.82) saturate(.9);
+}
+
+.camera-idle-note {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 4px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.camera-stats {
+    position: absolute;
+    right: 18px;
+    bottom: 14px;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.86);
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ---------- Thanh điều khiển ---------- */
+.camera-control-bar {
+    margin-top: 22px;
+    min-height: 88px;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #ffffff;
+    border: 1px solid #dff0e6;
+    border-radius: 24px;
+    box-shadow: 0 8px 28px rgba(25, 59, 38, 0.07);
+    box-sizing: border-box;
+}
+
+.control-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 0 0 auto;
+}
+
+.control-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 54px;
+    padding: 0 30px;
+    border: 0;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+}
+
+.control-btn:active {
+    transform: scale(.98);
+}
+
+.snapshot-btn {
+    background: #dbebe1;
+    color: #242926;
+}
+
+.snapshot-btn:hover {
+    background: #d3e3d9;
+}
+
+.record-btn {
+    background: #fff1f2;
+    color: #d84c58;
+}
+
+.record-btn:hover {
+    background: #ffe7e9;
+}
+
+.record-btn.active {
+    background: #ffe2e5;
+    color: #c93645;
+}
+
+.record-dot {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.record-dot::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.control-divider {
+    width: 1px;
+    height: 44px;
+    background: #dbebe1;
+    margin: 0 6px 0 auto;
+}
+
+.detector-control {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: flex-end;
+}
+
+.detector-copy {
+    text-align: left;
+    line-height: 1.15;
+}
+
+.detector-label {
+    color: #4ca66b;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.detector-state {
+    margin-top: 4px;
+    color: #2d3a31;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.detector-switch {
+    position: relative;
+    width: 58px;
+    height: 32px;
+    flex: 0 0 58px;
+    border: 0;
+    border-radius: 999px;
+    padding: 0;
+    background: #ccdbd2;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.detector-switch.on {
+    background: #4ca66b;
+}
+
+.detector-knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 7px rgba(25, 59, 38, .18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4ca66b;
+    transition: left .2s ease, color .2s ease;
+}
+
+.detector-switch.on .detector-knob {
+    left: 30px;
+}
+
+.detector-switch.off .detector-knob {
+    color: #879b8f;
+}
+
+@media (max-width: 900px) {
+    .camera-grid {
+        height: 520px;
+    }
+
+    .camera-grid.expanded {
+        grid-template-columns: minmax(0, 2.4fr) minmax(120px, 1fr);
+    }
+
+    .camera-control-bar {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+    }
+
+    .control-divider {
+        display: none;
+    }
+
+    .detector-control {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 560px) {
+    .camera-grid {
+        height: 520px;
+        gap: 10px;
+    }
+
+    .camera-grid.expanded {
+        grid-template-columns: minmax(0, 2fr) minmax(100px, 1fr);
+    }
+
+    .room-title-row h1 {
+        font-size: 22px !important;
+    }
+
+    .camera-control-bar {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+    }
+
+    .control-divider {
+        display: none;
+    }
+
+    .detector-control {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* =========================================================
+   CAMERA UI
+   ========================================================= */
+.camera-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  height: 600px;
+  box-sizing: border-box;
+}
+
+.camera-box {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--ew-border-strong);
+  border-radius: 14px;
+  background: #dff0e6;
+  cursor: pointer;
+  box-shadow: 0 3px 14px rgba(25, 59, 38, 0.08);
+}
+
+.camera-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-box.hidden { display: none; }
+
+.camera-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(25, 59, 38, 0.78);
+  color: #fff;
+  padding: 5px 9px;
+  font-family: sans-serif;
+  font-size: 12px;
+  border-radius: 7px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.camera-toolbar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.camera-box:hover .camera-toolbar { opacity: 1; }
+
+.camera-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 9px;
+  background: rgba(25, 59, 38,0.72);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-btn:hover { background: rgba(25, 59, 38,0.92); }
+
+.camera-grid.expanded {
+  grid-template-columns: minmax(0, 3fr) minmax(150px, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.camera-box.selected { width: 100%; height: 700px; }
+.camera-box.selected img { object-fit: contain; background: #24382c; }
+
+/* =========================================================
+   DETECTOR - VIOLATION FEED IFRAME
+   ========================================================= */
+.st-key-log_list {
+  margin-top: 0 !important;
+}
+
+.st-key-log_list iframe {
+  display: block !important;
+  width: 100% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Trên trang giám sát, panel nhật ký chạm sát mép phải viewport. */
+body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-container {
+  padding-right: 0 !important;
+}
+
+/* =========================================================
+   DETECTOR - HEADER / FILTERS / CAMERA CONTROL BAR
+   ========================================================= */
+.st-key-detector_header {
+  margin-bottom: 0.65rem !important;
+}
+
+.detector-page-header {
+  padding: 0.2rem 0.1rem 0.55rem !important;
+}
+
+.detector-page-header h1 {
+  margin: 0 !important;
+  color: var(--ew-text) !important;
+  font-size: 2rem !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.detector-page-header p {
+  margin: 0.35rem 0 0 !important;
+  color: var(--ew-muted) !important;
+  font-size: 0.9rem !important;
+}
+
+/* Hàng lọc phía trên camera: tab loại phòng + chọn giảng đường / phòng. */
+.st-key-detector_filters {
+  margin: 0.25rem 0 1.1rem !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* --- Tab "Phòng thi / Phòng thường" (st.segmented_control) --- */
+.st-key-type_selection [role="radiogroup"],
+.st-key-type_selection [data-baseweb="button-group"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  padding: 4px !important;
+  background: #e6eae8 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+}
+
+.st-key-type_selection button {
+  min-height: 40px !important;
+  padding: 0 26px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #1d211f !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.st-key-type_selection button p {
+  color: inherit !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+}
+
+.st-key-type_selection button[aria-checked="true"],
+.st-key-type_selection button[aria-pressed="true"],
+.st-key-room_type_selection button[data-selected="true"],
+.st-key-type_selection button[kind="segmented_controlActive"],
+.st-key-type_selection button[data-testid="stBaseButton-segmented_controlActive"] {
+  background: #4ca66b !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 14px rgba(76, 166, 107, 0.28) !important;
+}
+
+/* --- Selectbox giảng đường / phòng dạng pill --- */
+.st-key-detector_filters [data-baseweb="select"] > div,
+.st-key-detector_filters [data-testid="stSelectbox"] .react-aria-ComboBox [role="group"] {
+  min-height: 44px !important;
+  height: 44px !important;
+  border-radius: 999px !important;
+  border: 1px solid #dbebe1 !important;
+  background: #e1e4e2 !important;
+  box-shadow: none !important;
+}
+
+.st-key-detector_filters [data-baseweb="select"] > div:focus-within,
+.st-key-detector_filters [data-testid="stSelectbox"] .react-aria-ComboBox [role="group"]:focus-within {
+  border-color: #b8dfc8 !important;
+  box-shadow: 0 0 0 3px rgba(76, 166, 107, 0.10) !important;
+}
+
+.st-key-detector_filters [data-baseweb="select"] [role="button"] {
+  border-radius: 999px !important;
+}
+
+/* Để iframe camera không tạo khoảng trống phía trên. */
+.st-key-detector_header + iframe {
+  margin-top: 0 !important;
+}
+
+/* Nhật ký: iframe sát mép phải. */
+.st-key-log_list {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.st-key-log_list iframe {
+  width: 100% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+body:has(.st-key-log_list) [data-testid="stAppViewContainer"] .main .block-container {
+  padding-right: 0 !important;
+}
+
+@media (max-width: 1100px) {
+  .detector-page-header h1 {
+    font-size: 1.7rem !important;
+  }
+}
+
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   DETECTOR - NHẬT KÝ VI PHẠM DÍNH SÁT TOPBAR + MÉP PHẢI
+   ========================================================= */
+
+/* 1) Bỏ padding phải của khung nội dung (chỉ trên trang có panel nhật ký).
+      Dùng stMainBlockContainer nên chạy được trên các bản Streamlit mới. */
+[data-testid="stMainBlockContainer"]:has(.st-key-log_list) {
+  padding-right: 0 !important;
+}
+
+/* 2) Hai cột main / nhật ký không còn khe hở ở giữa;
+      cột camera tự chừa lề phải để không dính vào panel. */
+[data-testid="stHorizontalBlock"]:has(.st-key-log_list) {
+  gap: 0 !important;
+  align-items: stretch !important;
+}
+
+[data-testid="stColumn"]:has(.st-key-detector_filters) {
+  padding-right: 1.5rem !important;
+}
+
+/* 3) Panel dính sát topbar: triệt tiêu khoảng cách 1rem giữa spacer và nội dung,
+      cao đúng bằng phần còn lại của màn hình và đứng yên khi cuộn trang.
+      Sticky phải gắn vào lớp bọc ngoài (stLayoutWrapper) vì lớp này nằm trực tiếp
+      trong cột cao bằng cả hàng, nên mới có "quãng đường" để đứng yên. */
+[data-testid="stLayoutWrapper"]:has(> .st-key-log_list) {
+  position: sticky !important;
+  top: 4.25rem !important;
+  margin-top: -1rem !important;
+  height: auto !important;
+}
+
+/* Streamlit gán flex: 1 1 0% cho các khối này nên "height" bị bỏ qua;
+   flex: 0 0 auto trả quyền quyết định chiều cao về cho height. */
+.st-key-log_list,
+.st-key-log_list [data-testid="stElementContainer"] {
+  flex: 0 0 auto !important;
+  height: calc(100vh - 4.25rem) !important;
+  min-height: 520px;
+  margin: 0 !important;
+  background: #ffffff !important;
+}
+
+.st-key-log_list {
+  border-left: 1px solid #dcefe3 !important;
+}
+
+.st-key-log_list iframe {
+  height: calc(100vh - 4.25rem) !important;
+  min-height: 520px;
+  background: #ffffff !important;
+}
+
+/* Màn hình hẹp: cột xếp chồng, trả panel về dạng thường. */
+@media (max-width: 900px) {
+  [data-testid="stHorizontalBlock"]:has(.st-key-log_list) { gap: 1rem !important; }
+  [data-testid="stColumn"]:has(.st-key-detector_filters) { padding-right: 0 !important; }
+  [data-testid="stLayoutWrapper"]:has(> .st-key-log_list) { position: static !important; margin-top: 0 !important; }
+  .st-key-log_list,
+  .st-key-log_list [data-testid="stElementContainer"],
+  .st-key-log_list iframe { height: 850px !important; }
+}
+
+

@@ -1,0 +1,6 @@
+fastapi
+streamlit
+streamlit-navigation-bar
+ultralytics
+opencv-python
+requests

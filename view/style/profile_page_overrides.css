@@ -1,0 +1,101 @@
+
+/* Profile page refresh: two-card layout */
+body:has(.ew-profile-page) .ew-profile-title {
+    font-size: 26px;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+}
+body:has(.ew-profile-page) .ew-profile-subtitle {
+    margin-bottom: 20px;
+}
+body:has(.ew-profile-page) .ew-profile-card-marker + div [data-testid="stVerticalBlockBorderWrapper"],
+body:has(.ew-profile-page) .ew-profile-info-marker + div [data-testid="stVerticalBlockBorderWrapper"],
+body:has(.ew-profile-page) .stMainBlockContainer > div [data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 16px;
+}
+body:has(.ew-profile-page) .ew-profile-card-marker + div [data-testid="stVerticalBlockBorderWrapper"],
+body:has(.ew-profile-page) .ew-profile-info-marker + div [data-testid="stVerticalBlockBorderWrapper"] {
+    max-width: none;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+}
+.ew-profile-avatar-wrap { text-align: center; }
+.ew-profile-avatar {
+    width: 112px;
+    height: 112px;
+    border-width: 4px;
+}
+.ew-profile-name {
+    margin-top: 12px;
+    font-size: 20px;
+}
+.ew-profile-code {
+    margin-top: 5px;
+    font-size: 13px;
+}
+.ew-profile-actions-label {
+    color: #26382d;
+    font-size: 16px;
+    font-weight: 750;
+    margin-bottom: 16px;
+}
+body:has(.ew-profile-page) .st-key-profile_toggle_edit button,
+body:has(.ew-profile-page) .st-key-profile_toggle_password button {
+    min-height: 44px;
+    border-radius: 9px;
+    font-weight: 650;
+    white-space: normal;
+}
+body:has(.ew-profile-page) .ew-profile-section-title {
+    font-size: 17px;
+    font-weight: 800;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e8eee9;
+    margin-bottom: 18px;
+}
+.ew-profile-field {
+    min-height: 66px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border: 1px solid #e0e8e2;
+    border-radius: 10px;
+    background: #fbfdfb;
+}
+.ew-profile-field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #718075;
+}
+.ew-profile-field-value {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #26382d;
+}
+.ew-profile-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+.ew-profile-status-dot {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border-radius: 50%;
+}
+.ew-profile-status.is-active { color: #21834b; }
+.ew-profile-status.is-active .ew-profile-status-dot { background: #2dbb68; }
+.ew-profile-status.is-inactive { color: #b54747; }
+.ew-profile-status.is-inactive .ew-profile-status-dot { background: #d95353; }
+@media (max-width: 760px) {
+    body:has(.ew-profile-page) .ew-profile-card-marker + div [data-testid="stVerticalBlockBorderWrapper"],
+    body:has(.ew-profile-page) .ew-profile-info-marker + div [data-testid="stVerticalBlockBorderWrapper"] {
+        padding: 18px;
+    }
+    .ew-profile-avatar { width: 92px; height: 92px; }
+    body:has(.ew-profile-page) .st-key-profile_toggle_edit button,
+    body:has(.ew-profile-page) .st-key-profile_toggle_password button {
+        font-size: 13px;
+    }
+}

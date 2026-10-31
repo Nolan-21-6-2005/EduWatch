@@ -1,0 +1,325 @@
+/* =========================================================
+   EDUWATCH — PROFILE PAGE
+   Dùng cho view/pages/profile.py. Mọi selector đều gắn với key
+   `ew_profile_page` / `profile_*` nên không ảnh hưởng trang khác.
+   ========================================================= */
+
+.st-key-ew_profile_page {
+    --pf-radius: 14px;
+    --pf-pad: 28px;
+    --pf-field-h: 46px;
+    --pf-line: #d5dad7;
+    --pf-font: "Inter", "Segoe UI", sans-serif; /* cùng font .stApp, widget Streamlit mặc định dùng font riêng */
+    max-width: 1120px;
+    margin: 0 auto;
+    gap: 1.25rem !important;
+}
+
+/* ---------- Thẻ: header + 3 khối thông tin ---------- */
+.st-key-ew_profile_page [class*="st-key-profile_card"] {
+    background: var(--ew-surface);
+    border: 1px solid var(--ew-border);
+    border-radius: var(--pf-radius);
+    box-shadow: var(--ew-shadow);
+}
+
+.st-key-profile_card_header {
+    padding: var(--pf-pad) !important;
+    gap: 1.4rem !important;
+}
+
+/* Khối thông tin: tiêu đề có đường kẻ chạy hết bề ngang thẻ */
+.st-key-ew_profile_page [class*="st-key-profile_card_"]:not(.st-key-profile_card_header) {
+    padding: 0 var(--pf-pad) var(--pf-pad) !important;
+    overflow: hidden;
+}
+
+.ew-pf-title {
+    margin: 0 calc(-1 * var(--pf-pad)) 6px;
+    padding: 18px var(--pf-pad);
+    border-bottom: 1px solid var(--ew-border);
+    color: var(--ew-text);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* ---------- Hàng trên của header: avatar | tên | trạng thái ---------- */
+.st-key-profile_header_top {
+    flex-wrap: wrap;
+    gap: 1.6rem !important;
+}
+
+/* Các khối con của hàng ngang co theo nội dung (khối bọc avatar mặc định là flex 1 1 128px) */
+.st-key-profile_header_top > [data-testid="stLayoutWrapper"],
+.st-key-profile_header_top > [data-testid="stElementContainer"] {
+    flex: 0 1 auto !important;
+    width: auto !important;
+}
+
+.ew-pf-identity { min-width: 0; }
+
+.ew-pf-name {
+    color: var(--ew-text);
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.ew-pf-code {
+    margin-top: 6px;
+    color: var(--ew-muted);
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.ew-pf-code b { color: var(--ew-text-soft); font-weight: 700; }
+
+.ew-pf-tag {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 3px 12px;
+    border: 1px solid var(--ew-text-soft);
+    border-radius: 6px;
+    color: var(--ew-text-soft);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Trạng thái đẩy sang mép phải (dùng lại pill .ew-status của global.css) */
+.st-key-profile_header_top > [data-testid="stElementContainer"]:last-child {
+    margin-left: auto;
+    flex: 0 0 auto !important;
+    width: auto !important;
+}
+
+.st-key-profile_header_top .ew-status {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+}
+
+.st-key-profile_header_top .ew-status::before {
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+}
+
+/* ---------- Hàng nút: Chỉnh sửa (trái) — Đổi mật khẩu (phải) ---------- */
+.st-key-profile_header_actions {
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 22px;
+    border-top: 1px solid var(--ew-border);
+}
+
+.st-key-ew_profile_page :is(.st-key-profile_btn_edit, .st-key-profile_btn_password, .st-key-profile_btn_cancel) button {
+    height: var(--pf-field-h);
+    padding: 0 22px;
+    border: 1.5px solid var(--ew-green) !important;
+    border-radius: 10px !important;
+    background: var(--ew-surface) !important;
+    color: var(--ew-green-dark) !important;
+    font-weight: 700 !important;
+}
+
+.st-key-ew_profile_page :is(.st-key-profile_btn_edit, .st-key-profile_btn_password, .st-key-profile_btn_cancel) button:hover {
+    background: var(--ew-green-soft) !important;
+    transform: none !important;
+}
+
+.st-key-ew_profile_page :is(.st-key-profile_btn_edit, .st-key-profile_btn_password, .st-key-profile_btn_cancel) button p,
+.st-key-ew_profile_page .stFormSubmitButton button p {
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+/* Nút lưu thay đổi (primary) */
+.st-key-ew_profile_page .stFormSubmitButton button[kind="primaryFormSubmit"] {
+    height: var(--pf-field-h);
+    min-width: 170px;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+}
+
+/* ---------- Avatar: bấm để đổi ảnh, rê chuột hiện camera ---------- */
+.st-key-profile_avatar_box {
+    position: relative;
+    width: 136px;
+    height: 136px;
+    flex: 0 0 136px !important;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    gap: 0 !important;
+}
+
+.ew-pf-avatar {
+    position: relative;
+    width: 136px;
+    height: 136px;
+    border: 4px solid var(--ew-green-soft);
+    border-radius: 50%;
+    background: var(--ew-green-soft);
+    box-shadow: 0 6px 18px rgba(25, 59, 38, 0.12);
+    overflow: hidden;
+}
+
+.ew-pf-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ew-pf-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 2.6rem;
+}
+
+.ew-pf-avatar-cam {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: rgba(24, 36, 28, 0.52);
+    color: #fff;
+    font-size: 0.74rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+}
+
+.ew-pf-cam-icon {
+    font-family: "Material Symbols Rounded";
+    font-size: 34px;
+    font-weight: 400;
+    line-height: 1;
+    font-feature-settings: "liga";
+    -webkit-font-feature-settings: "liga";
+}
+
+.st-key-profile_avatar_box:hover .ew-pf-avatar-cam,
+.st-key-profile_avatar_box:focus-within .ew-pf-avatar-cam { opacity: 1; }
+
+/* st.file_uploader phủ kín avatar, trong suốt: click vào avatar = mở hộp chọn file */
+.st-key-profile_avatar_box > [data-testid="stElementContainer"]:has([data-testid="stFileUploader"]) {
+    position: absolute !important;
+    inset: 0;
+    z-index: 2;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    opacity: 0;
+}
+
+.st-key-profile_avatar_box [data-testid="stFileUploader"],
+.st-key-profile_avatar_box [data-testid="stFileUploaderDropzone"],
+.st-key-profile_avatar_box [data-testid="stFileUploaderDropzone"] button {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    cursor: pointer;
+}
+
+/* ---------- Ô thông tin: chế độ xem (HTML) và chế độ sửa (text_input) cùng một hình dạng ---------- */
+.ew-pf-label,
+.st-key-ew_profile_page [class*="st-key-profile_f_"] label p,
+[data-testid="stDialog"] label p {
+    color: var(--ew-text);
+    font-family: var(--pf-font);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.ew-pf-label { margin-bottom: 6px; }
+
+.ew-pf-box {
+    display: flex;
+    align-items: center;
+    min-height: var(--pf-field-h);
+    padding: 0 14px;
+    border: 1px solid var(--pf-line);
+    border-radius: 10px;
+    background: var(--ew-surface);
+    color: var(--ew-text);
+    font-size: 0.95rem;
+    word-break: break-word;
+}
+
+.ew-pf-box .ew-status { padding: 4px 10px; }
+
+.st-key-ew_profile_page [class*="st-key-profile_f_"] :is([data-baseweb="input"], [data-testid="stTextInputRootElement"]) {
+    min-height: var(--pf-field-h);
+    border: 1px solid var(--pf-line);
+    border-radius: 10px;
+    background: var(--ew-surface);
+}
+
+.st-key-ew_profile_page [class*="st-key-profile_f_"] :is([data-baseweb="input"], [data-testid="stTextInputRootElement"]):focus-within {
+    border-color: var(--ew-green);
+    box-shadow: 0 0 0 3px rgba(76, 166, 107, 0.14);
+}
+
+.st-key-ew_profile_page [class*="st-key-profile_f_"] input {
+    padding: 0 14px;
+    color: var(--ew-text);
+    font-family: var(--pf-font);
+    font-size: 0.95rem;
+}
+
+/* Trường chỉ xem (định danh) khi đang ở chế độ sửa */
+.st-key-ew_profile_page [class*="st-key-profile_f_"] [data-testid="stWidgetLabel"] { opacity: 1; }
+
+.st-key-ew_profile_page [class*="st-key-profile_f_"] :is([data-baseweb="input"], [data-testid="stTextInputRootElement"]):has(input:disabled) {
+    background: var(--ew-surface-soft);
+}
+
+.st-key-ew_profile_page [class*="st-key-profile_f_"] input:disabled {
+    color: var(--ew-muted);
+    -webkit-text-fill-color: var(--ew-muted);
+}
+
+/* Thanh nút của form sửa */
+.st-key-profile_form_actions { justify-content: flex-end; gap: 0.75rem !important; }
+
+/* ---------- Hộp thoại đổi mật khẩu ---------- */
+[data-testid="stDialog"] :is([data-baseweb="input"], [data-testid="stTextInputRootElement"]) {
+    min-height: var(--pf-field-h, 46px);
+    border: 1px solid #d5dad7;
+    border-radius: 10px;
+    background: var(--ew-surface);
+}
+
+[data-testid="stDialog"] :is([data-baseweb="input"], [data-testid="stTextInputRootElement"]):focus-within {
+    border-color: var(--ew-green);
+    box-shadow: 0 0 0 3px rgba(76, 166, 107, 0.14);
+}
+
+[data-testid="stDialog"] .stFormSubmitButton button {
+    height: 46px;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+}
+
+@media (max-width: 760px) {
+    .st-key-ew_profile_page { --pf-pad: 18px; }
+    .ew-pf-name { font-size: 1.35rem; }
+    .st-key-profile_header_actions { flex-wrap: wrap; }
+}

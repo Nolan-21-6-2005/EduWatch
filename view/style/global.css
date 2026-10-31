@@ -1,0 +1,1116 @@
+/* =========================================================
+   EDUWATCH — MEDCARE-INSPIRED GLOBAL UI
+   Chỉ override giao diện Streamlit bằng CSS, không thay đổi
+   logic/API của các page.
+   ========================================================= */
+
+:root {
+  --ew-bg: #f0f3f1;
+  --ew-surface: #ffffff;
+  --ew-surface-soft: #f5faf7;
+  --ew-border: #dcefe3;
+  --ew-border-strong: #c9e4d2;
+  --ew-text: #24382c;
+  --ew-muted: #77857c;
+  --ew-text-soft: #4a5a50;
+  --ew-green: #4ca66b;
+  --ew-green-dark: #378653;
+  --ew-green-soft: #e4f5e9;
+  --ew-blue: #4ca66b;
+  --ew-blue-soft: #e8f6ec;
+  --ew-danger: #e25563;
+  --ew-danger-soft: #fff0f1;
+  --ew-warning: #e7a92b;
+  --ew-warning-soft: #fff7e5;
+  --ew-radius: 16px;
+  --ew-page-pad-x: 1.25rem;   /* padding trái/phải vùng nội dung: giảm số này để sát mép hơn */
+  --ew-page-pad-bottom: 1.5rem;
+  --ew-shadow: 0 6px 22px rgba(25, 59, 38, 0.055);
+}
+
+section[data-testid="stSidebar"] [data-testid="stLogo"],
+section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] img,
+section[data-testid="stSidebar"] [data-testid="stImage"] img {
+    height: 64px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain;
+}
+
+/* =========================================================
+   UTILITY CLASSES FOR PAGE LAYOUT
+   ========================================================= */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 0 1.15rem;
+}
+
+.page-header-title { margin: 0; }
+.page-header-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--ew-muted);
+  font-size: 0.87rem;
+  line-height: 1.55;
+}
+
+.toolbar-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 0.65rem;
+}
+
+.section-title {
+  color: var(--ew-text) !important;
+  margin: 0.3rem 0 0.8rem !important;
+  font-weight: 720 !important;
+}
+
+.main-title {
+  color: var(--ew-text);
+  font-size: 1.7rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.sub-title {
+  color: var(--ew-muted);
+  font-size: 0.86rem;
+  margin-bottom: 1.1rem;
+}
+
+.empty-state-container {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #8da295;
+  background: #fbfefc;
+}
+
+/* =========================================================
+   GLOBAL / APP CANVAS
+   ========================================================= */
+* { box-sizing: border-box; }
+
+html, body, .stApp {
+  background: var(--ew-bg) !important;
+  color: var(--ew-text) !important;
+  overflow-x: hidden;
+}
+
+.stApp {
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Không để header mặc định phủ lên nội dung */
+header[data-testid="stHeader"] {
+  display: none !important;
+}
+
+header[data-testid="stHeader"] > div {
+  background: transparent !important;
+}
+
+/* =========================================================
+   SIDEBAR — BỐ CỤC GIỐNG MEDCARE
+   ========================================================= */
+section[data-testid="stSidebar"] {
+  background: #fafafa !important; 
+  border-right: 1px solid #e9e7df !important;
+  box-shadow: 4px 0 18px rgba(25, 59, 38, 0.035) !important;
+}
+
+section[data-testid="stSidebar"] > div:first-child {
+  background: transparent !important;
+  padding: 1rem 0.9rem 1rem !important;
+}
+
+/* Logo do st.logo() render */
+section[data-testid="stSidebar"] img {
+  object-fit: contain;
+}
+
+/* Navigation container */
+div[data-testid="stSidebarNav"] {
+  padding: 0.45rem 0.25rem 0.75rem !important;
+  background: transparent !important;
+}
+
+div[data-testid="stSidebarNav"] ul {
+  gap: 0.22rem !important;
+}
+
+div[data-testid="stSidebarNav"] li {
+  margin: 0 !important;
+}
+
+div[data-testid="stSidebarNav"] a {
+  min-height: 44px !important;
+  padding: 0.62rem 0.78rem !important;
+  border-radius: 15px !important;
+  color: #3d4a40 !important;
+  font-size: 0.94rem !important;
+  font-weight: 500 !important;
+  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+div[data-testid="stSidebarNav"] a:hover {
+  background: rgba(76, 166, 107, 0.12) !important;
+  color: var(--ew-green-dark) !important;
+}
+
+/* Mục đang chọn: pill xanh đặc, chữ/icon trắng (giống ảnh tham chiếu) */
+div[data-testid="stSidebarNav"] a[aria-current="page"] {
+  background: var(--ew-green) !important;
+  color: #ffffff !important;
+  font-weight: 650 !important;
+  box-shadow: 0 6px 14px rgba(76, 166, 107, 0.26) !important;
+}
+
+div[data-testid="stSidebarNav"] a[aria-current="page"]:hover {
+  background: var(--ew-green-dark) !important;
+}
+
+div[data-testid="stSidebarNav"] a[aria-current="page"] span,
+div[data-testid="stSidebarNav"] a[aria-current="page"] svg {
+  color: #ffffff !important;
+  fill: #ffffff;
+}
+
+div[data-testid="stSidebarNav"] span {
+  font-size: 0.94rem !important;
+}
+
+div[data-testid="stSidebarNav"] svg {
+  width: 1.12rem !important;
+  height: 1.12rem !important;
+}
+
+/* Logo block generated by st.logo() */
+section[data-testid="stSidebar"] [data-testid="stLogo"] {
+  margin: 0 0 1.2rem !important;
+}
+
+
+
+/* =========================================================
+   TYPOGRAPHY / PAGE HEADER
+   ========================================================= */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ew-text) !important;
+  letter-spacing: -0.02em !important;
+}
+
+h1 { font-size: 2rem !important; font-weight: 750 !important; }
+h2 { font-size: 1.55rem !important; font-weight: 720 !important; }
+h3 { font-size: 1.18rem !important; font-weight: 680 !important; }
+
+[data-testid="stCaptionContainer"] p,
+.stCaption {
+  color: var(--ew-muted) !important;
+}
+
+/* Khoảng cách giữa các block — tránh giao diện dính nhau */
+[data-testid="stVerticalBlock"] > [data-testid="element-container"] {
+  margin-bottom: 0.25rem;
+}
+
+
+/* =========================================================
+   CARDS / BORDER CONTAINERS
+   ========================================================= */
+
+[data-testid="stVerticalBlockBorderWrapper"] > div {
+  border-radius: inherit !important;
+}
+
+
+/* =========================================================
+   NATIVE BUTTON — HACK CSS
+   ========================================================= */
+.stButton > button,
+[data-testid="stDownloadButton"] > button,
+button[kind="secondary"],
+button[kind="tertiary"] {
+  min-height: 40px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--ew-border) !important;
+  background: var(--ew-surface) !important;
+  color: #5a6860 !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  transition: all 0.16s ease !important;
+}
+
+.stButton > button:hover,
+[data-testid="stDownloadButton"] > button:hover,
+button[kind="secondary"]:hover,
+button[kind="tertiary"]:hover {
+  border-color: #cfdfd6 !important;
+  background: #eafcf1 !important;
+  color: var(--ew-text) !important;
+  transform: translateY(-1px);
+}
+
+.stButton > button[kind="primary"] {
+  background: var(--ew-green) !important;
+  border-color: var(--ew-green) !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 13px rgba(76, 166, 107, 0.18) !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+  background: var(--ew-green-dark) !important;
+  border-color: var(--ew-green-dark) !important;
+  color: #ffffff !important;
+}
+
+.stButton > button:focus-visible,
+[data-testid="stDownloadButton"] > button:focus-visible {
+  outline: 3px solid rgba(76, 166, 107, 0.16) !important;
+  outline-offset: 1px !important;
+}
+
+/* Icon-only buttons */
+button[kind="tertiary"] {
+  min-width: 40px !important;
+  padding: 0.45rem 0.65rem !important;
+}
+
+
+/* =========================================================
+   INPUT / SELECTBOX / DATE INPUT — HACK CSS
+   ========================================================= */
+[data-baseweb="input"],
+[data-baseweb="select"],
+[data-baseweb="textarea"] {
+  border-radius: 10px !important;
+}
+
+[data-baseweb="input"] > div,
+[data-baseweb="select"] > div,
+[data-baseweb="textarea"] > div {
+  background: #e2e5e3 !important;
+  border: 1px solid #d5dad7 !important;
+  border-radius: 10px !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+}
+
+[data-baseweb="input"] > div:focus-within,
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="textarea"] > div:focus-within {
+  border-color: #a9dcbc !important;
+  box-shadow: 0 0 0 3px rgba(76, 166, 107, 0.08) !important;
+}
+
+[data-baseweb="input"] input,
+[data-baseweb="select"] input,
+[data-baseweb="textarea"] textarea {
+  color: var(--ew-text) !important;
+  font-size: 0.92rem !important;
+}
+
+[data-baseweb="select"] [role="option"] {
+  border-radius: 18px !important;
+}
+
+[data-baseweb="popover"] {
+  border: 1px solid var(--ew-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 14px 34px rgba(25, 59, 38, 0.12) !important;
+}
+
+label[data-testid="stWidgetLabel"] p {
+  color: #566b5c !important;
+  font-size: 0.86rem !important;
+  font-weight: 600 !important;
+}
+
+
+/* =========================================================
+   METRIC CARDS — GIỐNG CÁC KPI CARD TRONG MEDCARE
+   ========================================================= */
+
+div[data-testid="stMetricLabel"] p {
+  color: #708177 !important;
+  font-size: 0.86rem !important;
+  font-weight: 600 !important;
+}
+
+div[data-testid="stMetricValue"] {
+  color: var(--ew-text) !important;
+  font-size: 1.75rem !important;
+  font-weight: 730 !important;
+}
+
+
+/* =========================================================
+   DATAFRAME / TABLE NATIVE — HACK CSS
+   ========================================================= */
+[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stMetric"],
+div[data-testid="stDataFrame"] {
+  border: 1px solid var(--ew-border) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  background: var(--ew-surface) !important;
+  box-shadow: var(--ew-shadow) !important;
+}
+
+div[data-testid="stDataFrame"] iframe {
+  border-radius: 14px !important;
+}
+
+
+/* =========================================================
+   CHECKBOX / TOGGLE
+   ========================================================= */
+[data-testid="stCheckbox"] label p {
+  color: #566b5c !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+}
+
+[data-testid="stCheckbox"] [data-baseweb="checkbox"] > div:first-child {
+  border-radius: 999px !important;
+}
+
+[data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
+  border-radius: 999px !important;
+}
+
+.st-key-ai_toggle {
+  transform: scale(1.12);
+  transform-origin: right center;
+}
+
+/* Push account footer to the actual bottom of the expanded sidebar. */
+section[data-testid="stSidebar"] { position: relative !important; }
+.st-key-ew_sidebar_footer {
+  position: fixed !important;
+  left: 12px !important;
+  bottom: 12px !important;
+  width: 256px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 6px 18px rgba(25, 59, 38, 0.05) !important;
+  z-index: 1000 !important;
+}
+
+/* Nút đăng xuất: chữ xanh, nền trong suốt */
+.st-key-ew_sidebar_footer .stButton > button {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--ew-green-dark) !important;
+  font-weight: 700 !important;
+}
+
+.st-key-ew_sidebar_footer .stButton > button:hover {
+  background: var(--ew-green-soft) !important;
+  border-color: var(--ew-border) !important;
+  color: var(--ew-green-dark) !important;
+}
+
+/* =========================================================
+   ALERTS / TOASTS
+   ========================================================= */
+[data-testid="stAlert"] {
+  border-radius: 11px !important;
+  border: 1px solid var(--ew-border) !important;
+}
+
+
+/* =========================================================
+   POPOVER
+   ========================================================= */
+[data-testid="stPopover"] button {
+  border-radius: 10px !important;
+}
+
+.ew-bottom-stat { 
+  min-height: 100px; 
+  padding: 17px; 
+  display: flex; 
+  align-items: center; 
+  gap: 13px; 
+}
+
+.ew-bottom-stat strong { 
+  display:block; 
+  color:#24382c; 
+  font-size:22px; 
+  line-height:1; }
+
+.ew-bottom-stat span { 
+  display:block; 
+  margin-top:4px; 
+  color:#56665f; 
+  font-weight:800; 
+  font-size:12px; }
+
+.ew-bottom-stat small { 
+  display:block; 
+  margin-top:2px; 
+  color:#a0ada6; 
+  font-size:10px; }
+
+.ew-bottom-icon { 
+  width:44px; 
+  height:44px; 
+  border-radius:12px; 
+  display:grid; 
+  place-items:center; 
+  font-weight:900; }
+
+.ew-bottom-icon.green { 
+  background:#e8f7ed; 
+  color:#27a962; 
+}
+
+.ew-bottom-icon.blue { 
+  background:#e3f6f0; 
+  color:#2b8a7a; 
+}
+
+.ew-bottom-icon.orange { 
+  background:#fff1cc; 
+  color:#db9d10; 
+}
+
+/* =========================================================
+   SECURITY / STATUS PANELS
+   ========================================================= */
+.toolbar-card,
+.status-panel,
+.data-card-box,
+.custom-card-form,
+.history-table,
+.ew-bottom-stat,
+.ew-table-wrap {
+  background: var(--ew-surface);
+  border: 1px solid var(--ew-border);
+  border-radius: 14px;
+  box-shadow: var(--ew-shadow);
+}
+
+.status-panel { padding: 1rem 1.05rem; }
+.status-panel-title {
+  color: var(--ew-text);
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--ew-border);
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 0.78rem 0;
+  border-bottom: 1px solid #e2f3e9;
+}
+.status-row:last-child { border-bottom: none; }
+.status-name { color: #5b6961; font-size: 0.9rem; }
+
+.badge-pill,
+.ew-status,
+.status-badge,
+.ew-noti-badge,
+.status-badge-waiting {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pill-active { background: var(--ew-green-soft); color: #238b52; }
+.pill-error { background: var(--ew-danger-soft); color: #c33c4a; }
+.status-badge-waiting { background: var(--ew-warning-soft); color: #a86f00; }
+
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+/* Breadcrumb trong topbar */
+.ew-breadcrumb {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    gap: 9px;
+    white-space: nowrap;
+    font-size: 15.5px;
+    line-height: 1.4;
+    margin-top: -8px;
+}
+
+.ew-breadcrumb-home {
+    color: #7b857e;
+    font-weight: 400;
+}
+
+.ew-breadcrumb-separator {
+    color: #a1aaa3;
+}
+
+.ew-breadcrumb-current {
+    color: #245c35;
+    font-weight: 600;
+}
+
+.ew-topbar-spacer {
+    height: 60px !important;
+    width: 100% !important;
+}
+
+.st-key-ew_topbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 276px !important;
+    right: 0 !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+    
+    width: auto !important;
+
+    height: 60px !important;
+
+    z-index: 1000 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+
+    padding: 8px 18px !important;
+
+    box-sizing: border-box !important;
+
+}
+
+.st-key-topbar_search {
+    position: relative !important;
+    z-index: 10000 !important;
+    overflow: visible !important;
+}
+
+.st-key-ew_topbar > div:nth-child(2) {
+    flex: 0 0 auto !important;
+    width: 300px !important;
+    margin-left: auto !important;
+
+    /* QUAN TRỌNG: .st-key-ew_topbar có align-items:center. Khi dropdown mở,
+       streamlit-searchbox tự tăng chiều cao iframe (40px -> ~260px) để
+       chứa danh sách gợi ý. Với align-items:center, phần tử flex cao hơn
+       sẽ phình ĐỐI XỨNG quanh tâm — tức phình cả lên trên lẫn xuống dưới,
+       đẩy nửa trên lên âm cả tọa độ (khuất sau header/topbar), làm lệch vị
+       trí ô input và lộ ra nền sai màu. Neo vào mép trên để nó chỉ phình
+       xuống dưới như một dropdown bình thường, ô input đứng yên tại chỗ. */
+    align-self: flex-start !important;
+}
+
+.st-key-ew_topbar [data-testid="stCustomComponentV1"] {
+    width: 100% !important;
+    border: none !important;
+    display: block !important;
+    background: #f0f3f1 !important;
+}
+
+.st-key-ew_topbar iframe {
+    position: relative !important;
+    z-index: 10002 !important;
+}
+
+.st-key-ew_topbar .stButton {
+    width: auto !important;
+    margin: 0 !important;
+}
+
+/* Nút chuông + cài đặt: nút tròn nền trắng.
+   Class `st-key-*` nằm trên container bọc ngoài còn nút thật nằm sâu bên trong
+   (nút có help= còn thêm lớp tooltip) nên phải dùng selector con cháu, không dùng `>`.
+   Selector có tiền tố .st-key-ew_topbar để thắng rule nút chung phía trên. */
+.st-key-ew_topbar :is(.st-key-topbar_notifications, .st-key-topbar_settings) button {
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: var(--ew-surface) !important;
+    border: 1px solid var(--ew-border) !important;
+    color: var(--ew-text-soft) !important;
+    font-size: 1.05rem !important;
+    box-shadow: 0 2px 8px rgba(25, 59, 38, 0.06) !important;
+}
+
+.st-key-ew_topbar :is(.st-key-topbar_notifications, .st-key-topbar_settings) button:hover {
+    background: var(--ew-green-soft) !important;
+    border-color: var(--ew-border-strong) !important;
+    color: var(--ew-green-dark) !important;
+    transform: none !important;
+}
+
+/* Trạng thái hệ thống: HTML thuần, dùng lại pill .ew-status.ok */
+.st-key-ew_topbar .ew-status {
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--ew-border-strong);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.st-key-ew_topbar .ew-status::before {
+    width: 8px;
+    height: 8px;
+    animation: ew-status-pulse 2s ease-out infinite;
+}
+
+@keyframes ew-status-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(76, 166, 107, 0.45); }
+    70%, 100% { box-shadow: 0 0 0 7px rgba(76, 166, 107, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .st-key-ew_topbar .ew-status::before { animation: none; }
+}
+
+/* Badge số thông báo: nội dung (`content`) do notification.py chèn khi có tin chưa đọc */
+.st-key-topbar_notifications { position: relative !important; }
+.st-key-topbar_notifications::after {
+    position: absolute; top: -4px; right: -4px; z-index: 3;
+    min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px;
+    background: var(--ew-danger); color: #fff; font-size: 11px; font-weight: 700;
+    line-height: 19px; text-align: center;
+    box-shadow: 0 0 0 2px var(--ew-bg); pointer-events: none;
+}
+
+/* st.fragment bọc chuông và st.html bọc trạng thái hệ thống đều nằm trong khối flex-grow
+   (width 100%), làm các nút bị đẩy ra mép phải: ép về kích thước theo nội dung */
+.st-key-ew_topbar > [data-testid="stLayoutWrapper"],
+.st-key-ew_topbar > [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"],
+.st-key-ew_topbar > [data-testid="stElementContainer"]:has(.ew-status) {
+    flex: 0 0 auto !important; width: auto !important;
+}
+
+/* Gỡ khối bọc của hộp ra khỏi luồng để mở hộp không làm trang bị xô xuống */
+[data-testid="stLayoutWrapper"]:has(> .st-key-ew_notif_panel),
+[data-testid="stElementContainer"]:has(> .st-key-ew_notif_panel) {
+    position: absolute !important; width: 0 !important; height: 0 !important; margin: 0 !important;
+}
+
+/* Hộp danh sách, ghim góc phải trên */
+.st-key-ew_notif_panel {
+    position: fixed !important; top: 66px !important; right: 18px !important;
+    z-index: 1100 !important; width: 390px !important; max-width: calc(100vw - 36px) !important;
+    max-height: min(540px, calc(100vh - 90px)) !important; overflow-y: auto !important;
+    gap: 0.35rem !important; padding: 12px !important;
+    background: var(--ew-surface) !important; border: 1px solid var(--ew-border) !important;
+    border-radius: 16px !important; box-shadow: 0 14px 34px rgba(25, 59, 38, 0.14) !important;
+}
+.st-key-ew_notif_head { justify-content: space-between !important; padding: 2px 2px 6px !important; }
+.ew-noti-title { color: var(--ew-text); font-size: 1.02rem; font-weight: 720; }
+
+/* Mỗi thông báo là một nút dạng thẻ (selector dạng con cháu, vì DOM nút có/không tooltip khác nhau) */
+.st-key-ew_notif_panel [class*="st-key-notif_"] button {
+    justify-content: flex-start !important; align-items: flex-start !important;
+    height: auto !important; min-height: 0 !important; padding: 10px 12px !important;
+    border: 1px solid transparent !important; border-radius: 12px !important;
+    background: var(--ew-surface) !important; text-align: left !important; transform: none !important;
+}
+.st-key-ew_notif_panel [class*="st-key-notif_"] button:hover {
+    background: #f3faf6 !important; border-color: var(--ew-border) !important;
+}
+.st-key-ew_notif_panel [class*="st-key-notif_"] button [data-testid="stMarkdownContainer"] {
+    width: 100% !important; text-align: left !important;
+}
+.st-key-ew_notif_panel [class*="st-key-notif_"] button p {
+    text-align: left !important; white-space: normal !important;
+    line-height: 1.45 !important; font-size: 0.84rem !important;
+    font-weight: 400 !important; color: var(--ew-text-soft) !important;
+}
+.st-key-ew_notif_panel [class*="st-key-notif_"] button strong {
+    font-weight: 700 !important; color: var(--ew-text) !important;
+}
+.st-key-ew_notif_panel [class*="st-key-notif_new_"] button {
+    background: #eaf7ef !important; border-color: #cfe9d8 !important;
+}
+
+/* Nút đóng cũng khớp [class*="st-key-notif_"] nên phải đặt lại, đặt SAU các rule trên */
+.st-key-ew_notif_panel .st-key-notif_close button {
+    width: 32px !important; min-width: 32px !important; height: 32px !important;
+    min-height: 32px !important; padding: 0 !important; border: none !important;
+    border-radius: 50% !important; background: transparent !important;
+    justify-content: center !important; align-items: center !important;
+}
+
+/* Hộp chi tiết */
+.ew-noti-detail {
+    display: grid; grid-template-columns: 140px 1fr; margin: 6px 0 14px;
+    border: 1px solid var(--ew-border); border-radius: 12px; overflow: hidden; font-size: 0.88rem;
+}
+.ew-noti-detail .k, .ew-noti-detail .v { padding: 10px 14px; border-bottom: 1px solid #e8f2ec; }
+.ew-noti-detail .k { background: #f5faf7; color: #566b5c; font-weight: 600; }
+.ew-noti-detail .v { color: var(--ew-text); white-space: pre-wrap; word-break: break-word; }
+.ew-noti-detail .k:nth-last-child(2), .ew-noti-detail .v:last-child { border-bottom: none; }
+.ew-noti-badge.pending { background: var(--ew-warning-soft); color: #a86f00; }
+.ew-noti-badge.approved { background: var(--ew-green-soft); color: var(--ew-green-dark); }
+
+section[data-testid="stSidebar"][aria-expanded="true"] {
+    width: 276px !important;
+    min-width: 276px !important;
+    max-width: 276px !important;
+    z-index: 1001 !important;
+}
+
+body:has(
+    section[data-testid="stSidebar"][aria-expanded="false"]
+) .st-key-ew_topbar {
+    left: 0 !important;
+}
+
+header[data-testid="stHeader"] {
+    display: block !important;
+    background: transparent !important;
+    pointer-events: none !important;
+}
+
+[data-testid="stToolbar"] {
+    pointer-events: none !important;
+}
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: flex !important;
+    z-index: 1200 !important;
+    pointer-events: auto !important;
+}
+
+/* Vùng nội dung: rộng hết cỡ, padding nhỏ. Phía trên không padding vì đã có
+   .ew-topbar-spacer (60px) chừa chỗ cho topbar cố định. */
+[data-testid="stMainBlockContainer"] {
+    max-width: 100% !important;
+    padding: 0 var(--ew-page-pad-x) var(--ew-page-pad-bottom) !important;
+}
+
+/* =========================================================
+   CUSTOM TABLES ALREADY PRESENT IN PROJECT
+   ========================================================= */
+.table-header-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  padding: 11px 20px;
+  background: #f5faf7;
+  border-bottom: 1px solid var(--ew-border);
+  color: #819488;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.table-row-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2f3e9;
+  align-items: center;
+  background: #fff;
+}
+.table-row-grid:last-child { border-bottom: none; }
+.cell-text { font-size: 0.86rem; color: #566b5c; }
+.cell-bold { font-weight: 650; color: var(--ew-text); }
+
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+
+}
+
+.ew-table th,
+.history-table th,
+.history-table th {
+  padding: 12px 14px;
+  text-align: left;
+  background: var(--ew-surface-soft);
+  color: #809388;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--ew-border);
+}
+
+.history-table tr:last-child td { border-bottom: none; }
+
+
+/* =========================================================
+   MEDCARE-LIKE TABLE COMPONENTS
+   ========================================================= */
+.ew-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ew-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ew-table th {
+  white-space: nowrap;
+}
+
+.ew-table td {
+  padding: 12px 13px;
+  background: #fff;
+  color: #5a6860;
+  font-size: 0.84rem;
+  border-bottom: 1px solid #e2f3e9;
+  vertical-align: middle;
+}
+
+.ew-table tbody tr:hover td { background: #fbfefc; }
+.ew-table tbody tr:last-child td { border-bottom: none; }
+
+.ew-avatar {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 9px;
+}
+
+.ew-primary-text { color: var(--ew-text); font-weight: 650; }
+.ew-secondary-text { display: block; color: #8da295; font-size: 0.73rem; margin-top: 2px; }
+
+.ew-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ew-status.ok { background: var(--ew-green-soft); color: #378653; }
+.ew-status.off { background: var(--ew-danger-soft); color: #c84654; }
+.ew-status.pending { background: var(--ew-warning-soft); color: #a87508; }
+
+.ew-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--ew-border);
+  background: #fff;
+  color: #73847a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bộ nhập liệu màu xám trung tính theo mẫu giao diện nhật ký. */
+[data-baseweb="input"] > div,
+[data-baseweb="select"] > div,
+[data-baseweb="textarea"] > div,
+[data-testid="stDateInput"] [data-baseweb="input"] > div,
+[data-testid="stTimeInput"] [data-baseweb="input"] > div {
+  background: #e1e4e2 !important;
+  border-color: #d9ddda !important;
+  border-radius: 16px !important;
+}
+[data-baseweb="input"] > div:focus-within,
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="textarea"] > div:focus-within {
+  background: #e8ebe9 !important;
+  border-color: #9acbaa !important;
+  box-shadow: 0 0 0 2px rgba(76, 166, 107, .10) !important;
+}
+.ew-search-spacer { height: 1.7rem; }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1100px) {
+  .page-header { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 720px) {
+  h1 { font-size: 1.55rem !important; }
+  h2 { font-size: 1.3rem !important; }
+  [data-testid="stAppViewContainer"] .main .block-container {
+    padding: 1rem 0.75rem 1.5rem !important;
+  }
+  .camera-grid { height: 420px; gap: 9px; }
+  .camera-box.selected { height: 420px; }
+}
+
+/* =========================================================
+   ISSUE_REPORT
+   ========================================================= */
+
+.block-container {
+  padding-top: 1.5rem; 
+  padding-bottom: 1rem; 
+  max-width: 100%;
+}
+
+.page-heading {
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  gap:1rem; 
+  margin-bottom:.35rem;
+}
+
+.page-heading h1 {
+  font-size:1.65rem; 
+  margin:0; 
+  color:var(--text-color);}
+
+  .page-subtitle {
+  color:var(--secondary-text-color); 
+  margin:.25rem 0 1.2rem 0; 
+  font-size:.92rem;}
+
+  div[data-testid="stDataFrame"] {
+  width:100%;
+}
+
+div[data-testid="stSegmentedControl"] {
+  margin-top:.15rem;
+}
+
+.report-chart-title {
+  color: #176B3A;
+  font-size: 1rem;
+  font-weight: 650;
+  margin: 0 0 0.2rem 0;
+}
+
+.report-chart-subtitle {
+  color: #7A8580;
+  font-size: 0.78rem;
+  margin-bottom: 0.35rem;
+}
+
+/* Key của từng st.container giúp chỉ áp dụng style cho hai thẻ biểu đồ. */
+.st-key-report_bar_card,
+.st-key-report_doughnut_card {
+  background: #FFFFFF;
+  border: 1px solid #E7EEE9;
+  border-radius: 16px;
+  padding: 14px 16px 8px 16px;
+  box-shadow: 0 2px 8px rgba(20, 75, 43, 0.04);
+}
+
+.st-key-report_bar_card div[data-testid="stVerticalBlock"],
+.st-key-report_doughnut_card div[data-testid="stVerticalBlock"] {
+  gap: 0.35rem;
+}
+
+/* =========================================================
+   VIOLATION LIST CARD — statistic report
+   ========================================================= */
+.st-key-ew_violation_list_card {
+  background: var(--ew-surface) !important;
+  border: 1px solid var(--ew-border) !important;
+  border-radius: var(--ew-radius) !important;
+  padding: 18px 20px 16px !important;
+  box-shadow: var(--ew-shadow) !important;
+}
+
+
+.ew-violation-list-heading {
+  color: #245c35;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.ew-violation-list-subtitle {
+  color: #77857c;
+  font-size: 0.78rem;
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
+.ew-violation-list-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.ew-violation-list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 9px 2px;
+  border-bottom: 1px solid #edf2ee;
+}
+
+.ew-violation-list-row:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+
+.ew-violation-list-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.ew-violation-list-icon span {
+  font-size: 21px;
+  line-height: 1;
+  font-weight: 750;
+}
+
+.ew-violation-list-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #34443a;
+  font-size: 0.88rem;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+
+.ew-violation-list-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: #e7f5eb;
+  color: #245c35;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ew-violation-list-empty {
+  padding: 22px 12px;
+  border: 1px dashed #dce8df;
+  border-radius: 12px;
+  color: #77857c;
+  background: #fbfdfb;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.st-key-ew_violation_list_session [data-testid="stSelectbox"] {
+  max-width: 220px;
+}
