@@ -40,7 +40,7 @@ def get_pages_for_role(role: int):
                 url_path="statistics",
             ),
             st.Page(
-                "view/pages/admin/admin_detector.py",
+                "view/pages/admin/admin_camera.py",
                 title="Giám sát trực tiếp",
                 icon=":material/videocam:",
                 url_path="monitoring",
@@ -92,16 +92,10 @@ def get_pages_for_role(role: int):
     if role == 2:
         return [
             st.Page(
-                "view/pages/security_guard/security_detector.py",
+                "view/pages/security_guard/security_camera.py",
                 title="Giám sát an ninh",
                 icon=":material/shield:",
                 url_path="security-monitoring",
-            ),
-            st.Page(
-                "view/pages/security_guard/device_state.py",
-                title="Trạng thái thiết bị",
-                icon=":material/devices:",
-                url_path="device-state",
             ),
             st.Page(
                 "view/pages/security_guard/building_viewers.py",

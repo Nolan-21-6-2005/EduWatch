@@ -15,7 +15,9 @@ div[data-testid="stDataFrame"] {width:100%;}
 </style>
 """, unsafe_allow_html=True)
 
-
+today = date.today()
+start_date_value = today - timedelta(days=6)
+end_date_value = today
 
 def _load_records() -> pd.DataFrame:
     user_code = st.session_state.get("professor_id")
@@ -73,9 +75,14 @@ with right:
 frame = _load_records()
 search_col, status_col, subject_col = st.columns([1.7, 1.2, 1], vertical_alignment="bottom")
 with search_col:
-    query = st.text_input("Tìm kiếm", placeholder="Tìm theo môn thi, phòng thi, ghi chú...", key="field_search")
+    date_range = st.date_input(
+        "KHOẢNG NGÀY",
+        value=(start_date_value, end_date_value),
+        format="DD/MM/YYYY",
+        key="log_date_range",
+    )
 with status_col:
-    status_filter = st.segmented_control("Trạng thái", ["Tất cả", "Chờ xử lý", "Đang xử lý", "Đã xử lý"], default="Tất cả", key="field_status_filter", width="stretch")
+    status_filter = st.selectbox("Trạng thái", ["Tất cả", "Chờ xử lý", "Đang xử lý", "Đã xử lý"], default="Tất cả", key="field_status_filter", width="stretch")
 with subject_col:
     options = ["Tất cả"]
     if not frame.empty:

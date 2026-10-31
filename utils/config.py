@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from pathlib import Path
-
+from datetime import datetime, date, timedelta
 # Thư mục gốc của project Stable
 BASE_DIR = Path(__file__).resolve().parents[1]
 
@@ -34,6 +34,10 @@ statuses = {
     "wrong": "Báo sai AI",
 }
 
+today = date.today()
+start_date = today - timedelta(days=6)
+end_date = today
+
 latest_detections = []
 last_detect_time = {}
 is_running = True
@@ -52,7 +56,7 @@ security_logo_path = "view/asset/security.png"
 
 css_files = [
     "view/style/global.css",
-    "view/style/detector.css",
+    "view/style/camera.css",
     "view/style/auth.css",
     "view/style/profile.css",
 ]

@@ -1,6 +1,7 @@
 import streamlit as st
 
 from src.frontend.camera_request import connect_camera
+from view.component.control_bar import control_bar
 from src.database_query.buildings_manager import get_first_camera_id
 from utils.config import BUILDING_NAMES, SESSION_MAP
 from utils.helper import _room_number
@@ -10,10 +11,9 @@ main_col, log_col = st.columns([2.15, 1], gap="small")
 with main_col:
     # Hàng trên cùng: tab loại phòng (bên trái) + chọn giảng đường / phòng (bên phải).
     with st.container(key="detector_filters"):
-        tab_col, building_col, room_col = st.columns(
-            [1.5, 1, 0.7], gap="small", vertical_alignment="center"
+        tab_col, building_col, room_col, label_col, toggle_col = st.columns(
+            5, gap="small", vertical_alignment="center"
         )
-
         with tab_col:
             room_type = st.segmented_control(
                 "Loại phòng",
@@ -23,7 +23,6 @@ with main_col:
                 key="room_type",
                 label_visibility="collapsed",
             )
-
         with building_col:
             building = st.selectbox(
                 "Giảng đường",
@@ -40,6 +39,11 @@ with main_col:
                 key="room",
                 label_visibility="collapsed",
             )
+        with label_col:
+            st.subheader("TRÍ TUỆ NHÂN TẠO")
+            st.caption("Ngừng hoạt động")
+        with toggle_col:    
+            st.toggle("AI mode") 
     session = SESSION_MAP[room_type]
 
     room_no = _room_number(room)

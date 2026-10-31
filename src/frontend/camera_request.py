@@ -11,10 +11,6 @@ _CAMERA_HTML = (_ASSET_DIR / "camera.html").read_text(encoding="utf-8")
 _CAMERA_JS = (_ASSET_DIR / "camera.js").read_text(encoding="utf-8")
 _CAMERA_CSS = (_STYLE_DIR / "camera.css").read_text(encoding="utf-8")
 
-ICON_GRID = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>'
-ICON_CAMERA = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>'
-ICON_AI = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>'
-
 def _camera_tile(cam):
     name = html_lib.escape(cam["name"])
     idle = cam["status"] == "idle"
@@ -34,7 +30,7 @@ def connect_camera(
     room_label = "Phòng 102", 
     room_short = "P.102", 
     camera_id: int = None, 
-    session = "study",
+    session: str | None = None,
     role = 0
 ):
     params = []
@@ -60,37 +56,10 @@ def connect_camera(
     ]
     
     tiles = "".join(_camera_tile(cam) for cam in cameras)
-    
-    # Thanh điều khiển chỉ dành cho giám thị (role=1). Các vai trò khác
-    # vẫn xem được camera nhưng không có nút chụp ảnh, ghi hình hoặc bật/tắt AI.
-    control_bar = ""
-    if role in (0, 1):
-        control_bar = '''<div class="camera-control-bar">
-          <div class="control-actions">
-            <button class="control-btn snapshot-btn" onclick="takeSnapshot()">__ICON_CAMERA__<span>Chụp ảnh</span></button>
-            <button id="recordButton" class="control-btn record-btn" onclick="toggleRecording()">
-              <span class="record-dot"></span><span id="recordText">Ghi hình</span>
-            </button>
-          </div>
-          <div class="control-divider"></div>
-          <div class="detector-control">
-            <div class="detector-copy">
-              <div class="detector-label">TRÍ TUỆ NHÂN TẠO</div>
-              <div id="detectorState" class="detector-state">Ngừng hoạt động</div>
-            </div>
-            <button id="detectorSwitch" class="detector-switch off" onclick="toggleDetector()" aria-label="Bật tắt detector">
-              <span class="detector-knob">__ICON_AI__</span>
-            </button>
-          </div>
-        </div>'''
 
     replacements = {
         "__CAMERA_CSS__": _CAMERA_CSS,
-        "__ICON_GRID__": ICON_GRID,
-        "__ICON_CAMERA__": ICON_CAMERA,
-        "__ICON_AI__": ICON_AI,
         "__TILES__": tiles,
-        "__CONTROL_BAR__": control_bar,
         "__CAMERA_JS__": _CAMERA_JS.replace("__TOGGLE_CAMERA__", load_file("src/frontend/toggle_camera.js")),
     }
 

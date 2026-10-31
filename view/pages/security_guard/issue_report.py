@@ -1,6 +1,7 @@
 import inspect
 import pandas as pd
 import streamlit as st
+import utils.config as cfg
 from src.database_query import notifications as db
 from view.component.admin_table import render_admin_table
 from utils.helper import _find_col, _format_status
@@ -69,9 +70,14 @@ with top_right:
 frame = _load_records("issue")
 search_col, status_col, type_col = st.columns([3, 1.2, 1.5], vertical_alignment="bottom")
 with search_col:
-    query = st.text_input("Tìm kiếm", placeholder="Tìm theo loại sự cố, mô tả, tòa nhà...", label_visibility="visible", key="issue_search")
+    date_range = st.date_input(
+        "KHOẢNG NGÀY",
+        value=(cfg.start_date, cfg.end_date),
+        format="DD/MM/YYYY",
+        key="log_date_range",
+    )
 with status_col:
-    status_filter = st.segmented_control("Trạng thái", ["Tất cả", "Chờ xử lý", "Đang xử lý", "Đã xử lý"], default="Tất cả", key="issue_status_filter", width="stretch")
+    status_filter = st.selectbox("Trạng thái", ["Tất cả", "Chờ xử lý", "Đang xử lý", "Đã xử lý"], default="Tất cả", key="issue_status_filter", width="stretch")
 with type_col:
     types = ["Tất cả"]
     if not frame.empty:

@@ -71,13 +71,27 @@ active_guards = sum(
 c1, c2, c3 = st.columns(3, gap="small")
 
 with c1:
-    kpi_metric(total_active, "green")
+    kpi_metric(
+        total_active,"Số lượng nhân sự", 
+        "Số lượng nhân sự của học viện", 
+        "green"
+    )
 
 with c2:
-    kpi_metric(active_teachers, "blue")
+    kpi_metric(
+        active_teachers, 
+        "Số lượng giảng viên", 
+        "Số lượng giảng viên của học viện", 
+        "blue"
+    )
 
 with c3:
-    kpi_metric(active_guards, "orange")
+    kpi_metric(
+        active_guards, 
+        "Số lượng bảo vệ", 
+        "Số lượng bảo vệ của học viện", 
+        "orange"
+    )
 
 render_admin_table(
     "users",

@@ -84,42 +84,58 @@ def get_violation_logs(
 
 
 def get_violation_report_kpis(
+    session: str,
     start_date: str | None = None,
     end_date: str | None = None,
 ) -> dict:
-    conditions = ["1 = 1"]
+
+    conditions = ["v.review_status = 'confirmed'"]
     params = []
 
     if start_date:
         conditions.append("date(v.thoi_gian) >= date(?)")
         params.append(start_date)
+
     if end_date:
         conditions.append("date(v.thoi_gian) <= date(?)")
         params.append(end_date)
 
+    if session:
+        conditions.append("v.session = ?")
+        params.append(session)
+
     query = f"""
+        WITH filtered_logs AS (
+            SELECT v.loai_vi_pham
+            FROM Violation_Logs v
+            WHERE {" AND ".join(conditions)}
+        ),
+        total AS (
+            SELECT COUNT(*) AS total_violations
+            FROM filtered_logs
+        ),
+        most_common AS (
+            SELECT
+                loai_vi_pham
+            FROM filtered_logs
+            GROUP BY loai_vi_pham
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+        )
         SELECT
-            COUNT(*) AS total_predictions,
-            SUM(CASE WHEN COALESCE(v.review_status, 'pending') = 'confirmed'
-                     THEN 1 ELSE 0 END) AS confirmed_count,
-            SUM(CASE WHEN COALESCE(v.review_status, 'pending') = 'wrong'
-                     THEN 1 ELSE 0 END) AS wrong_count,
-            SUM(CASE WHEN COALESCE(v.review_status, 'pending') = 'pending'
-                     THEN 1 ELSE 0 END) AS pending_count
-        FROM Violation_Logs v
-        WHERE {" AND ".join(conditions)}
+            total.total_violations,
+            most_common.loai_vi_pham
+        FROM total
+        LEFT JOIN most_common ON 1 = 1
     """
 
     with sqlite3.connect(getdatabase_path()) as conn:
         row = conn.execute(query, params).fetchone()
 
     return {
-        "total_predictions": int(row[0] or 0),
-        "confirmed": int(row[1] or 0),
-        "wrong": int(row[2] or 0),
-        "pending": int(row[3] or 0),
+        "confirmed": int(row[0] or 0),
+        "violation_type": str(row[1] or "")
     }
-
 
 def get_report_table(
     start_date: str | None = None,

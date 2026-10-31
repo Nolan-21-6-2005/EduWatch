@@ -6,12 +6,15 @@ from src.database_query.violation_logs import get_violation_type_distribution
 def render_violation_bar_chart(
     start_date: str,
     end_date: str,
-    period
+    session: str,
+    date_range,
+    number: int
 ) -> None:
     
     violation_rows = get_violation_type_distribution(
         start_date=start_date,
         end_date=end_date,
+        session=session
     )
 
     violation_rows = [
@@ -19,13 +22,9 @@ def render_violation_bar_chart(
         if row.get("type") and int(row.get("total") or 0) > 0
     ]
     
-    with st.container(key="report_bar_card",height=410):
+    with st.container(key=f"report_bar_card_'{number}'",height=410):
         st.markdown(
             '<div class="report-chart-title">Số lượng theo loại vi phạm</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div class="report-chart-subtitle">Tổng số lần xuất hiện trong {period}</div>',
             unsafe_allow_html=True,
         )
 
