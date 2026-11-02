@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>__CAMERA_CSS__</style>
+</head>
+<body>
+<div class="camera-shell" id="shell">
+  <!-- Thanh đầu chỉ hiện khi phóng to một camera -->
+  <div class="focus-head">
+    <button class="back-btn" onclick="showAllCameras()">← Quay lại 4 camera</button>
+    <div class="focus-title" id="focusTitle"></div>
+    <span class="cam-status focus-status" id="focusStatus" data-state="connecting"></span>
+  </div>
+  <div id="grid" class="camera-grid">__TILES__</div>
+</div>
+<script>__CAMERA_JS__</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+import cv2
+import numpy as np
+from collections import deque
+from pathlib import Path
+from datetime import datetime, date, timedelta
+# Thư mục gốc của project Stable
+BASE_DIR = Path(__file__).resolve().parents[1]
+
+# Thư mục chứa dữ liệu của project
+DATA_DIR = BASE_DIR / "data_model"
+
+# Thư mục avatar
+AVATAR_DIR = DATA_DIR / "avatar"
+
+# Database
+DATABASE_PATH = DATA_DIR / "eduwatch.db"
+
+
+# Đảm bảo thư mục avatar tồn tại
+AVATAR_DIR.mkdir(parents=True, exist_ok=True)
+
+# Tên hiển thị đầy đủ cho từng giảng đường (giá trị lưu trong session_state giữ nguyên).
+BUILDING_NAMES = {
+    "Nguyễn Đăng": "Giảng đường Nguyễn Đăng",
+}
+
+SESSION_MAP = {
+    "Phòng thi": "exam",
+    "Phòng thường": "study",
+}
+
+statuses = {
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã xác nhận",
+    "wrong": "Báo sai AI",
+}
+
+today = date.today()
+start_date = today - timedelta(days=6)
+end_date = today
+
+latest_detections = deque(maxlen=100)
+last_detect_time = {}
+is_running = True
+is_active = False
+camera_connected = False
+
+COOLDOWN = 5
+
+# Màu xám tối (#2b2b2b)
+placeholder_frame = np.ones((480, 640, 3), dtype=np.uint8) * 43 
+cv2.putText(placeholder_frame, "CAMERA IS OFF", (160, 250), 
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 100), 2, cv2.LINE_AA)
+            
+admin_logo_path = "view/asset/admin.png"
+supervision_logo_path = "view/asset/supervision.png"
+security_logo_path = "view/asset/security.png"
+
+css_files = [
+    "view/style/global.css",
+    "view/style/detector.css",
+    "view/style/camera.css",
+    "view/style/auth.css",
+    "view/style/profile.css",
+]

@@ -1,0 +1,359 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================
+   EDUWATCH — CAMERA IFRAME
+   CSS này chỉ chạy bên trong iframe camera (view/asset/camera.html);
+   style của trang Streamlit không đi vào iframe nên không khai báo ở detector.css.
+   ========================================================= */
+:root {
+    --cam-green: #4ca66b;
+    --cam-green-dark: #378653;
+    --cam-ink: #1d2a22;
+    --cam-tile: #cdd8d0;
+    --cam-tile-line: #a9d4b9;
+    --cam-dark: rgba(20, 26, 23, 0.88);
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: transparent;
+    overflow: hidden;
+    font-family: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+}
+
+button { font-family: inherit; }
+
+/* Khung chiếm trọn iframe: [thanh đầu] [lưới camera] [thanh điều khiển] */
+.camera-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* ---------- Thanh đầu khi phóng to ---------- */
+.focus-head {
+    display: none;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+}
+
+.camera-shell.focus .focus-head { display: grid; }
+
+.back-btn {
+    justify-self: start;
+    height: 40px;
+    padding: 0 22px;
+    border: 1px solid #dbe7df;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--cam-ink);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.back-btn:hover { background: #f3f8f5; border-color: #c4dccd; }
+
+.focus-title {
+    color: var(--cam-ink);
+    font-size: 18px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.focus-status {
+    justify-self: end;
+    padding: 12px 22px;
+    font-size: 11px;
+}
+
+/* ---------- Lưới camera: 2x2, hoặc 1 lớn + 3 nhỏ khi phóng to ---------- */
+.camera-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.camera-grid.focus {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr) 104px;
+}
+
+.camera-box {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1.5px solid var(--cam-tile-line);
+    border-radius: 16px;
+    background: var(--cam-tile);
+    cursor: pointer;
+}
+
+.camera-box.selected { grid-column: 1 / -1; grid-row: 1; cursor: default; }
+.camera-box.thumb { grid-row: 2; border-radius: 12px; }
+
+.camera-box img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.camera-box.selected img { object-fit: contain; background: #1f2a24; }
+
+.camera-box[data-state="live"] img { opacity: 1; }
+.camera-box[data-state="idle"] img,
+.camera-box[data-state="unconfigured"] img { opacity: 0.55; }
+
+/* Chữ giữa khung khi chưa có hình */
+.cam-note {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    color: #2a3a30;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    pointer-events: none;
+}
+
+.camera-box[data-state="live"] .cam-note { display: none; }
+.camera-box.thumb .cam-note { font-size: 10.5px; padding-bottom: 26px; }
+
+/* ---------- Chip, nút, thông số dùng chung ---------- */
+.cam-top {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cam-name,
+.cam-code,
+.cam-stats {
+    background: var(--cam-dark);
+    color: #fff;
+    font-weight: 700;
+}
+
+.cam-name {
+    padding: 7px 11px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    line-height: 1;
+}
+
+.cam-status {
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: #b9c4d2;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.cam-status[data-state="live"]  { background: var(--cam-green); }
+.cam-status[data-state="idle"],
+.cam-status[data-state="unconfigured"] { background: #c5ccd6; }
+.cam-status[data-state="error"] { background: #e5646f; }
+
+.cam-top .cam-status { margin-left: auto; }
+
+.cam-expand {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: var(--cam-dark);
+    color: #fff;
+    cursor: pointer;
+}
+
+.cam-expand:hover { background: #000; }
+.cam-expand svg { width: 16px; height: 16px; }
+.cam-expand .ico-full,
+.camera-box.selected .cam-expand .ico-expand { display: none; }
+.camera-box.selected .cam-expand .ico-full { display: block; }
+
+/* Góc dưới: mã phòng (trái) + FPS/độ trễ (phải) */
+.cam-code {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 3;
+    display: none;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cam-stats {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 3;
+    padding: 7px 10px;
+    border-radius: 9px;
+    font-size: 10px;
+    line-height: 1.45;
+    text-align: right;
+}
+
+.camera-box.selected .cam-code { display: block; }
+
+/* Thanh tên ở đáy thumbnail */
+.cam-foot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 30px;
+    padding: 0 8px;
+    background: #1f2522;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+}
+
+.camera-box.thumb .cam-foot { display: flex; }
+.camera-box.thumb .cam-foot .cam-status { padding: 6px 8px; font-size: 8.5px; }
+
+/* Khi phóng to: bỏ chip tên/trạng thái trên đầu (đã có ở thanh đầu và thanh đáy) */
+.camera-grid.focus .cam-top .cam-name,
+.camera-grid.focus .cam-top .cam-status { display: none; }
+.camera-grid.focus .cam-top .cam-expand { margin-left: auto; }
+.camera-box.thumb .cam-stats { display: none; }
+.camera-box.thumb .cam-top { top: 8px; right: 8px; }
+.camera-box.thumb .cam-expand { width: 26px; height: 26px; }
+
+/* ---------- Thanh điều khiển (admin / giám thị) ---------- */
+.camera-control-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 10px 18px;
+    border: 1px solid #dff0e6;
+    border-radius: 14px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.control-actions { display: flex; align-items: center; gap: 10px; }
+
+.control-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.control-btn:active { transform: scale(0.98); }
+.control-btn svg { width: 18px; height: 18px; }
+
+.snapshot-btn { background: #dbebe1; color: #242926; }
+.snapshot-btn:hover { background: #d0e3d7; }
+.stream-btn { background: #e4f5e9; color: #378653; }
+.stream-btn:hover { background: #d7efdf; }
+.stream-btn:disabled { opacity: .65; cursor: wait; }
+.stream-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #9aa79e;
+}
+.stream-btn.running .stream-dot { background: #378653; }
+
+.control-divider { width: 1px; height: 32px; margin: 0 4px 0 auto; background: #dbebe1; }
+
+.detector-control { display: flex; align-items: center; gap: 12px; }
+.detector-copy { line-height: 1.15; }
+
+.detector-label {
+    color: var(--cam-green);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.detector-state { margin-top: 3px; color: #2d3a31; font-size: 12.5px; font-weight: 500; }
+
+.detector-switch {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    flex: 0 0 50px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #ccdbd2;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.detector-switch.on { background: var(--cam-green); }
+
+.detector-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    color: #879b8f;
+    box-shadow: 0 2px 6px rgba(25, 59, 38, 0.18);
+    transition: left 0.2s ease, color 0.2s ease;
+}
+
+.detector-switch.on .detector-knob { left: 25px; color: var(--cam-green); }
+
+@media (max-width: 700px) {
+    .camera-grid.focus { grid-template-rows: minmax(0, 1fr) 84px; }
+    .cam-name { font-size: 10px; }
+    .focus-title { font-size: 15px; }
+    .back-btn { padding: 0 12px; }
+    .camera-control-bar { flex-wrap: wrap; }
+    .control-divider { display: none; }
+}
