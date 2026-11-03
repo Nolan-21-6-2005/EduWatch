@@ -52,22 +52,11 @@
   }
 
   function tableShell(headers, placeholder) {
-    const filterRow = headers.map(h => {
-      const key = h.filter || "";
-      if (!key) return "<th></th>";
-      return `<th><input class="column-filter" data-column-filter="${esc(key)}" aria-label="Lọc ${esc(h.label)}" placeholder="Lọc..." /></th>`;
-    }).join("");
     app.innerHTML = `${toolbar(placeholder)}
       <div class="notice" id="notice" role="status"></div>
-      <div class="table-wrap"><table><thead>
-        <tr>${headers.map(h => `<th${h.sort ? ` data-sort="${esc(h.sort)}"` : ""}>${esc(h.label)}</th>`).join("")}</tr>
-        <tr class="column-filter-row">${filterRow}</tr>
-      </thead><tbody id="tbody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr>${headers.map(h => `<th${h.sort ? ` data-sort="${esc(h.sort)}"` : ""}>${esc(h.label)}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
       <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
     bindCommon();
-    document.querySelectorAll("[data-column-filter]").forEach(input =>
-      input.addEventListener("input", applyFilter)
-    );
     document.getElementById("export-btn").addEventListener("click", exportCsv);
     applyFilter();
   }
@@ -108,23 +97,27 @@
     applyFilter();
   }
 
-  function requestReportHeaders() {
-    return [
-      {label:"Thời gian", sort:"datetime_display", filter:"datetime_display"},
-      {label:"Tòa nhà", sort:"building", filter:"building"},
-      {label:"Phòng học", sort:"room", filter:"room"},
-      {label:"Loại sự cố", sort:"title", filter:"title"},
-      {label:"Mô tả", sort:"description", filter:"description"},
-      {label:"Trạng thái", sort:"review_status", filter:"review_status"}
-    ];
-  }
-
-  function renderFieldReports() {
-    tableShell(requestReportHeaders(), "Tìm thời gian, tòa nhà, phòng học, loại sự cố...");
-  }
-
+  // Lịch sử sự cố (loai_yeu_cau = su_co): Thời gian | Loại sự cố | Tòa nhà | Phòng | Mô tả | Trạng thái
   function renderIssueReports() {
-    tableShell(requestReportHeaders(), "Tìm thời gian, tòa nhà, phòng học, loại sự cố...");
+    tableShell([
+      {label:"Thời gian", sort:"created_at"},
+      {label:"Loại sự cố", sort:"loai_su_co"},
+      {label:"Tòa nhà", sort:"toa_nha"},
+      {label:"Phòng", sort:"phong"},
+      {label:"Mô tả", sort:"mo_ta"},
+      {label:"Trạng thái", sort:"review_status"}
+    ], "Tìm loại sự cố, tòa nhà, phòng...");
+  }
+
+  // Lịch sử biên bản (loai_yeu_cau = bien_ban): Thời gian | Môn thi | Phòng thi | Ghi chú | Trạng thái
+  function renderFieldReports() {
+    tableShell([
+      {label:"Thời gian", sort:"created_at"},
+      {label:"Môn thi", sort:"mon_thi"},
+      {label:"Phòng thi", sort:"phong_thi"},
+      {label:"Ghi chú", sort:"ghi_chu"},
+      {label:"Trạng thái", sort:"review_status"}
+    ], "Tìm môn thi, phòng thi, ghi chú...");
   }
 
   function renderStatistics() {
@@ -144,7 +137,8 @@
     if (TYPE === "users") return ["name","phone","username"];
     if (TYPE === "buildings") return ["name","rooms","cameras"];
     if (TYPE === "violations") return ["thoi_gian","title","building","room","confidence"];
-    if (TYPE === "field_reports" || TYPE === "issue_reports") return ["datetime_display","building","room","title","description","review_status"];
+    if (TYPE === "issue_reports") return ["created_at","loai_su_co","toa_nha","phong","mo_ta","review_status"];
+    if (TYPE === "field_reports") return ["created_at","mon_thi","phong_thi","ghi_chu","review_status"];
     return ["building","room","normal","exam"];
   }
 
@@ -172,16 +166,7 @@
 
   function applyFilter() {
     const q = (document.getElementById("search")?.value || "").trim().toLocaleLowerCase("vi");
-    const columnFilters = [...document.querySelectorAll("[data-column-filter]")]
-      .map(input => [input.dataset.columnFilter, input.value.trim().toLocaleLowerCase("vi")])
-      .filter(([, value]) => value);
-    filtered = rows.filter(r => {
-      if (q && !JSON.stringify(r).toLocaleLowerCase("vi").includes(q)) return false;
-      return columnFilters.every(([key, value]) => {
-        const raw = key === "review_status" ? requestStatusName(r[key]) : r[key];
-        return String(raw ?? "").toLocaleLowerCase("vi").includes(value);
-      });
-    });
+    filtered = rows.filter(r => !q || JSON.stringify(r, (k, v) => (k === "avatar" || k === "image") ? undefined : v).toLocaleLowerCase("vi").includes(q));
     if (sortKey) filtered.sort((a,b) => {
       const av=a[sortKey], bv=b[sortKey];
       if (typeof av === "number" && typeof bv === "number") return (av-bv)*sortDir;
@@ -196,14 +181,16 @@
     const view=filtered.slice(start,start+pageSize);
     const tbody=document.getElementById("tbody");
     if (!view.length) {
-      const colspan = TYPE === "issue_reports" || TYPE === "field_reports" ? 6 :
+      const colspan = TYPE === "issue_reports" ? 6 :
+        TYPE === "field_reports" ? 5 :
         TYPE === "violations" || TYPE === "users" ? 7 :
         TYPE === "buildings" ? 6 : 4;
       tbody.innerHTML=`<tr><td colspan="${colspan}"><div class="empty">Không có dữ liệu phù hợp.</div></td></tr>`;
     } else if(TYPE==="users") tbody.innerHTML=view.map(userRow).join("");
     else if(TYPE==="buildings") tbody.innerHTML=view.map(buildingRow).join("");
     else if(TYPE==="violations") tbody.innerHTML=view.map(violationRow).join("");
-    else if(TYPE==="field_reports" || TYPE==="issue_reports") tbody.innerHTML=view.map(requestReportRow).join("");
+    else if(TYPE==="field_reports") tbody.innerHTML=view.map(fieldReportRow).join("");
+    else if(TYPE==="issue_reports") tbody.innerHTML=view.map(issueReportRow).join("");
     else tbody.innerHTML=view.map(statRow).join("");
 
     document.getElementById("summary").textContent=`Hiển thị ${filtered.length?start+1:0}–${Math.min(start+view.length,filtered.length)} trên tổng ${filtered.length} bản ghi`;
@@ -243,15 +230,27 @@
       </div></td>
     </tr>`;
   }
-  function requestReportRow(r,i) {
+  function statusCell(r) {
     const status = r.review_status || "pending";
+    return `<td><span class="badge ${requestStatusClass(status)}">${esc(requestStatusName(status))}</span></td>`;
+  }
+  function issueReportRow(r) {
     return `<tr>
       <td>${esc(r.datetime_display || "--")}</td>
-      <td>${esc(r.building || "--")}</td>
-      <td>${esc(r.room || "--")}</td>
-      <td><strong>${esc(r.title || "Chưa xác định")}</strong></td>
-      <td class="long-text">${esc(r.description || "--")}</td>
-      <td><span class="badge ${requestStatusClass(status)}">${esc(requestStatusName(status))}</span></td>
+      <td><strong>${esc(r.loai_su_co || "Chưa xác định")}</strong></td>
+      <td>${esc(r.toa_nha || "--")}</td>
+      <td>${esc(r.phong || "--")}</td>
+      <td class="long-text">${esc(r.mo_ta || "--")}</td>
+      ${statusCell(r)}
+    </tr>`;
+  }
+  function fieldReportRow(r) {
+    return `<tr>
+      <td>${esc(r.datetime_display || "--")}</td>
+      <td><strong>${esc(r.mon_thi || "Chưa xác định")}</strong></td>
+      <td>${esc(r.phong_thi || "--")}</td>
+      <td class="long-text">${esc(r.ghi_chu || "--")}</td>
+      ${statusCell(r)}
     </tr>`;
   }
 
@@ -345,7 +344,8 @@
       TYPE==="users" ? ["id","name","phone","username","role","status"] :
       TYPE==="buildings" ? ["id","name","rooms","cameras","status"] :
       TYPE==="violations" ? ["id","title","datetime_display","building","room","camera","confidence","review_status"] :
-      TYPE==="field_reports" || TYPE==="issue_reports" ? ["datetime_display","building","room","title","description","review_status"] :
+      TYPE==="issue_reports" ? ["datetime_display","loai_su_co","toa_nha","phong","mo_ta","review_status"] :
+      TYPE==="field_reports" ? ["datetime_display","mon_thi","phong_thi","ghi_chu","review_status"] :
       ["building","room","normal","exam"];
     const lines=[keys.join(",")].concat(filtered.map(r=>keys.map(k=>{
       let value = k==="role" ? roleName(r[k]) : k==="review_status" && (TYPE==="field_reports"||TYPE==="issue_reports") ? requestStatusName(r[k]) : r[k] ?? "";

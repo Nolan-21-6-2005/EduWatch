@@ -352,9 +352,20 @@ div[data-testid="stMetricValue"] {
 
 
 /* =========================================================
-   BAR CHART — BIỂU ĐỒ ĐƯỜNG
+   Toggle — NÚT BẬT TẮT AI
    ========================================================= */
 
+/* Phóng to Toggle */
+.st-key-supervision_ai > div[data-testid="stToggleSwitch"] {
+    transform: scale(1.25);
+    transform-origin: left center;
+}
+
+/* Phóng to chữ */
+.st-key-supervision_ai > div[data-testid="stToggle"] label p {
+    font-size: 16px !important;
+    font-weight: 500;
+}
 
 
 /* =========================================================

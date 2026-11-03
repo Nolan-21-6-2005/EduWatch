@@ -124,20 +124,21 @@ with cl2:
         title="Phòng thi",
         number=2
     )
-tab1, tab2 = st.tabs(["Lịch sử sự cố","Lịch sử biên bản"])
-with tab1:
-    frame = _load_records("issue")
+
+# =========================================================
+# 7. LỊCH SỬ SỰ CỐ / BIÊN BẢN (của tất cả người dùng)
+# =========================================================
+st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
+tab_issue, tab_field = st.tabs(["Lịch sử sự cố", "Lịch sử biên bản"])
+with tab_issue:
     render_request_list(
-        frame,
+        _load_records("issue", all_users=True),
         kind="issue",
-        key_prefix="issue_report",
-        height=520,
+        key_prefix="stats_issue",
     )
-with tab2:
-    frame = _load_records("field")
+with tab_field:
     render_request_list(
-        frame,
+        _load_records("field", all_users=True),
         kind="field",
-        key_prefix="field_report",
-        height=520,
+        key_prefix="stats_field",
     )
