@@ -1,0 +1,426 @@
+(() => {
+  "use strict";
+
+  const TYPE = window.__EDUWATCH_TYPE__;
+  // Chỉ trang Thống kê của admin bật cột "Duyệt"; Giảng viên/Bảo vệ không có quyền duyệt.
+  const CAN_APPROVE = window.__EDUWATCH_CAN_APPROVE__ === true;
+  const API = window.__EDUWATCH_API__;
+  const initial = Array.isArray(window.__EDUWATCH_DATA__) ? window.__EDUWATCH_DATA__ : [];
+  const app = document.getElementById("app");
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modal-title");
+  const modalText = document.getElementById("modal-text");
+  const modalInput = document.getElementById("modal-input");
+
+  let rows = [...initial];
+  let filtered = [...initial];
+  let page = 1;
+  const pageSize = 10;
+  let sortKey = "";
+  let sortDir = 1;
+  let pendingAction = null;
+
+  const esc = v => String(v ?? "").replace(/[&<>'"]/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+  }[c]));
+  const icon = name => `<span class="material-symbols-rounded" aria-hidden="true">${esc(name)}</span>`;
+  const roleName = role => ({"-1":"Chờ phân quyền",0:"Admin",1:"Giảng viên",2:"Bảo vệ"}[role] ?? "Không xác định");
+  const reviewName = s => ({pending:"Chờ xác nhận",confirmed:"Đã xác nhận",wrong:"Báo sai AI"}[s] ?? "Chờ xác nhận");
+  const reviewClass = s => ({pending:"inactive",confirmed:"active",wrong:"wrong"}[s] ?? "inactive");
+  const requestStatusName = s => ({
+    pending:"Chờ xử lý", processing:"Đang xử lý", resolved:"Đã xác nhận", rejected:"Đã hủy"
+  }[String(s ?? "pending").toLowerCase()] ?? "Chờ xử lý");
+  const requestStatusClass = s => ({
+    pending:"inactive", processing:"admin", resolved:"active", rejected:"wrong"
+  }[String(s ?? "pending").toLowerCase()] ?? "inactive");
+
+  const SVG_CHECK = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.6 4.6L19 7.4"/></svg>`;
+  const SVG_CROSS = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>`;
+  // Nút tròn: tích (xác nhận) và dấu x (hủy / báo sai). active = trạng thái hiện tại.
+  const roundBtn = (kind, action, id, title, extra = "") =>
+    `<button type="button" class="round-btn ${kind} ${extra}" data-action="${action}" data-id="${esc(id)}" title="${esc(title)}" aria-label="${esc(title)}">${kind === "confirm" ? SVG_CHECK : SVG_CROSS}</button>`;
+
+  // Kết quả sau khi xử lý, hiện ở cột hành động: cùng nội dung với cột Trạng thái.
+  const doneCell = (cls, text) => `<span class="badge ${cls}">${esc(text)}</span>`;
+
+  function render() {
+    if (TYPE === "users") renderUsers();
+    else if (TYPE === "buildings") renderBuildings();
+    else if (TYPE === "violations") renderViolations();
+    else if (TYPE === "field_reports") renderFieldReports();
+    else if (TYPE === "issue_reports") renderIssueReports();
+    else renderStatistics();
+  }
+
+  function toolbar(placeholder="Tìm kiếm...") {
+    return `<div class="toolbar">
+      <div class="toolbar-left"><input class="search" id="search" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}"></div>
+      <div class="toolbar-right">
+        <button class="control" id="sort-btn" type="button">${icon("sort")} Sắp xếp</button>
+        <button class="control" id="export-btn" type="button">${icon("download")} Xuất dữ liệu</button>
+      </div>
+    </div>`;
+  }
+
+  function tableShell(headers, placeholder) {
+    app.innerHTML = `${toolbar(placeholder)}
+      <div class="notice" id="notice" role="status"></div>
+      <div class="table-wrap"><table><thead><tr>${headers.map(h => `<th${h.sort ? ` data-sort="${esc(h.sort)}"` : ""}>${esc(h.label)}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
+    bindCommon();
+    document.getElementById("export-btn").addEventListener("click", exportCsv);
+    applyFilter();
+  }
+
+  function renderUsers() {
+    app.innerHTML = `${toolbar("Tìm tên, mã nhân sự, SĐT...")}
+      <div class="notice" id="notice" role="status"></div>
+      <div class="table-wrap"><table><thead><tr>
+      <th>#</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Mã nhân sự</th><th>Ngày sinh</th><th>Vai trò</th><th>Trạng thái</th><th style="text-align:right">Tùy chọn</th>
+      </tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
+    bindCommon();
+    document.getElementById("export-btn").addEventListener("click", exportCsv);
+    applyFilter();
+  }
+
+  function renderBuildings() {
+    app.innerHTML = `${toolbar("Tìm tòa nhà...")}
+      <div class="notice" id="notice" role="status"></div>
+      <div class="table-wrap"><table><thead><tr>
+      <th>#</th><th>Tòa nhà</th><th>Số phòng</th><th>Số camera</th><th>Trạng thái</th><th style="text-align:right">Tùy chọn</th>
+      </tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
+    bindCommon();
+    document.getElementById("export-btn").addEventListener("click", exportCsv);
+    applyFilter();
+  }
+
+  function renderViolations() {
+    app.innerHTML = `${toolbar("Tìm loại vi phạm, tòa nhà, phòng, camera...")}
+      <div class="notice" id="notice" role="status"></div>
+      <div class="table-wrap"><table><thead><tr>
+      <th>#</th><th>Thời gian & vị trí</th><th>Thông tin vi phạm</th><th>Bằng chứng</th><th>Độ tin cậy</th><th>Trạng thái</th><th style="text-align:right">Xác nhận</th>
+      </tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
+    bindCommon();
+    document.getElementById("export-btn").addEventListener("click", exportCsv);
+    applyFilter();
+  }
+
+  // Lịch sử sự cố (loai_yeu_cau = su_co): Thời gian | Loại sự cố | Tòa nhà | Phòng | Mô tả | Trạng thái (hoặc Duyệt nếu là Học viện)
+  function renderIssueReports() {
+    tableShell([
+      {label:"Thời gian", sort:"created_at"},
+      {label:"Loại sự cố", sort:"loai_su_co"},
+      {label:"Tòa nhà", sort:"toa_nha"},
+      {label:"Phòng", sort:"phong"},
+      {label:"Mô tả", sort:"mo_ta"},
+      // Học viện (CAN_APPROVE): cột "Duyệt" thay cho cột "Trạng thái".
+      ...(CAN_APPROVE ? [{label:"Duyệt"}] : [{label:"Trạng thái", sort:"review_status"}])
+    ], "Tìm loại sự cố, tòa nhà, phòng...");
+  }
+
+  // Lịch sử biên bản (loai_yeu_cau = bien_ban): Thời gian | Môn thi | Tòa nhà | Phòng thi | Ghi chú | Trạng thái (hoặc Duyệt nếu là Học viện)
+  function renderFieldReports() {
+    tableShell([
+      {label:"Thời gian", sort:"created_at"},
+      {label:"Môn thi", sort:"mon_thi"},
+      {label:"Tòa nhà", sort:"toa_nha"},
+      {label:"Phòng thi", sort:"phong_thi"},
+      {label:"Ghi chú", sort:"ghi_chu"},
+      ...(CAN_APPROVE ? [{label:"Duyệt"}] : [{label:"Trạng thái", sort:"review_status"}])
+    ], "Tìm môn thi, phòng thi, ghi chú...");
+  }
+
+  function renderStatistics() {
+    app.innerHTML = `${toolbar("Tìm theo tòa nhà hoặc phòng học...")}
+      <div class="notice" id="notice" role="status"></div>
+      <div class="table-wrap"><table><thead><tr>
+      <th data-sort="building">Tòa nhà ↕</th><th data-sort="room">Phòng học ↕</th>
+      <th data-sort="normal">Số vi phạm phòng thường ↕</th><th data-sort="exam">Số vi phạm phòng thi ↕</th>
+      </tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
+    bindCommon();
+    document.getElementById("export-btn").addEventListener("click", exportCsv);
+    applyFilter();
+  }
+
+  function sortKeys() {
+    if (TYPE === "users") return ["name","phone","username"];
+    if (TYPE === "buildings") return ["name","rooms","cameras"];
+    if (TYPE === "violations") return ["thoi_gian","title","building","room","confidence"];
+    if (TYPE === "issue_reports") return ["created_at","loai_su_co","toa_nha","phong","mo_ta", ...(CAN_APPROVE ? [] : ["review_status"])];
+    if (TYPE === "field_reports") return ["created_at","mon_thi","toa_nha","phong_thi","ghi_chu", ...(CAN_APPROVE ? [] : ["review_status"])];
+    return ["building","room","normal","exam"];
+  }
+
+  function bindCommon() {
+    document.getElementById("search").addEventListener("input", applyFilter);
+    document.getElementById("sort-btn").addEventListener("click", () => {
+      const keys = sortKeys();
+      const idx = keys.indexOf(sortKey);
+      if (idx < 0 || idx === keys.length - 1) {
+        sortKey = keys[0];
+        sortDir = 1;
+      } else {
+        sortKey = keys[idx + 1];
+        sortDir = 1;
+      }
+      applyFilter();
+    });
+    app.querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
+      const key = th.dataset.sort;
+      sortDir = sortKey === key ? -sortDir : 1;
+      sortKey = key;
+      applyFilter();
+    }));
+  }
+
+  function applyFilter() {
+    const q = (document.getElementById("search")?.value || "").trim().toLocaleLowerCase("vi");
+    filtered = rows.filter(r => !q || JSON.stringify(r, (k, v) => (k === "avatar" || k === "image" || k === "admin_code" || k === "can_approve") ? undefined : v).toLocaleLowerCase("vi").includes(q));
+    if (sortKey) filtered.sort((a,b) => {
+      const av=a[sortKey], bv=b[sortKey];
+      if (typeof av === "number" && typeof bv === "number") return (av-bv)*sortDir;
+      return String(av ?? "").localeCompare(String(bv ?? ""), "vi")*sortDir;
+    });
+    page = 1;
+    drawRows();
+  }
+
+  function drawRows() {
+    const start=(page-1)*pageSize;
+    const view=filtered.slice(start,start+pageSize);
+    const tbody=document.getElementById("tbody");
+    if (!view.length) {
+      const colspan = TYPE === "issue_reports" ? 6 :
+        TYPE === "field_reports" ? 6 :
+        TYPE === "violations" ? 7 :
+        TYPE === "users" ? 9 :
+        TYPE === "buildings" ? 6 : 4;
+      tbody.innerHTML=`<tr><td colspan="${colspan}"><div class="empty">Không có dữ liệu phù hợp.</div></td></tr>`;
+    } else if(TYPE==="users") tbody.innerHTML=view.map(userRow).join("");
+    else if(TYPE==="buildings") tbody.innerHTML=view.map(buildingRow).join("");
+    else if(TYPE==="violations") tbody.innerHTML=view.map(violationRow).join("");
+    else if(TYPE==="field_reports") tbody.innerHTML=view.map(fieldReportRow).join("");
+    else if(TYPE==="issue_reports") tbody.innerHTML=view.map(issueReportRow).join("");
+    else tbody.innerHTML=view.map(statRow).join("");
+
+    document.getElementById("summary").textContent=`Hiển thị ${filtered.length?start+1:0}–${Math.min(start+view.length,filtered.length)} trên tổng ${filtered.length} bản ghi`;
+    drawPagination();
+    bindRows();
+  }
+
+  function statRow(r) {
+    return `<tr><td>${esc(r.building)}</td><td>${esc(r.room)}</td><td><strong>${esc(r.normal)}</strong></td><td><strong>${esc(r.exam)}</strong></td></tr>`;
+  }
+  function buildingRow(r,i) {
+    const status=Number(r.status)?`<span class="badge active">Đang hoạt động</span>`:`<span class="badge inactive">Tạm dừng</span>`;
+    return `<tr><td>${esc((page-1)*pageSize+i+1)}</td><td><strong>${esc(r.name)}</strong><span class="muted">ID #${esc(r.id)}</span></td><td>${esc(r.rooms)}</td><td>${esc(r.cameras)}</td><td>${status}</td><td><div class="actions"><button class="icon-btn" data-action="view-building" data-id="${esc(r.id)}" title="Xem chi tiết">${icon("visibility")}</button></div></td></tr>`;
+  }
+  function userRow(u,i) {
+    const avatar=u.avatar||"";
+    const status=Number(u.role)===-1
+      ? `<span class="badge inactive">Chờ duyệt</span>`
+      : Number(u.status)?`<span class="badge active">Hoạt động</span>`:`<span class="badge inactive">Đã khóa</span>`;
+    return `<tr><td>${esc((page-1)*pageSize+i+1)}</td><td><div class="person">${avatar?`<img class="avatar" src="${esc(avatar)}" alt="">`:`<div class="avatar"></div>`}<div><strong>${esc(u.name)}</strong></div></div></td><td>${esc(u.phone||"—")}</td><td>${esc(u.email || "—")}</td><td><strong>${esc(u.username)}</strong></td><td>${esc(u.birth_date || "—")}</td><td><select class="select role-select" data-id="${esc(u.id)}"><option value="-1" ${u.role===-1?"selected":""} disabled>Chờ phân quyền</option><option value="0" ${u.role===0?"selected":""}>Admin</option><option value="1" ${u.role===1?"selected":""}>Giảng viên</option><option value="2" ${u.role===2?"selected":""}>Bảo vệ</option></select></td><td>${status}</td><td><div class="actions"><button class="icon-btn" data-action="reset" data-id="${esc(u.id)}" title="Đặt lại mật khẩu">${icon("lock_reset")}</button><button class="icon-btn" data-action="lock" data-id="${esc(u.id)}" title="Khóa/Mở khóa">${icon(Number(u.status)?"lock":"lock_open")}</button></div></td></tr>`;
+  }
+  function confidenceClass(v) {
+    v=Number(v||0);
+    return v>=.8?"confidence-high":v>=.6?"confidence-mid":"confidence-low";
+  }
+  function violationRow(r,i) {
+    const img=r.image||"", confidence=Number(r.confidence||0)*100, status=reviewName(r.review_status);
+    return `<tr>
+      <td>${esc((page-1)*pageSize+i+1)}</td>
+      <td><strong>${esc(r.datetime_display)}</strong><span class="muted">${esc(r.building||"--")} · ${esc(r.room||"--")}</span></td>
+      <td><strong class="violation-row-title">${esc(r.title)}</strong><span class="violation-row-sub">${esc(r.camera||"Camera không xác định")}</span></td>
+      <td>${img?`<img class="evidence-thumb" src="${esc(img)}" alt="Bằng chứng">`:`<span class="muted">Không có ảnh</span>`}</td>
+      <td><strong class="${confidenceClass(r.confidence)}">${confidence.toFixed(1)}%</strong></td>
+      <td><span class="badge ${reviewClass(r.review_status)}">${esc(status)}</span></td>
+      <td><div class="actions">
+        ${roundBtn("confirm", "confirm-violation", r.id, r.review_status==="confirmed" ? "Đã xác nhận (nhấp để bỏ chọn)" : "Xác nhận", r.review_status==="confirmed" ? "is-active" : "")}
+        ${roundBtn("cancel", "wrong-violation", r.id, r.review_status==="wrong" ? "Đã báo sai (nhấp để bỏ chọn)" : "Báo sai", r.review_status==="wrong" ? "is-active" : "")}
+      </div></td>
+    </tr>`;
+  }
+  function statusCell(r) {
+    const status = r.review_status || "pending";
+    return `<td><span class="badge ${requestStatusClass(status)}">${esc(requestStatusName(status))}</span></td>`;
+  }
+  function issueReportRow(r) {
+    return `<tr>
+      <td>${esc(r.datetime_display || "--")}</td>
+      <td><strong>${esc(r.loai_su_co || "Chưa xác định")}</strong></td>
+      <td>${esc(r.toa_nha || "--")}</td>
+      <td>${esc(r.phong || "--")}</td>
+      <td class="long-text">${esc(r.mo_ta || "--")}</td>
+      ${CAN_APPROVE ? approveCell(r) : statusCell(r)}
+    </tr>`;
+  }
+  function fieldReportRow(r) {
+    return `<tr>
+      <td>${esc(r.datetime_display || "--")}</td>
+      <td><strong>${esc(r.mon_thi || "Chưa xác định")}</strong></td>
+      <td>${esc(r.toa_nha || "--")}</td>
+      <td>${esc(r.phong_thi || "--")}</td>
+      <td class="long-text">${esc(r.ghi_chu || "--")}</td>
+      ${CAN_APPROVE ? approveCell(r) : statusCell(r)}
+    </tr>`;
+  }
+
+  function bindRows() {
+    app.querySelectorAll(".evidence-thumb").forEach(el => el.addEventListener("click", () => {
+      const lightbox = document.getElementById("evidence-lightbox");
+      const image = document.getElementById("evidence-lightbox-image");
+      if (lightbox && image) { image.src = el.src; lightbox.classList.add("show"); }
+    }));
+    app.querySelectorAll(".role-select").forEach(sel=>sel.addEventListener("change",async e=>{
+      await request(`/admin/users/${Number(e.target.dataset.id)}/role`,"PUT",{role:Number(e.target.value)});
+    }));
+    app.querySelectorAll("[data-action]").forEach(btn=>btn.addEventListener("click",()=>{
+      const action=btn.dataset.action,id=Number(btn.dataset.id);
+      if(action==="confirm-violation") reviewViolation(id,"confirmed");
+      if(action==="wrong-violation") reviewViolation(id,"wrong");
+      if(action==="reset") openModal("Đặt lại mật khẩu","Nhập mật khẩu mới cho tài khoản này.","password",async value=>{
+        if(!value||value.length<6)return showNotice("Mật khẩu mới cần ít nhất 6 ký tự.");
+        await request(`/admin/users/${id}/password`,"PUT",{password:value});
+      });
+      if(action==="lock") openModal("Thay đổi trạng thái","Bạn có muốn khóa/mở khóa tài khoản này?","confirm",async()=>{
+        const u=rows.find(x=>Number(x.id)===id);
+        if(u) await request(`/admin/users/${id}/status`,"PUT",{status:Number(u.status)?0:1});
+      });
+      if(action==="view-building")showNotice("Bảng này hiển thị số phòng và camera hiện có của từng tòa nhà.",false);
+      if (action === "approve-request") reviewRequest(id, true);
+      if (action === "reject-request") reviewRequest(id, false);
+    }));
+  }
+
+  // Cột "Duyệt": hai nút Xác nhận / Hủy khi đang chờ xử lý; sau đó hiện kết quả.
+  function approveCell(r) {
+    if (!CAN_APPROVE) return "";
+    const status = String(r.review_status || "pending").toLowerCase();
+    if (status === "pending" && r.can_approve) {
+      return `<td><div class="review-actions">
+        ${roundBtn("confirm", "approve-request", r.id, "Xác nhận", "solid")}
+        ${roundBtn("cancel", "reject-request", r.id, "Hủy")}
+      </div></td>`;
+    }
+    if (status === "resolved") return `<td>${doneCell("active", "Đã xác nhận")}</td>`;
+    if (status === "rejected") return `<td>${doneCell("wrong", "Đã hủy")}</td>`;
+    return `<td><span class="muted">—</span></td>`;
+  }
+  async function reviewViolation(id,clicked) {
+    try {
+      const current = rows.find(r=>Number(r.id)===id)?.review_status || "pending";
+      const status = current === clicked ? "pending" : clicked;   // bấm lại trạng thái đang chọn để bỏ chọn
+      const res=await fetch(`${API}/violations/${id}/review`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.detail||"Không thể cập nhật");
+      const row=rows.find(r=>Number(r.id)===id);
+      if(row) row.review_status=status;
+      drawRows();   // vẽ lại tại chỗ: dòng vẫn hiện, giữ nguyên trang đang xem
+      showNotice("Đã cập nhật trạng thái vi phạm.",false);
+    } catch(e) { showNotice(e.message); }
+  }
+
+  function drawPagination() {
+    const pages=Math.max(1,Math.ceil(filtered.length/pageSize));
+    page=Math.min(page,pages);
+    const p=document.getElementById("pagination");
+    let html=`<button class="page-btn" data-page="${Math.max(1,page-1)}" aria-label="Trang trước">‹</button>`;
+    for(let i=1;i<=pages;i++) if(i<=5||i===pages) html+=`<button class="page-btn ${i===page?"active":""}" data-page="${i}">${i}</button>`;
+    html+=`<button class="page-btn" data-page="${Math.min(pages,page+1)}" aria-label="Trang sau">›</button>`;
+    p.innerHTML=html;
+    p.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>{page=Number(b.dataset.page);drawRows();}));
+  }
+
+  async function reviewRequest(id, approve) {
+    try {
+      const row = rows.find(r => Number(r.id) === id);
+      if (!row || !row.admin_code) throw new Error("Không có quyền xử lý yêu cầu.");
+
+      const res = await fetch(`${API}/requests/${id}/${approve ? "approve" : "reject"}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({admin_code: row.admin_code})
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Không thể xử lý yêu cầu.");
+
+      row.review_status = approve ? "resolved" : "rejected";
+      drawRows();   // giữ nguyên trang đang xem
+      showNotice(approve ? "Đã xác nhận yêu cầu." : "Đã hủy yêu cầu.", false);
+    } catch (e) {
+      showNotice(e.message);
+    }
+  }
+
+  async function request(path,method="GET",body=null) {
+    try {
+      const res=await fetch(API+path,{method,headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
+      const data=await res.json();
+      if(!res.ok||data.success===false)throw new Error(data.message||data.detail||"Thao tác thất bại");
+      if(TYPE==="users") rows=await fetchRows("/admin/users");
+      if(TYPE==="buildings") rows=await fetchRows("/admin/buildings");
+      applyFilter();
+      showNotice("Đã cập nhật dữ liệu.",false);
+    } catch(err) { showNotice("Không thể kết nối API: "+err.message); }
+  }
+  async function fetchRows(path) {
+    const res=await fetch(API+path);
+    if(!res.ok)throw new Error("API không phản hồi");
+    return await res.json();
+  }
+  function showNotice(text,error=true) {
+    const n=document.getElementById("notice");
+    if(!n)return;
+    n.textContent=text;
+    n.style.display="block";
+    n.style.background=error?"#fff7ed":"#edf9f1";
+    n.style.color=error?"#9a3412":"#166534";
+    setTimeout(()=>n.style.display="none",3000);
+  }
+  function openModal(title,text,type,callback) {
+    pendingAction=callback;
+    modalTitle.textContent=title;
+    modalText.textContent=text;
+    modalInput.style.display=type==="password"?"block":"none";
+    modalInput.value="";
+    modal.classList.add("show");
+  }
+  const evidenceLightbox = document.getElementById("evidence-lightbox");
+  evidenceLightbox?.addEventListener("click", () => evidenceLightbox.classList.remove("show"));
+  document.addEventListener("keydown", e => { if (e.key === "Escape") evidenceLightbox?.classList.remove("show"); });
+  document.getElementById("modal-cancel").onclick=()=>{modal.classList.remove("show");pendingAction=null;};
+  document.getElementById("modal-ok").onclick=async()=>{
+    const cb=pendingAction;
+    modal.classList.remove("show");
+    pendingAction=null;
+    if(cb) await cb(modalInput.value);
+  };
+
+  function exportCsv() {
+    if(!filtered.length)return;
+    const keys =
+      TYPE==="users" ? ["id","name","phone","email","username","birth_date","role","status"] :
+      TYPE==="buildings" ? ["id","name","rooms","cameras","status"] :
+      TYPE==="violations" ? ["id","title","datetime_display","building","room","camera","confidence","review_status"] :
+      TYPE==="issue_reports" ? ["datetime_display","loai_su_co","toa_nha","phong","mo_ta","review_status"] :
+      TYPE==="field_reports" ? ["datetime_display","mon_thi","toa_nha","phong_thi","ghi_chu","review_status"] :
+      ["building","room","normal","exam"];
+    const lines=[keys.join(",")].concat(filtered.map(r=>keys.map(k=>{
+      let value = k==="role" ? roleName(r[k]) : k==="review_status" && (TYPE==="field_reports"||TYPE==="issue_reports") ? requestStatusName(r[k]) : r[k] ?? "";
+      return `"${String(value).replaceAll('"','""')}"`;
+    }).join(",")));
+    const blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=`eduwatch_${TYPE}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  render();
+})();
