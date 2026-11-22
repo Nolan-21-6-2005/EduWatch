@@ -10,7 +10,7 @@ st.set_page_config(layout="wide", page_title="Báo cáo sự cố", page_icon=":
 st.markdown('<div class="page-heading"><h1>Báo cáo sự cố</h1></div>', unsafe_allow_html=True)
 st.markdown('<p class="page-subtitle">Gửi yêu cầu hỗ trợ kỹ thuật và theo dõi trạng thái xử lý sự cố.</p>', unsafe_allow_html=True)
 
-top_left, top_right = st.columns([5, 1.25], vertical_alignment="center")
+top_left, top_export, top_right = st.columns([5, 1.5, 1.25], vertical_alignment="center")
 with top_left:
     st.markdown("### Danh sách báo cáo")
 with top_right:
@@ -56,4 +56,5 @@ render_request_list(
     kind="issue",
     key_prefix="issue_report",
     height=520,
+    export_slot=top_export.empty(),
 )

@@ -43,4 +43,4 @@ with c2:
 with c3:
     kpi_metric(active_guards, "Số lượng bảo vệ", "Số lượng bảo vệ của học viện", "orange")
 
-render_admin_table("users", users, height=620)
+render_admin_table("users", users, height=620, toolbar="search")

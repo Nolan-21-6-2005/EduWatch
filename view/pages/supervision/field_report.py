@@ -19,7 +19,7 @@ div[data-testid="stDataFrame"] {width:100%;}
 st.markdown('<div class="page-heading"><h1>Biên bản ca thi</h1></div>', unsafe_allow_html=True)
 st.markdown('<p class="page-subtitle">Tra cứu biên bản, lọc theo trạng thái và gửi biên bản cho quản trị viên.</p>', unsafe_allow_html=True)
 
-left, right = st.columns([5, 1.5], vertical_alignment="center")
+left, export_col, right = st.columns([5, 1.5, 1.5], vertical_alignment="center")
 
 @st.dialog("Gửi biên bản ca thi", width="large")
 def field_dialog():
@@ -67,4 +67,5 @@ render_request_list(
     kind="field",
     key_prefix="field_report",
     height=520,
+    export_slot=export_col.empty(),
 )

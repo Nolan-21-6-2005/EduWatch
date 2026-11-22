@@ -5,9 +5,10 @@
         ▼
     [hàng đợi ảnh] ──► LUỒNG SUY LUẬN (duy nhất, giữ model)
                          gom tối đa 4 ảnh thành 1 batch  ──►  1 lần predict cho 4 khung
-                         vẽ bounding box (nhãn đã đổi tên, không hiện độ chính xác)
+                         vẽ tất cả bounding box để hiển thị camera
                          │                       │
-                         │ ảnh đã vẽ (Future)    │ bằng chứng = ảnh đã vẽ khung
+                         │ ảnh đã vẽ (Future)    │ mỗi detection -> ảnh bằng chứng riêng,
+                         │                       │ chỉ có một bounding box
                          ▼                       ▼
                    luồng yêu cầu mã hóa   [hàng đợi bằng chứng] ──► LUỒNG GHI LOG
                    JPEG để hiển thị                                 (lần lượt, đúng thứ tự vào hàng đợi)
@@ -17,14 +18,16 @@ luồng gọi predict cùng lúc (trạng thái predictor bị ghi đè). Thay v
 trên model, ta đưa 4 ảnh vào CÙNG MỘT lần predict (batch): vẫn là "dự đoán 4 khung cùng một
 lúc" nhưng không có tranh chấp, và thường nhanh hơn chạy lần lượt từng ảnh.
 
-Ghi log chỉ do một luồng đảm nhiệm nên bằng chứng được lưu vào Violation_Logs lần lượt theo
-hàng đợi (FIFO), không tranh chấp ghi SQLite và không trùng tên tệp ảnh.
+Ghi log chỉ do một luồng đảm nhiệm nên từng detection đủ ngưỡng được lưu thành một hàng
+riêng trong Violation_Logs. Mỗi hàng có một ảnh bằng chứng chỉ chứa bounding box tương ứng.
 """
 from __future__ import annotations
 
 import queue
 import threading
 import time
+
+import cv2
 from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -59,6 +62,8 @@ class DetectionPipeline:
         batch_window: float = 0.08,
         imgsz: int = 320,
         threshold: float = 0.8,
+        nms_iou: float = 0.85,
+        max_det: int = 1000,
         log_queue_size: int = 256,
         on_detect: Callable[[dict], None] | None = None,
         label_map: dict[str, str] | None = None,
@@ -69,6 +74,9 @@ class DetectionPipeline:
         max_batch / batch_window: gom tối đa ``max_batch`` ảnh, chờ thêm tối đa ``batch_window``
             giây sau ảnh đầu tiên để các khung gửi gần nhau cùng vào một batch.
         threshold: chỉ ghi vi phạm có độ tin cậy lớn hơn ngưỡng này.
+        nms_iou: ngưỡng IoU cho NMS. Tăng ngưỡng để hạn chế loại nhầm các box
+            cùng nhãn ở gần/đè lên nhau; vẫn có thể loại box trùng lặp của cùng một đối tượng.
+        max_det: số detection tối đa YOLO trả về trên mỗi ảnh.
         label_map: nhãn model -> nhãn vi phạm. Chỉ các lớp có trong bảng được nhận diện; ảnh vẽ và
             bằng chứng dùng nhãn mới. Model không có lớp nào trong bảng thì giữ nguyên nhãn gốc.
         """
@@ -78,6 +86,8 @@ class DetectionPipeline:
         self._batch_window = batch_window
         self._imgsz = imgsz
         self._threshold = threshold
+        self._nms_iou = float(nms_iou)
+        self._max_det = int(max_det)
         self._on_detect = on_detect
         self._label_map = label_map or {}
         self._class_ids: list[int] | None = None  # lớp được nhận diện (None = tất cả)
@@ -155,8 +165,15 @@ class DetectionPipeline:
             if self._model is None:
                 self._setup_model(self._model_loader())
             kwargs = {"classes": self._class_ids} if self._class_ids else {}
-            results = self._model([job.frame for job in batch], imgsz=self._imgsz,
-                                  verbose=False, **kwargs)
+            results = self._model(
+                [job.frame for job in batch],
+                imgsz=self._imgsz,
+                verbose=False,
+                iou=self._nms_iou,
+                max_det=self._max_det,
+                agnostic_nms=False,
+                **kwargs,
+            )
         except Exception as error:  # lỗi model: báo cho mọi yêu cầu trong batch
             for job in batch:
                 job.future.set_exception(error)
@@ -194,25 +211,63 @@ class DetectionPipeline:
         return result.plot(conf=False)
 
     def _enqueue_evidence(self, job: _Job, result, annotated) -> None:
-        best: dict[str, float] = {}  # mỗi loại vi phạm chỉ lấy độ tin cậy cao nhất trong ảnh
-        for box in result.boxes:
+        """Đưa từng detection đủ ngưỡng vào hàng đợi với ảnh chỉ có một bbox.
+
+        Ảnh ``annotated`` vẫn được dùng để hiển thị trên khung camera (tất cả bbox).
+        Ảnh bằng chứng được tạo riêng từ ảnh gốc cho từng detection, vì vậy hai
+        đối tượng cùng nhãn vẫn tạo thành hai bản ghi và hai ảnh độc lập.
+        """
+        boxes = getattr(result, "boxes", None)
+        original = getattr(result, "orig_img", None)
+        if boxes is None or original is None:
+            return
+
+        height, width = original.shape[:2]
+        # Không dùng dict/set theo label ở đây: mỗi phần tử trong result.boxes
+        # là một detection riêng, kể cả khi nhiều box có cùng class/label.
+        for detection_index, box in enumerate(boxes, start=1):
             confidence = float(box.conf[0])
-            label = self._display_names[int(box.cls[0])]
-            if confidence > self._threshold and confidence > best.get(label, 0.0):
-                best[label] = confidence
-        for label, confidence in best.items():
-            # Bằng chứng là ảnh đã vẽ bounding box, không phải ảnh gốc.
-            evidence = _Evidence(label, confidence, annotated, job.camera_id, job.slot, job.session)
-            try:
-                self._evidence.put(evidence, timeout=1)
-            except queue.Full:
-                with self._stats_lock:
-                    self._dropped += 1
-                print(f"Hàng đợi bằng chứng đầy, bỏ qua: {label} (camera {job.camera_id})")
+            if confidence <= self._threshold:
                 continue
+
+            class_id = int(box.cls[0])
+            label = self._display_names.get(class_id, str(class_id))
+            x1, y1, x2, y2 = [int(round(value)) for value in box.xyxy[0].tolist()]
+            x1 = max(0, min(x1, width - 1))
+            y1 = max(0, min(y1, height - 1))
+            x2 = max(0, min(x2, width - 1))
+            y2 = max(0, min(y2, height - 1))
+            if x2 <= x1 or y2 <= y1:
+                continue
+
+            # Mỗi bằng chứng là một bản sao ảnh gốc với đúng MỘT bbox.
+            evidence_frame = original.copy()
+            color = (0, 0, 255)
+            cv2.rectangle(evidence_frame, (x1, y1), (x2, y2), color, 2)
+            # Ẩn confidence trên ảnh bằng chứng; confidence vẫn được lưu trong DB
+            # để thống kê/đánh giá và không ảnh hưởng ngưỡng lọc detection.
+            text = label
+            text_y = max(20, y1 - 8)
+            cv2.putText(
+                evidence_frame, text, (x1, text_y),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2, cv2.LINE_AA,
+            )
+
+            evidence = _Evidence(
+                label, confidence, evidence_frame,
+                job.camera_id, job.slot, job.session,
+            )
+            # Chờ writer giải phóng hàng đợi nếu đang đầy thay vì bỏ mất detection.
+            self._evidence.put(evidence)
+
             if self._on_detect:
-                self._on_detect({"label": label, "confidence": confidence,
-                                 "camera_id": job.camera_id, "slot": job.slot})
+                self._on_detect({
+                    "label": label,
+                    "confidence": confidence,
+                    "camera_id": job.camera_id,
+                    "slot": job.slot,
+                    "detection_index": detection_index,
+                })
 
     def _log_loop(self) -> None:
         while True:

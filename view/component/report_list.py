@@ -1,7 +1,9 @@
 """Bảng lịch sử báo cáo dùng chung (Báo cáo sự cố, Xuất biên bản, tab Thống kê).
 
 Giao diện giống trang Nhật ký vi phạm: khối bộ lọc dạng form (nút làm mới + nút tìm),
-bên dưới là bảng có thanh tìm kiếm / sắp xếp / xuất dữ liệu ngay trong bảng.
+bên dưới là bảng. Nếu trang truyền `export_slot` thì bảng không có thanh công cụ: sắp xếp bằng
+tiêu đề cột và nút "Xuất dữ liệu" nằm ở `export_slot` (cùng dòng với tiêu đề trang). Nếu không
+(tab Thống kê) bảng giữ thanh tìm kiếm / sắp xếp / xuất dữ liệu ngay trong bảng.
 Dữ liệu đầu vào là DataFrame do src.services.load_report_record._load_records trả về.
 """
 from __future__ import annotations
@@ -13,6 +15,7 @@ from datetime import date
 from src.services.load_report_record import REPORT_SPECS
 from utils.helper import _format_status, date_range_bounds
 from view.component.admin_table import render_admin_table
+from view.component.export_button import render_export_button
 
 STATUS_OPTIONS = ["Tất cả trạng thái", "Chờ xử lý", "Đã xác nhận", "Đã hủy"]
 
@@ -57,6 +60,7 @@ def render_request_list(
     key_prefix: str,
     height: int = REPORT_TABLE_HEIGHT,
     can_approve: bool = False,
+    export_slot=None,
 ) -> None:
     """kind: ``field`` cho biên bản, ``issue`` cho báo cáo sự cố."""
     if kind not in {"field", "issue"}:
@@ -169,9 +173,13 @@ def render_request_list(
             item[field] = row[field]
         table_data.append(item)
 
+    table_type = "field_reports" if kind == "field" else "issue_reports"
+    if export_slot is not None:
+        render_export_button(export_slot, table_type, table_data)
     render_admin_table(
-        "field_reports" if kind == "field" else "issue_reports",
+        table_type,
         table_data,
         height=height,
         can_approve=can_approve,
+        toolbar="full" if export_slot is None else "none",
     )

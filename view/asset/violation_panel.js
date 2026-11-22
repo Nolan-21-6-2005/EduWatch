@@ -14,7 +14,6 @@
   const reviewed = {confirmed: ["✓ Đã xác nhận", "confirmed"], wrong: ["× Đã báo sai AI", "wrong"]};
 
   function card(row) {
-    const confidence = Number(row.confidence || 0) * 100;
     const thumb = row.image
       ? `<img src="${esc(row.image)}" alt="Ảnh bằng chứng">`
       : `<div class="violation-evidence-empty">Không có ảnh</div>`;
@@ -40,9 +39,6 @@
             <div class="violation-name" title="${esc(row.title)}">
               ${esc(row.title)}
             </div>
-            <span class="violation-confidence" title="Độ tin cậy">
-              ${confidence.toFixed(0)}%
-            </span>
           </div>
           <div class="violation-place" title="${esc(place)}">
             ${esc(place)}

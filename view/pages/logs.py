@@ -1,10 +1,12 @@
 import streamlit as st
 from datetime import date, datetime
+from pathlib import Path
 
 from src.database_query.violation_logs import get_violation_logs
 from src.services.violation_log_services import _image_url
 from utils.helper import date_range_bounds
 from view.component.admin_table import render_admin_table
+from view.component.export_button import render_export_button
 
 
 st.set_page_config(layout="wide", page_title="Nhật ký vi phạm")
@@ -58,8 +60,10 @@ if "violation_applied_filters" not in st.session_state:
     st.session_state["violation_applied_filters"] = empty_filters()
 
 
-# Tiêu đề và bộ chọn nhanh hiện có.
-st.header("Nhật ký vi phạm")
+# Tiêu đề trang; nút "Xuất dữ liệu" nằm cùng dòng, bên phải (điền sau khi có dữ liệu).
+title_col, export_col = st.columns([6, 1.4], vertical_alignment="center")
+title_col.header("Nhật ký vi phạm")
+export_slot = export_col.empty()
 
 # Bộ lọc.
 with st.container(border=False, key="violation_filter_box"):
@@ -203,6 +207,7 @@ for row in filtered_rows:
     except ValueError:
         display_time = raw_time
 
+    image_path = row["image_path"] or ""
     data.append({
         "id": row["id"],
         "title": row["loai_vi_pham"] or "Vi phạm chưa xác định",
@@ -213,7 +218,9 @@ for row in filtered_rows:
         "room": row["ten_phong"] or "--",
         "confidence": float(row["confidence"] or 0),
         "review_status": row["review_status"] or "pending",
-        "image": _image_url(row["image_path"]),  # URL, không nhúng base64 (tránh vượt giới hạn data URL)
+        "image": _image_url(image_path),  # URL, không nhúng base64 (tránh vượt giới hạn data URL)
+        "image_is_illustrative": Path(str(image_path)).name.startswith("illustrative_"),
     })
 
-render_admin_table("violations", data, height=690)
+render_export_button(export_slot, "violations", data)
+render_admin_table("violations", data, height=690, toolbar="none")

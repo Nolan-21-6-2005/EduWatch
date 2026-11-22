@@ -26,6 +26,10 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_SIDE = 1280                      # ảnh lớn hơn sẽ được thu nhỏ khi lưu
 MAX_STORED = 64                      # số ảnh tối đa giữ trong bộ nhớ
 CONF_THRESHOLD = 0.8
+# IoU cao hơn giúp giữ lại các box cùng nhãn có vùng chồng lấn; nếu quá cao
+# có thể xuất hiện box trùng của cùng một đối tượng, cần kiểm tra bằng ảnh thực tế.
+NMS_IOU_THRESHOLD = 0.85
+MAX_DETECTIONS_PER_IMAGE = 1000
 IMGSZ = 320
 JPEG_QUALITY = 90
 INFERENCE_TIMEOUT = 60.0             # giây chờ kết quả AI (lần đầu còn phải nạp model)
@@ -109,6 +113,8 @@ pipeline = DetectionPipeline(
     max_batch=MAX_SLOTS,
     imgsz=IMGSZ,
     threshold=CONF_THRESHOLD,
+    nms_iou=NMS_IOU_THRESHOLD,
+    max_det=MAX_DETECTIONS_PER_IMAGE,
     on_detect=_on_detect,
     label_map=camera_state.VIOLATION_LABELS,
 )

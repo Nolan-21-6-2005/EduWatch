@@ -5,6 +5,9 @@
   // Chỉ trang Thống kê của admin bật cột "Duyệt"; Giảng viên/Bảo vệ không có quyền duyệt.
   const CAN_APPROVE = window.__EDUWATCH_CAN_APPROVE__ === true;
   const API = window.__EDUWATCH_API__;
+  // Thanh công cụ của bảng: "full" = tìm kiếm + sắp xếp + xuất dữ liệu (như cũ);
+  // "search" = chỉ thanh tìm kiếm; "none" = không có (sắp xếp bằng tiêu đề cột, xuất dữ liệu ở Streamlit).
+  const TOOLBAR = window.__EDUWATCH_TOOLBAR__ || "full";
   const initial = Array.isArray(window.__EDUWATCH_DATA__) ? window.__EDUWATCH_DATA__ : [];
   const app = document.getElementById("app");
   const modal = document.getElementById("modal");
@@ -52,9 +55,21 @@
     else renderStatistics();
   }
 
-  function toolbar(placeholder="Tìm kiếm...") {
+  // ---------- TÌM KIẾM (đoạn code riêng) ----------
+  // Chỉ gắn vào bảng khi cần: chế độ "full" và "search" (ví dụ trang Quản lý người dùng).
+  function searchBar(placeholder = "Tìm kiếm...") {
+    return `<div class="toolbar-left"><input class="search" id="search" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}"></div>`;
+  }
+  function bindSearch() {
+    document.getElementById("search")?.addEventListener("input", applyFilter);
+  }
+  // ---------- hết phần tìm kiếm ----------
+
+  function toolbar(placeholder = "Tìm kiếm...") {
+    if (TOOLBAR === "none") return "";
+    if (TOOLBAR === "search") return `<div class="toolbar">${searchBar(placeholder)}</div>`;
     return `<div class="toolbar">
-      <div class="toolbar-left"><input class="search" id="search" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}"></div>
+      ${searchBar(placeholder)}
       <div class="toolbar-right">
         <button class="control" id="sort-btn" type="button">${icon("sort")} Sắp xếp</button>
         <button class="control" id="export-btn" type="button">${icon("download")} Xuất dữ liệu</button>
@@ -65,47 +80,47 @@
   function tableShell(headers, placeholder) {
     app.innerHTML = `${toolbar(placeholder)}
       <div class="notice" id="notice" role="status"></div>
-      <div class="table-wrap"><table><thead><tr>${headers.map(h => `<th${h.sort ? ` data-sort="${esc(h.sort)}"` : ""}>${esc(h.label)}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
+      <div class="table-wrap"><table><thead><tr>${headers.map(h => `<th${h.sort ? ` data-sort="${esc(h.sort)}" title="Bấm để sắp xếp"` : ""}${h.right ? ' style="text-align:right"' : ""}>${esc(h.label)}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
       <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
     bindCommon();
-    document.getElementById("export-btn").addEventListener("click", exportCsv);
     applyFilter();
   }
 
   function renderUsers() {
-    app.innerHTML = `${toolbar("Tìm tên, mã nhân sự, SĐT...")}
-      <div class="notice" id="notice" role="status"></div>
-      <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>Họ tên</th><th>SĐT</th><th>Email</th><th>Mã nhân sự</th><th>Ngày sinh</th><th>Vai trò</th><th>Trạng thái</th><th style="text-align:right">Tùy chọn</th>
-      </tr></thead><tbody id="tbody"></tbody></table></div>
-      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
-    bindCommon();
-    document.getElementById("export-btn").addEventListener("click", exportCsv);
-    applyFilter();
+    tableShell([
+      {label:"#"},
+      {label:"Họ tên", sort:"name"},
+      {label:"SĐT", sort:"phone"},
+      {label:"Email", sort:"email"},
+      {label:"Mã nhân sự", sort:"username"},
+      {label:"Ngày sinh", sort:"birth_date"},
+      {label:"Vai trò", sort:"role"},
+      {label:"Trạng thái", sort:"status"},
+      {label:"Tùy chọn", right:true}
+    ], "Tìm tên, mã nhân sự, SĐT...");
   }
 
   function renderBuildings() {
-    app.innerHTML = `${toolbar("Tìm tòa nhà...")}
-      <div class="notice" id="notice" role="status"></div>
-      <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>Tòa nhà</th><th>Số phòng</th><th>Số camera</th><th>Trạng thái</th><th style="text-align:right">Tùy chọn</th>
-      </tr></thead><tbody id="tbody"></tbody></table></div>
-      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
-    bindCommon();
-    document.getElementById("export-btn").addEventListener("click", exportCsv);
-    applyFilter();
+    tableShell([
+      {label:"#"},
+      {label:"Tòa nhà", sort:"name"},
+      {label:"Số phòng", sort:"rooms"},
+      {label:"Số camera", sort:"cameras"},
+      {label:"Trạng thái", sort:"status"},
+      {label:"Tùy chọn", right:true}
+    ], "Tìm tòa nhà...");
   }
 
   function renderViolations() {
-    app.innerHTML = `${toolbar("Tìm loại vi phạm, tòa nhà, phòng, camera...")}
-      <div class="notice" id="notice" role="status"></div>
-      <div class="table-wrap"><table><thead><tr>
-      <th>#</th><th>Thời gian & vị trí</th><th>Thông tin vi phạm</th><th>Bằng chứng</th><th>Độ tin cậy</th><th>Trạng thái</th><th style="text-align:right">Xác nhận</th>
-      </tr></thead><tbody id="tbody"></tbody></table></div>
-      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
-    bindCommon();
-    document.getElementById("export-btn").addEventListener("click", exportCsv);
-    applyFilter();
+    tableShell([
+      {label:"#"},
+      {label:"Thời gian & vị trí", sort:"thoi_gian"},
+      {label:"Thông tin vi phạm", sort:"title"},
+      {label:"Bằng chứng"},
+      {label:"Độ tin cậy", sort:"confidence"},
+      {label:"Trạng thái", sort:"review_status"},
+      {label:"Xác nhận", right:true}
+    ], "Tìm loại vi phạm, tòa nhà, phòng, camera...");
   }
 
   // Lịch sử sự cố (loai_yeu_cau = su_co): Thời gian | Loại sự cố | Tòa nhà | Phòng | Mô tả | Trạng thái (hoặc Duyệt nếu là Học viện)
@@ -134,16 +149,12 @@
   }
 
   function renderStatistics() {
-    app.innerHTML = `${toolbar("Tìm theo tòa nhà hoặc phòng học...")}
-      <div class="notice" id="notice" role="status"></div>
-      <div class="table-wrap"><table><thead><tr>
-      <th data-sort="building">Tòa nhà ↕</th><th data-sort="room">Phòng học ↕</th>
-      <th data-sort="normal">Số vi phạm phòng thường ↕</th><th data-sort="exam">Số vi phạm phòng thi ↕</th>
-      </tr></thead><tbody id="tbody"></tbody></table></div>
-      <div class="footer"><span id="summary"></span><div class="pagination" id="pagination"></div></div>`;
-    bindCommon();
-    document.getElementById("export-btn").addEventListener("click", exportCsv);
-    applyFilter();
+    tableShell([
+      {label:"Tòa nhà", sort:"building"},
+      {label:"Phòng học", sort:"room"},
+      {label:"Số vi phạm phòng thường", sort:"normal"},
+      {label:"Số vi phạm phòng thi", sort:"exam"}
+    ], "Tìm theo tòa nhà hoặc phòng học...");
   }
 
   function sortKeys() {
@@ -156,35 +167,55 @@
   }
 
   function bindCommon() {
-    document.getElementById("search").addEventListener("input", applyFilter);
-    document.getElementById("sort-btn").addEventListener("click", () => {
+    bindSearch();
+    document.getElementById("export-btn")?.addEventListener("click", exportCsv);
+    document.getElementById("sort-btn")?.addEventListener("click", () => {
       const keys = sortKeys();
       const idx = keys.indexOf(sortKey);
-      if (idx < 0 || idx === keys.length - 1) {
-        sortKey = keys[0];
-        sortDir = 1;
-      } else {
-        sortKey = keys[idx + 1];
-        sortDir = 1;
-      }
+      sortKey = (idx < 0 || idx === keys.length - 1) ? keys[0] : keys[idx + 1];
+      sortDir = 1;
       applyFilter();
     });
+    // Sắp xếp ở tiêu đề cột: bấm lần 1 tăng dần, lần 2 giảm dần, lần 3 bỏ sắp xếp (về thứ tự gốc).
     app.querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
       const key = th.dataset.sort;
-      sortDir = sortKey === key ? -sortDir : 1;
-      sortKey = key;
+      if (sortKey !== key) { sortKey = key; sortDir = 1; }
+      else if (sortDir === 1) sortDir = -1;
+      else sortKey = "";
       applyFilter();
     }));
+  }
+
+  // Giá trị dùng để so sánh khi sắp xếp: cột trạng thái/vai trò sắp theo nhãn đang hiển thị,
+  // ngày sinh dd/mm/yyyy đổi thành yyyymmdd.
+  function sortValue(r, key) {
+    const v = r[key];
+    if (key === "review_status") {
+      return TYPE === "violations" ? reviewName(v) : requestStatusName(v);
+    }
+    if (key === "birth_date") {
+      const m = String(v ?? "").match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      return m ? `${m[3]}${m[2]}${m[1]}` : "";
+    }
+    return v;
+  }
+
+  function markSortedHeader() {
+    app.querySelectorAll("th[data-sort]").forEach(th => {
+      th.classList.remove("sorted-asc", "sorted-desc");
+      if (th.dataset.sort === sortKey) th.classList.add(sortDir === 1 ? "sorted-asc" : "sorted-desc");
+    });
   }
 
   function applyFilter() {
     const q = (document.getElementById("search")?.value || "").trim().toLocaleLowerCase("vi");
     filtered = rows.filter(r => !q || JSON.stringify(r, (k, v) => (k === "avatar" || k === "image" || k === "admin_code" || k === "can_approve") ? undefined : v).toLocaleLowerCase("vi").includes(q));
     if (sortKey) filtered.sort((a,b) => {
-      const av=a[sortKey], bv=b[sortKey];
+      const av=sortValue(a,sortKey), bv=sortValue(b,sortKey);
       if (typeof av === "number" && typeof bv === "number") return (av-bv)*sortDir;
-      return String(av ?? "").localeCompare(String(bv ?? ""), "vi")*sortDir;
+      return String(av ?? "").localeCompare(String(bv ?? ""), "vi", {numeric: true})*sortDir;
     });
+    markSortedHeader();
     page = 1;
     drawRows();
   }
@@ -236,7 +267,7 @@
       <td>${esc((page-1)*pageSize+i+1)}</td>
       <td><strong>${esc(r.datetime_display)}</strong><span class="muted">${esc(r.building||"--")} · ${esc(r.room||"--")}</span></td>
       <td><strong class="violation-row-title">${esc(r.title)}</strong><span class="violation-row-sub">${esc(r.camera||"Camera không xác định")}</span></td>
-      <td>${img?`<img class="evidence-thumb" src="${esc(img)}" alt="Bằng chứng">`:`<span class="muted">Không có ảnh</span>`}</td>
+      <td>${img?`<div class="evidence-cell"><img class="evidence-thumb" src="${esc(img)}" alt="Ảnh ${r.image_is_illustrative?"minh họa":"bằng chứng"}">${r.image_is_illustrative?`<span class="evidence-illustrative">Ảnh minh họa</span>`:""}</div>`:`<span class="muted">Không có ảnh</span>`}</td>
       <td><strong class="${confidenceClass(r.confidence)}">${confidence.toFixed(1)}%</strong></td>
       <td><span class="badge ${reviewClass(r.review_status)}">${esc(status)}</span></td>
       <td><div class="actions">
