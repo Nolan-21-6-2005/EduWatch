@@ -1,24 +1,41 @@
 import re
+from functools import lru_cache, wraps
 from pathlib import Path
-import streamlit as st
-@st.cache_data
+
+
+def _st_cached(func):
+    """st.cache_data nạp muộn: backend FastAPI không cần (và không import) Streamlit."""
+    state = {}
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if "fn" not in state:
+            import streamlit as st
+
+            state["fn"] = st.cache_data(func)
+        return state["fn"](*args, **kwargs)
+
+    return wrapper
+
+
+@_st_cached
 def load_file(path):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
-@st.cache_data
+@lru_cache(maxsize=None)
 def getdatabase_path():
     BASE_DIR = Path(__file__).resolve().parent.parent 
     DB_PATH = BASE_DIR / "data_model" / "eduwatch.db"
     return DB_PATH
 
-@st.cache_data    
+@lru_cache(maxsize=None)
 def getmodel_path():
     BASE_DIR = Path(__file__).resolve().parent.parent 
     MODEL_PATH = BASE_DIR / "AI_model" / "yolo_eduwatch.pt"
     return MODEL_PATH
 
-@st.cache_data        
+@_st_cached
 def date_range_bounds(value):
     """Kết quả của st.date_input dạng khoảng -> (ngày bắt đầu, ngày kết thúc).
 

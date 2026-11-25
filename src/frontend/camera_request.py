@@ -3,6 +3,8 @@ import base64
 from pathlib import Path
 import streamlit as st
 
+from utils.config import API_BASE
+
 # Chiều cao dự phòng của iframe; chiều cao thật do CSS --ew-stage-h (detector.css) quyết định.
 IFRAME_HEIGHT = 820
 _ASSET_DIR = Path(__file__).resolve().parents[2] / "view" / "asset"
@@ -51,7 +53,6 @@ def _camera_tile(cam, index, room_short):
       <div class="cam-foot"><span>{name}</span><span class="cam-status" data-status></span></div>
     </div>'''
 
-API_BASE = "http://localhost:8000"
 
 # Tên hiển thị của 4 khung, theo thứ tự camera của phòng (khung i -> camera thứ i).
 _TILE_NAMES = (
@@ -96,6 +97,7 @@ def connect_camera(
         "__CAMERA_CSS__": _CAMERA_CSS,
         "__TILES__": tiles,
         "__CAMERA_JS__": _CAMERA_JS.replace("__TOGGLE_CAMERA__", _TOGGLE_CAMERA_JS),
+        "__API_BASE__": API_BASE,  # cuối cùng: thay cả trong JS vừa chèn
     }
 
     html = _CAMERA_HTML

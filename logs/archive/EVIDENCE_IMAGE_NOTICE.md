@@ -1,3 +1,5 @@
+> **Bản lưu:** ghi chú gốc, giữ nguyên để đối chiếu và có thể đã lỗi thời. Nội dung chính thức nằm ở [`../CHANGELOG.md`](../CHANGELOG.md) và [`../../README.md`](../../README.md).
+
 # Lưu ý về ảnh minh họa trong nhật ký vi phạm
 
 Tám ảnh `data_model/evidence/illustrative_*.jpg` được tạo làm dữ liệu minh họa cho giao diện. Mỗi ảnh có một bounding box và tên loại vi phạm tương ứng; trên ảnh có watermark **ẢNH MINH HỌA** và bounding box màu bao quanh hành vi được minh họa.

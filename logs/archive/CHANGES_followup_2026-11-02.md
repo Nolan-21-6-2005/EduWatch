@@ -1,3 +1,5 @@
+> **Bản lưu:** ghi chú gốc, giữ nguyên để đối chiếu và có thể đã lỗi thời. Nội dung chính thức nằm ở [`../CHANGELOG.md`](../CHANGELOG.md) và [`../../README.md`](../../README.md).
+
 # EduWatch-beta – cập nhật bảng báo cáo và danh sách tòa nhà
 
 ## 1. Xuất biên bản và Báo cáo sự cố

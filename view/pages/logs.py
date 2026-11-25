@@ -5,6 +5,7 @@ from pathlib import Path
 from src.database_query.violation_logs import get_violation_logs
 from src.services.violation_log_services import _image_url
 from utils.helper import date_range_bounds
+from utils.labels_vi import vi_label
 from view.component.admin_table import render_admin_table
 from view.component.export_button import render_export_button
 
@@ -25,11 +26,14 @@ for row in all_rows:
     room_name = row["ten_phong"] or "Không xác định"
     room_options.setdefault(f"{building_name} / {room_name}", room_id)
 
-types = sorted({
-    row["loai_vi_pham"]
-    for row in all_rows
-    if row["loai_vi_pham"]
-})
+# Bộ lọc hiển thị tên tiếng Việt; mỗi tên có thể ứng với nhiều giá trị tiếng Anh trong CSDL.
+type_groups: dict[str, list[str]] = {}
+for _row in all_rows:
+    if _row["loai_vi_pham"]:
+        type_groups.setdefault(vi_label(_row["loai_vi_pham"]), [])
+        if _row["loai_vi_pham"] not in type_groups[vi_label(_row["loai_vi_pham"])]:
+            type_groups[vi_label(_row["loai_vi_pham"])].append(_row["loai_vi_pham"])
+types = sorted(type_groups)
 
 
 FILTER_WIDGET_KEYS = [
@@ -148,7 +152,7 @@ elif submitted:
     st.session_state["violation_applied_filters"] = {
         "room_id": selected_room_id,
         "violation_type": (
-            None if type_label == "Tất cả vi phạm" else type_label
+            None if type_label == "Tất cả vi phạm" else type_groups.get(type_label, [type_label])
         ),
         "review_status": (
             None if status_label == "Tất cả trạng thái" else status_key
@@ -210,7 +214,7 @@ for row in filtered_rows:
     image_path = row["image_path"] or ""
     data.append({
         "id": row["id"],
-        "title": row["loai_vi_pham"] or "Vi phạm chưa xác định",
+        "title": vi_label(row["loai_vi_pham"]) or "Vi phạm chưa xác định",
         "camera": row["vi_tri_goc"] or "Camera không xác định",
         "datetime_display": display_time,
         "thoi_gian": raw_time,

@@ -5,7 +5,7 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
 
-from utils.helper import getdatabase_path
+from utils.db import open_connection
 
 REQUEST_FIELD_REPORT = "bien_ban"   # giảng viên lập biên bản
 REQUEST_INCIDENT = "su_co"          # bảo vệ báo cáo sự cố
@@ -55,9 +55,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
 @contextmanager
 def _db():
     global _schema_ready
-    conn = sqlite3.connect(getdatabase_path(), timeout=10)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
+    conn = open_connection(row_factory=sqlite3.Row, foreign_keys=True)
     if not _schema_ready:
         ensure_schema(conn)
         _schema_ready = True

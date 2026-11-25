@@ -7,17 +7,20 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 def get_latest_violations(limit=8):
     return get_violation_logs(limit=limit)
 
-EVIDENCE_URL_BASE = "http://127.0.0.1:8000/evidence"
+from utils.config import API_BASE
+from utils.labels_vi import vi_label
+
+EVIDENCE_URL_BASE = f"{API_BASE}/evidence"
 
 
-def _image_url(image_path: str | None) -> str:
+def _image_url(image_path: str | None, base: str | None = None) -> str:
     """URL ảnh bằng chứng do backend phục vụ (nhẹ hơn nhúng base64 vào bảng)."""
     if not image_path:
         return ""
     path = Path(image_path)
     if not path.is_absolute():
         path = BASE_DIR / path
-    return f"{EVIDENCE_URL_BASE}/{path.name}" if path.exists() else ""
+    return f"{base if base is not None else EVIDENCE_URL_BASE}/{path.name}" if path.exists() else ""
 
 
 def _image_data_uri(image_path: str | None) -> str:
@@ -50,18 +53,24 @@ def _format_time(value: str | None) -> str:
         return str(value).replace("T", " ")[:16]
 
 
-def payload(rows):
+def payload(rows, *, inline_images: bool = True):
+    """inline_images=False: ảnh là URL tương đối (/evidence/...) thay vì base64, dùng cho panel
+    thời gian thực để mỗi lần cập nhật chỉ truyền vài KB thay vì cả ảnh."""
     return [
         {
             "id": row["id"],
-            "title": row["loai_vi_pham"] or "Vi phạm chưa xác định",
+            "title": vi_label(row["loai_vi_pham"]) or "Vi phạm chưa xác định",
             "camera": row["vi_tri_goc"] or "Camera không xác định",
             "datetime_display": _format_time(row["thoi_gian"]),
             "building": row["ten_toa"] or "--",
             "room": row["ten_phong"] or "--",
             "confidence": float(row["confidence"] or 0),
             "review_status": row["review_status"] or "pending",
-            "image": _image_data_uri(row["image_path"]),
+            "image": (
+                _image_data_uri(row["image_path"])
+                if inline_images
+                else _image_url(row["image_path"], "/evidence")
+            ),
         }
         for row in rows
     ]
@@ -78,7 +87,7 @@ def violation_table_rows(limit: int | None = None):
 
         result.append({
             "id": row["id"],
-            "title": row["loai_vi_pham"] or "Vi phạm chưa xác định",
+            "title": vi_label(row["loai_vi_pham"]) or "Vi phạm chưa xác định",
             "camera": row["vi_tri_goc"] or "Camera không xác định",
             "datetime_display": display_time,
             "thoi_gian": value,

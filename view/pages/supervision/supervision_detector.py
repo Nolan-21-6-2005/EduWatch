@@ -4,10 +4,9 @@ import requests
 from src.frontend.camera_request import IFRAME_HEIGHT, connect_camera
 from src.database_query.buildings_manager import get_room_camera_ids
 from view.component.camera_filters import render_camera_location_filters
-from utils.config import SESSION_MAP
+from utils.config import API_BASE, SESSION_MAP
 from utils.helper import _room_number
 
-API_BASE = "http://localhost:8000"
 
 
 def _set_ai_state():
@@ -87,4 +86,7 @@ with main_col:
 with log_col:
     # Nhật ký vi phạm tiếp tục là iframe riêng lấy dữ liệu từ FastAPI/SQLite.
     with st.container(key="log_list"):
-        st.iframe("http://localhost:8000/violations/panel", height=IFRAME_HEIGHT)
+        st.iframe(
+            f"{API_BASE}/violations/panel?session={SESSION_MAP[room_type]}",
+            height=IFRAME_HEIGHT,
+        )

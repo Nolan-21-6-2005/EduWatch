@@ -2,7 +2,6 @@ fastapi
 uvicorn[standard]
 streamlit
 streamlit-extras
-streamlit-searchbox
 ultralytics
 opencv-python
 numpy

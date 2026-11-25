@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_extras.chartjs_chart import chartjs_chart
 from src.database_query.violation_logs import get_violation_type_distribution
+from utils.labels_vi import vi_label
 
 def render_violation_bar_chart(
     start_date: str | None,
@@ -31,7 +32,7 @@ def render_violation_bar_chart(
         if not violation_rows:
             st.caption("Chưa có dữ liệu vi phạm đã xác nhận.")
         else:
-            labels = [str(row["type"]) for row in violation_rows]
+            labels = [str(vi_label(row["type"])) for row in violation_rows]
             values = [int(row["total"]) for row in violation_rows]
             green_palette = [
                 "#2f6f46", "#4ca66b", "#7cc394", "#a8d9ba",

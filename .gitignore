@@ -16,3 +16,8 @@ venv/
 # Local runtime artifacts
 *.log
 .DS_Store
+
+# Liên kết cục bộ của công cụ (trỏ vào site-packages của máy, không dùng được trên máy khác)
+.agents/
+
+# Thư mục logs/ chỉ giữ tài liệu (*.md); file log chạy nằm ngoài git (đã ignore *.log ở trên)

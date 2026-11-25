@@ -1,3 +1,4 @@
+from utils.config import API_BASE
 import streamlit as st
 import traceback
 import requests
@@ -5,7 +6,7 @@ import requests
 def request_login(professor_id, password):
     try:
         response = requests.post(
-            "http://localhost:8000/login", 
+            f"{API_BASE}/login", 
             json={
                 "professor_id": professor_id, 
                 "password": password

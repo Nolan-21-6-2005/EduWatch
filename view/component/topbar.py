@@ -1,56 +1,40 @@
 import streamlit as st
-from streamlit_searchbox import st_searchbox
+
 from view.component.notification import notification_bell, notification_panel
+from view.navigation import get_pages_for_role
 
-PAGES_BY_ROLE = {
-    0: [
-        ("Thống kê báo cáo", "view/pages/admin/statistic_report.py"),
-        ("Giám sát trực tiếp", "view/pages/admin/admin_camera.py"),
-        ("Nhật ký vi phạm", "view/pages/logs.py"),
-        ("Danh sách tòa nhà", "view/pages/admin/buildings_management.py"),
-        ("Quản lý người dùng", "view/pages/admin/user_management.py"),
-        ("Thông tin cá nhân", "view/pages/profile.py"),
-    ],
-    1: [
-        ("Giám sát trực tiếp", "view/pages/supervision/supervision_detector.py"),
-        ("Nhật ký vi phạm", "view/pages/logs.py"),
-        ("Xuất biên bản", "view/pages/supervision/field_report.py"),
-        ("Thông tin cá nhân", "view/pages/profile.py"),
-    ],
-    2: [
-        ("Giám sát an ninh", "view/pages/security_guard/security_camera.py"),
-        ("Danh sách tòa nhà", "view/pages/security_guard/building_viewers.py"),
-        ("Báo cáo sự cố", "view/pages/security_guard/issue_report.py"),
-        ("Thông tin cá nhân", "view/pages/profile.py"),
-    ],
-}
+SEARCH_KEY = "topbar_search"
+SEARCH_TARGET_KEY = "_topbar_search_target"
+
+# Tên hiển thị trong ô tìm kiếm cho những trang có tiêu đề điều hướng khác.
+SEARCH_LABELS = {"profile": "Thông tin cá nhân"}
 
 
-def search_pages(searchterm: str):
-    if not searchterm:
-        return []
+def _search_options(pages=None) -> dict:
+    """Nhãn -> trang, lấy từ chính danh sách trang của role đang đăng nhập.
 
-    keyword = searchterm.lower().strip()
-
-    role = st.session_state.get("role")
-    pages = PAGES_BY_ROLE.get(role, [])
-    return [
-        label
-        for label, _path in pages
-        if keyword in label.lower()
-    ]
-
-
-def navigate_to_page(selected):
-    if selected:
-        role = st.session_state.get("role")
-        page_paths = dict(PAGES_BY_ROLE.get(role, []))
-        target_path = page_paths.get(selected)
-        if target_path:
-            st.session_state["search_target_page"] = target_path
+    Dùng đúng đối tượng st.Page của st.navigation nên không còn danh sách đường dẫn riêng
+    (trước đây phải khớp tay với navigation.py cho từng role).
+    """
+    if pages is None:
+        pages = get_pages_for_role(st.session_state.get("role"))
+    options = {}
+    for page in pages:
+        label = SEARCH_LABELS.get(page.url_path, page.title)
+        if label:
+            options.setdefault(label, page)
+    return options
 
 
-def show_topbar(page_title="Trang chủ"):
+def _on_search_select():
+    """Callback của ô tìm kiếm: ghi nhớ trang được chọn rồi xóa ô để lần sau chọn lại được."""
+    st.session_state[SEARCH_TARGET_KEY] = st.session_state.get(SEARCH_KEY)
+    st.session_state[SEARCH_KEY] = None
+
+
+def show_topbar(page_title="Trang chủ", pages=None):
+    options = _search_options(pages)
+
     st.markdown(
         '<div class="ew-topbar-spacer"></div>',
         unsafe_allow_html=True,
@@ -72,92 +56,22 @@ def show_topbar(page_title="Trang chủ"):
             unsafe_allow_html=True,
         )
 
-        st_searchbox(
-            search_pages,
+        # Ô tìm kiếm gốc của Streamlit (gõ để lọc, chọn để chuyển trang). Không dùng iframe nên
+        # danh sách gợi ý luôn nằm trên cùng và nhận được click ở mọi role/trang.
+        st.selectbox(
+            "Tìm kiếm trang",
+            list(options),
+            index=None,
             placeholder="Tìm kiếm trang",
-            clear_on_submit=True,
-            submit_function=navigate_to_page,
-            key="topbar_search",
-
-            style_overrides={
-                "wrapper": {
-                    "backgroundColor": "#f0f3f1",
-                    "padding": 0,
-                    "margin": 0,
-                },
-
-                "dropdown": {
-                    "width": 0,
-                    "height": 0,
-                },
-
-                "clear": {
-                    "width": 16,
-                    "height": 16,
-                },
-
-                "searchbox": {
-                    "control": {
-                        "minHeight": "42px",
-                        "height": "42px",
-                        "backgroundColor": "#ffffff",
-                        "border": "1px solid #d5dad7",
-                        "borderRadius": "16px",
-                        "boxShadow": "none",
-
-                        "&:hover": {
-                            "border": "1px solid #cdd3cf",
-                        },
-
-                        "&:focus-within": {
-                            "backgroundColor": "#e8ebe9",
-                            "border": "1px solid #9acbaa",
-                            "boxShadow": "0 0 0 3px rgba(76, 166, 107,0.10)",
-                        },
-                    },
-
-                    "placeholder": {
-                        "color": "#77857c",
-                    },
-
-                    "input": {
-                        "color": "#24382c",
-                    },
-
-                    "singleValue": {
-                        "color": "#24382c",
-                    },
-
-                    "menuList": {
-                        "backgroundColor": "#ffffff",
-                        "marginTop": "-8px",
-                        "paddingTop": "6px",
-                        "paddingBottom": "6px",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 8px 24px rgba(25, 59, 38,0.12)",
-                        "maxHeight": "320px",
-                    },
-
-                    "option": {
-                        "color": "#3d4a40",
-                        "backgroundColor": "#ffffff",
-                        "padding": "10px 14px",
-                        "fontSize": "13px",
-                        "borderRadius": "10px",
-                        "highlightColor": "#4ca66b",
-                    },
-                },
-            },
+            key=SEARCH_KEY,
+            label_visibility="collapsed",
+            on_change=_on_search_select,
         )
 
-        # Chỉ chuyển trang sau khi searchbox đã xử lý submit
-        target_page = st.session_state.pop(
-            "search_target_page",
-            None,
-        )
-
-        if target_page:
-            st.switch_page(target_page)
+        # Chuyển trang sau khi callback đã ghi nhận lựa chọn.
+        target = st.session_state.pop(SEARCH_TARGET_KEY, None)
+        if target in options:
+            st.switch_page(options[target])
 
         st.html('<span class="ew-status ok">System Online</span>')
 

@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
-from utils.helper import getdatabase_path
+from utils.db import connect as db_connect
 
 
-def _connect() -> sqlite3.Connection:
-    conn = sqlite3.connect(getdatabase_path())
-    conn.row_factory = sqlite3.Row
-    return conn
+def _connect():
+    """Context manager: commit/rollback và luôn đóng kết nối (quan trọng trên Windows)."""
+    return db_connect(row_factory=sqlite3.Row, foreign_keys=False)
 
 
 def get_users() -> list[dict]:

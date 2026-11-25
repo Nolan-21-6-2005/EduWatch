@@ -1,7 +1,22 @@
 (() => {
   const feed = document.getElementById("feed");
-  const data = Array.isArray(window.__VIOLATIONS__) ? window.__VIOLATIONS__ : [];
-  const API = window.__API__;
+  const API = window.__API__ || "";
+  const SESSION = window.__SESSION__ || "";
+  let data = Array.isArray(window.__VIOLATIONS__) ? window.__VIOLATIONS__ : [];
+  let version = Number(window.__VERSION__);
+  if (!Number.isFinite(version)) version = -1;
+
+  // Font icon nạp một lần (trước đây nằm lặp lại trong từng thẻ), cùng hiệu ứng thẻ mới / mất kết nối.
+  const icons = document.createElement("link");
+  icons.rel = "stylesheet";
+  icons.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded";
+  document.head.appendChild(icons);
+  const extra = document.createElement("style");
+  extra.textContent = `
+    @keyframes ew-new { from { background: #e3f4e8; transform: translateY(-6px); opacity: .4; } to { background: transparent; transform: none; opacity: 1; } }
+    .violation-card.ew-new { animation: ew-new .7s ease-out; }
+    .violation-live-dot.offline { background: #c4524a !important; animation: none !important; }`;
+  document.head.appendChild(extra);
 
   const esc = v => String(v ?? "").replace(/[&<>'"]/g, c =>
     ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c])
@@ -20,8 +35,7 @@
     // Một dòng vị trí: tòa nhà · phòng · camera.
     const place = [row.building, row.room, row.camera].filter(v => v && v !== "--").join(" · ");
     const footer = row.review_status === "pending"
-      ? `<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
-          <div class="violation-actions">
+      ? `<div class="violation-actions">
             <button class="confirm" data-status="confirmed" title="Xác nhận">
               <span class="material-symbols-rounded">check</span>
             </button>
@@ -62,14 +76,44 @@
       : "Không có vi phạm nào đang chờ xử lý.";
   }
 
-  function render() {
-    feed.innerHTML = data.length
-      ? data.map(card).join("")
-      : `<div class="violation-empty">Chưa có vi phạm trong cơ sở dữ liệu.</div>`;
-    feed.querySelectorAll(".violation-actions button").forEach(btn => {
-      btn.addEventListener("click", () => review(Number(btn.closest(".violation-card").dataset.id), btn.dataset.status, btn));
+  function toElement(html) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = html.trim();
+    return tpl.content.firstElementChild;
+  }
+
+  // Chỉ thêm/sửa/xóa đúng thẻ thay đổi để ảnh không nhấp nháy khi có log mới.
+  function sync(rows, animate) {
+    const empty = feed.querySelector(".violation-empty");
+    if (!rows.length) {
+      feed.innerHTML = `<div class="violation-empty">Chưa có vi phạm trong cơ sở dữ liệu.</div>`;
+      return;
+    }
+    if (empty) empty.remove();
+    const wanted = new Set(rows.map(r => String(r.id)));
+    [...feed.children].forEach(el => { if (!wanted.has(el.dataset.id)) el.remove(); });
+    rows.forEach((row, index) => {
+      const html = card(row);
+      let el = feed.querySelector(`[data-id="${row.id}"]`);
+      if (!el) {
+        el = toElement(html);
+        el.dataset.sig = html;
+        if (animate) el.classList.add("ew-new");
+      } else if (el.dataset.sig !== html) {
+        const next = toElement(html);
+        next.dataset.sig = html;
+        el.replaceWith(next);
+        el = next;
+      }
+      if (feed.children[index] !== el) feed.insertBefore(el, feed.children[index] || null);
     });
   }
+
+  feed.addEventListener("click", event => {
+    const btn = event.target.closest(".violation-actions button");
+    if (!btn) return;
+    review(Number(btn.closest(".violation-card").dataset.id), btn.dataset.status, btn);
+  });
 
   async function review(id, status, button) {
     button.disabled = true;
@@ -80,12 +124,51 @@
         body: JSON.stringify({status})
       });
       if (!response.ok) throw new Error("Không thể cập nhật trạng thái.");
-      window.location.reload();
+      refresh(true);
     } catch (error) {
       button.disabled = false;
       alert(error.message);
     }
   }
+
+  const dot = document.querySelector(".violation-live-dot");
+  const setLive = ok => { if (dot) dot.classList.toggle("offline", !ok); };
+
+  let busy = false;
+  async function refresh(force) {
+    if (busy) return;
+    busy = true;
+    try {
+      const qs = new URLSearchParams({limit: "8"});
+      if (SESSION) qs.set("session", SESSION);
+      if (!force && version >= 0) qs.set("since", String(version));  // chưa đổi: backend trả ngay
+      const response = await fetch(`${API}/violations/live?${qs}`, {cache: "no-store"});
+      if (!response.ok) throw new Error("live");
+      const result = await response.json();
+      setLive(true);
+      if (result.changed === false) return;
+      const firstLoad = version < 0;
+      version = result.version;
+      window.__PENDING__ = result.pending;
+      renderBanner();
+      sync(result.rows, !firstLoad);
+    } catch (error) {
+      setLive(false);  // backend tạm thời không phản hồi: thử lại ở lần sau
+    } finally {
+      busy = false;
+    }
+  }
+
   renderBanner();
-  render();
+  sync(data, false);
+  // Hỏi phiên bản mỗi giây (request rất nhẹ); mỗi 10 giây tải lại đầy đủ để bắt thay đổi
+  // ghi trực tiếp vào DB bởi tiến trình khác. Tạm dừng khi tab/iframe bị ẩn.
+  let tick = 0;
+  setInterval(() => {
+    if (document.hidden) return;
+    tick += 1;
+    refresh(tick % 10 === 0);
+  }, 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(true); });
+  refresh(true);
 })();

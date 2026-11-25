@@ -28,6 +28,9 @@ import threading
 import time
 
 import cv2
+
+from src.services.vi_draw import draw_detection, label_color
+from utils.labels_vi import vi_label
 from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -40,6 +43,7 @@ class _Job:
     slot: int
     session: str
     future: Future
+    skip_labels: frozenset = frozenset()  # nhãn đã ghi log cho ảnh này (không ghi lại)
 
 
 @dataclass
@@ -67,13 +71,16 @@ class DetectionPipeline:
         log_queue_size: int = 256,
         on_detect: Callable[[dict], None] | None = None,
         label_map: dict[str, str] | None = None,
+        session_labels: dict[str, frozenset[str]] | None = None,
+        predict_kwargs: Callable[[], dict] | None = None,
     ):
         """
         model_loader: trả về model (gọi một lần, trong luồng suy luận).
         save_fn: save_fn(label, confidence, frame, camera_id, session) ghi một vi phạm.
         max_batch / batch_window: gom tối đa ``max_batch`` ảnh, chờ thêm tối đa ``batch_window``
             giây sau ảnh đầu tiên để các khung gửi gần nhau cùng vào một batch.
-        threshold: chỉ ghi vi phạm có độ tin cậy lớn hơn ngưỡng này.
+        threshold: chỉ vẽ và ghi vi phạm có độ tin cậy lớn hơn hoặc bằng ngưỡng này (0.6).
+        session_labels: nhãn được nhận diện theo session; detection ngoài tập này bị bỏ.
         nms_iou: ngưỡng IoU cho NMS. Tăng ngưỡng để hạn chế loại nhầm các box
             cùng nhãn ở gần/đè lên nhau; vẫn có thể loại box trùng lặp của cùng một đối tượng.
         max_det: số detection tối đa YOLO trả về trên mỗi ảnh.
@@ -90,6 +97,9 @@ class DetectionPipeline:
         self._max_det = int(max_det)
         self._on_detect = on_detect
         self._label_map = label_map or {}
+        # session -> tập nhãn được phép (phòng thi / phòng thường). Thiếu session = không lọc.
+        self._session_labels = session_labels or {}
+        self._predict_kwargs = predict_kwargs or (lambda: {})  # device/half tùy máy
         self._class_ids: list[int] | None = None  # lớp được nhận diện (None = tất cả)
         self._display_names: dict[int, str] = {}  # id lớp -> nhãn hiển thị
 
@@ -107,10 +117,12 @@ class DetectionPipeline:
         self._dropped = 0
 
     # ---------- API ----------
-    def submit(self, frame, camera_id: int, slot: int, session: str) -> Future:
+    def submit(self, frame, camera_id: int, slot: int, session: str,
+               skip_labels=frozenset(), logged: set | None = None) -> Future:
         """Đưa một ảnh vào hàng đợi; Future trả về kết quả predict của ảnh đó."""
         self._ensure_started()
-        job = _Job(frame, int(camera_id), int(slot), session, Future())
+        job = _Job(frame, int(camera_id), int(slot), session, Future(), frozenset(skip_labels))
+        job.logged = logged  # tập nhãn đã ghi của ảnh; pipeline bổ sung khi ghi log
         self._jobs.put(job)
         return job.future
 
@@ -169,9 +181,11 @@ class DetectionPipeline:
                 [job.frame for job in batch],
                 imgsz=self._imgsz,
                 verbose=False,
+                conf=self._threshold,
                 iou=self._nms_iou,
                 max_det=self._max_det,
                 agnostic_nms=False,
+                **self._predict_kwargs(),
                 **kwargs,
             )
         except Exception as error:  # lỗi model: báo cho mọi yêu cầu trong batch
@@ -186,8 +200,13 @@ class DetectionPipeline:
 
         for job, result in zip(batch, results):
             try:
-                annotated = self._annotate(result)
-                self._enqueue_evidence(job, result, annotated)  # theo thứ tự ảnh trong batch
+                original = result.orig_img
+                result = self._filter_by_session(result, job.session)
+                if result is None:  # không có nhãn hợp lệ: trả ảnh gốc, không ghi log
+                    annotated = original.copy()
+                else:
+                    annotated = self._annotate(result)
+                    self._enqueue_evidence(job, result, annotated)  # theo thứ tự ảnh trong batch
             except Exception as error:
                 job.future.set_exception(error)
                 continue
@@ -205,10 +224,39 @@ class DetectionPipeline:
             self._display_names = names
         self._model = model
 
+    def _filter_by_session(self, result, session: str):
+        """Chỉ giữ detection có nhãn thuộc loại phòng (exam/study) của ảnh."""
+        allowed = self._session_labels.get(session)
+        boxes = getattr(result, "boxes", None)
+        if allowed is None or boxes is None or len(boxes) == 0:
+            return result
+        keep = [
+            i for i, box in enumerate(boxes)
+            if self._display_names.get(int(box.cls[0]), "") in allowed
+        ]
+        if len(keep) == len(boxes):
+            return result
+        if not keep:
+            return None  # không còn detection hợp lệ cho loại phòng này
+        return result[keep]
+
     def _annotate(self, result):
         """Ảnh có bounding box + nhãn (không hiện độ chính xác)."""
-        result.names = self._display_names
-        return result.plot(conf=False)
+        if result is None:
+            return None
+        # Tự vẽ (không dùng result.plot): cv2/ultralytics không hiển thị được chữ có dấu tiếng Việt.
+        frame = result.orig_img.copy()
+        height, width = frame.shape[:2]
+        for box in getattr(result, "boxes", None) or []:
+            label = self._display_names.get(int(box.cls[0]), str(int(box.cls[0])))
+            x1, y1, x2, y2 = [int(round(v)) for v in box.xyxy[0].tolist()]
+            draw_detection(
+                frame,
+                (max(0, x1), max(0, y1), min(width - 1, x2), min(height - 1, y2)),
+                vi_label(label),
+                label_color(label),
+            )
+        return frame
 
     def _enqueue_evidence(self, job: _Job, result, annotated) -> None:
         """Đưa từng detection đủ ngưỡng vào hàng đợi với ảnh chỉ có một bbox.
@@ -227,11 +275,13 @@ class DetectionPipeline:
         # là một detection riêng, kể cả khi nhiều box có cùng class/label.
         for detection_index, box in enumerate(boxes, start=1):
             confidence = float(box.conf[0])
-            if confidence <= self._threshold:
+            if confidence < self._threshold:
                 continue
 
             class_id = int(box.cls[0])
             label = self._display_names.get(class_id, str(class_id))
+            if label in job.skip_labels:  # đã ghi log nhãn này cho ảnh (đổi loại phòng)
+                continue
             x1, y1, x2, y2 = [int(round(value)) for value in box.xyxy[0].tolist()]
             x1 = max(0, min(x1, width - 1))
             y1 = max(0, min(y1, height - 1))
@@ -242,21 +292,17 @@ class DetectionPipeline:
 
             # Mỗi bằng chứng là một bản sao ảnh gốc với đúng MỘT bbox.
             evidence_frame = original.copy()
-            color = (0, 0, 255)
-            cv2.rectangle(evidence_frame, (x1, y1), (x2, y2), color, 2)
+            # Nhãn trên ảnh là tiếng Việt; DB vẫn lưu nhãn tiếng Anh chuẩn.
             # Ẩn confidence trên ảnh bằng chứng; confidence vẫn được lưu trong DB
             # để thống kê/đánh giá và không ảnh hưởng ngưỡng lọc detection.
-            text = label
-            text_y = max(20, y1 - 8)
-            cv2.putText(
-                evidence_frame, text, (x1, text_y),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2, cv2.LINE_AA,
-            )
+            draw_detection(evidence_frame, (x1, y1, x2, y2), vi_label(label), label_color(label))
 
             evidence = _Evidence(
                 label, confidence, evidence_frame,
                 job.camera_id, job.slot, job.session,
             )
+            if getattr(job, "logged", None) is not None:
+                job.logged.add(label)
             # Chờ writer giải phóng hàng đợi nếu đang đầy thay vì bỏ mất detection.
             self._evidence.put(evidence)
 

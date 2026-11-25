@@ -1,8 +1,8 @@
 import sqlite3
-from utils.helper import getdatabase_path
+from utils.db import open_connection
 
 def login(professor_id: str):
-    conn = sqlite3.connect(getdatabase_path())
+    conn = open_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -21,7 +21,7 @@ def signup(professor_id, password, role,
            email, so_dien_thoai, anh_dai_dien, 
            created_at, status):
            
-    conn = sqlite3.connect(getdatabase_path())
+    conn = open_connection()
     cursor = conn.cursor()
 
     user = cursor.execute("""

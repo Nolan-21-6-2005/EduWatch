@@ -1,4 +1,14 @@
+import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
+
+# Windows: console/redirect mặc định cp1252 sẽ lỗi khi in tiếng Việt từ luồng ghi log.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +22,17 @@ from src.backend.request_router import router as request_router
 from src.backend.buildings_router import router as buildings_router
 from src.backend.building_viewers_router import router as building_viewers_router
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from src.services import camera_services
+    from utils.db import ensure_runtime_setup
+
+    ensure_runtime_setup()        # WAL + chỉ mục cho nhật ký
+    camera_services.warmup_async()  # nạp model ở nền
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

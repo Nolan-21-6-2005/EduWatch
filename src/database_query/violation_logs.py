@@ -1,19 +1,25 @@
 import sqlite3
 from pathlib import Path
 
-from utils.helper import getdatabase_path
+from utils.labels_vi import vi_label
+from utils.db import connect as db_connect
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 
 def _rows(query: str, params=()):
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.row_factory = sqlite3.Row
         return conn.execute(query, params).fetchall()
 
 
-def db_rows(limit: int = 8):
-    query = """
+def db_rows(limit: int = 8, labels=None):
+    """Log mới nhất; ``labels`` (nếu có) chỉ giữ các loại vi phạm thuộc loại phòng đang chọn."""
+    labels = sorted(labels) if labels else []
+    label_filter = (
+        f"WHERE v.loai_vi_pham IN ({','.join('?' * len(labels))})" if labels else ""
+    )
+    query = f"""
         SELECT v.id, v.loai_vi_pham, v.thoi_gian, v.image_path,
                v.confidence, v.review_status, c.vi_tri_goc,
                r.ten_phong, b.ten_toa
@@ -21,12 +27,13 @@ def db_rows(limit: int = 8):
         LEFT JOIN Cameras AS c ON c.id = v.camera_id
         LEFT JOIN Rooms AS r ON r.id = c.room_id
         LEFT JOIN Buildings AS b ON b.id = r.building_id
+        {label_filter}
         ORDER BY datetime(v.thoi_gian) DESC, v.id DESC
         LIMIT ?
     """
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.row_factory = sqlite3.Row
-        return conn.execute(query, (limit,)).fetchall()
+        return conn.execute(query, (*labels, limit)).fetchall()
 
 
 def get_violation_logs(
@@ -34,7 +41,7 @@ def get_violation_logs(
     limit: int | None = None,
     building_id: int | None = None,
     room_id: int | None = None,
-    violation_type: str | None = None,
+    violation_type: str | list[str] | tuple[str, ...] | None = None,
     review_status: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
@@ -62,8 +69,9 @@ def get_violation_logs(
         query += " AND r.id = ?"
         params.append(room_id)
     if violation_type is not None:
-        query += " AND v.loai_vi_pham = ?"
-        params.append(violation_type)
+        values = [violation_type] if isinstance(violation_type, str) else list(violation_type)
+        query += f" AND v.loai_vi_pham IN ({','.join('?' * len(values))})"
+        params.extend(values)
     if review_status is not None:
         query += " AND COALESCE(v.review_status, 'pending') = ?"
         params.append(review_status)
@@ -129,21 +137,22 @@ def get_violation_report_kpis(
         LEFT JOIN most_common ON 1 = 1
     """
 
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         row = conn.execute(query, params).fetchone()
 
     return {
         "confirmed": int(row[0] or 0),
-        "loai_vi_pham": str(row[1] or "—")
+        "loai_vi_pham": vi_label(str(row[1] or "—"))
     }
 
-def count_pending_violations() -> int:
-    """Count violation records that have not yet been reviewed."""
-    with sqlite3.connect(getdatabase_path()) as conn:
-        row = conn.execute(
-            "SELECT COUNT(*) FROM Violation_Logs WHERE COALESCE(review_status, 'pending') = ?",
-            ("pending",),
-        ).fetchone()
+def count_pending_violations(labels=None) -> int:
+    """Count violation records that have not yet been reviewed (optionally only given labels)."""
+    labels = sorted(labels) if labels else []
+    query = "SELECT COUNT(*) FROM Violation_Logs WHERE COALESCE(review_status, 'pending') = ?"
+    if labels:
+        query += f" AND loai_vi_pham IN ({','.join('?' * len(labels))})"
+    with db_connect() as conn:
+        row = conn.execute(query, ("pending", *labels)).fetchone()
     return int(row[0] or 0)
 
 
@@ -183,7 +192,7 @@ def get_report_table(
         ORDER BY date(v.thoi_gian) DESC, b.ten_toa, r.ten_phong
     """
 
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute(query, params).fetchall()
 
@@ -227,12 +236,20 @@ def get_violation_type_distribution(
         ORDER BY total DESC, loai_vi_pham
     """
 
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         cursor = conn.cursor()
         cursor.execute(query, params)
         rows = cursor.fetchall()
 
-    return [{"type": row[0], "total": row[1]} for row in rows]
+    # Gộp theo tên tiếng Việt (log cũ có thể dùng hai tên tiếng Anh cho cùng một lỗi).
+    merged: dict[str, int] = {}
+    for raw_type, total in rows:
+        name = vi_label(raw_type)
+        merged[name] = merged.get(name, 0) + int(total or 0)
+    return [
+        {"type": name, "total": total}
+        for name, total in sorted(merged.items(), key=lambda item: (-item[1], item[0]))
+    ]
 
 
 def get_violation_trend(
@@ -256,7 +273,7 @@ def get_violation_trend(
         ORDER BY period
     """
 
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute(query, (start_date, end_date)).fetchall()
 

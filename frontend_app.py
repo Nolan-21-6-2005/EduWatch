@@ -45,7 +45,7 @@ if logged_in:
     
     pg = st.navigation(pages, position="sidebar", expanded=True)
 
-    show_topbar(pg.title)
+    show_topbar(pg.title, pages)
 
     # Footer nằm dưới menu navigation.
     show_footer()

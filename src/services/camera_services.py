@@ -7,6 +7,7 @@ vi phạm đủ độ tin cậy được ghi vào Violation_Logs lần lượt t
 """
 from __future__ import annotations
 
+import os
 import threading
 import time
 from concurrent.futures import Future, TimeoutError as FutureTimeout
@@ -25,7 +26,7 @@ MAX_SLOTS = 4
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_SIDE = 1280                      # ảnh lớn hơn sẽ được thu nhỏ khi lưu
 MAX_STORED = 64                      # số ảnh tối đa giữ trong bộ nhớ
-CONF_THRESHOLD = 0.8
+CONF_THRESHOLD = camera_state.LOG_CONF_THRESHOLD  # >= 0.6 mới vẽ/ghi log; >= 0.85 tự submit
 # IoU cao hơn giúp giữ lại các box cùng nhãn có vùng chồng lấn; nếu quá cao
 # có thể xuất hiện box trùng của cùng một đối tượng, cần kiểm tra bằng ảnh thực tế.
 NMS_IOU_THRESHOLD = 0.85
@@ -46,8 +47,9 @@ class UploadedImage:
     uploaded_at: float
     width: int
     height: int
-    annotated: bytes | None = None      # ảnh có khung nhận diện (đã chạy AI)
-    pending: Future | None = None       # yêu cầu AI đang chờ kết quả
+    annotated: dict = field(default_factory=dict)  # session -> JPEG có khung nhận diện
+    pending: dict = field(default_factory=dict)    # session -> yêu cầu AI đang chờ
+    logged_labels: set = field(default_factory=set)  # nhãn đã ghi log, tránh ghi trùng khi đổi phòng
     lock: threading.Lock = field(default_factory=threading.Lock)
 
 
@@ -56,10 +58,25 @@ _store_lock = threading.Lock()
 
 
 @lru_cache(maxsize=1)
+def _device_args() -> dict:
+    """GPU NVIDIA (CUDA) thì chạy GPU + FP16; không có thì chạy CPU. Nhận ra tự động."""
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            return {"device": 0, "half": True}
+        # CPU: dùng hết nhân vật lý hợp lý, tránh tranh chấp luồng với server/Streamlit.
+        torch.set_num_threads(max(1, min(os.cpu_count() or 4, 8)))
+    except Exception:
+        pass
+    return {"device": "cpu"}
+
+
+@lru_cache(maxsize=1)
 def get_model():
     from ultralytics import YOLO  # nạp muộn để backend khởi động nhanh
 
-    return YOLO(getmodel_path())
+    return YOLO(str(getmodel_path()))  # str(): ultralytics/torch xử lý đường dẫn Windows ổn định
 
 
 def _key(camera_id: int, slot: int) -> str:
@@ -117,7 +134,25 @@ pipeline = DetectionPipeline(
     max_det=MAX_DETECTIONS_PER_IMAGE,
     on_detect=_on_detect,
     label_map=camera_state.VIOLATION_LABELS,
+    session_labels=camera_state.SESSION_LABELS,
+    predict_kwargs=_device_args,
 )
+
+
+def warmup_async() -> None:
+    """Nạp model và chạy thử một ảnh trống ở nền khi backend khởi động, để ảnh đầu tiên
+    không phải chờ nạp model (lần đầu có thể mất vài chục giây trên Windows)."""
+
+    def _run():
+        try:
+            pipeline.submit(np.zeros((IMGSZ, IMGSZ, 3), np.uint8), 0, 0, "study").result(
+                timeout=INFERENCE_TIMEOUT * 2
+            )
+            print("Model AI đã sẵn sàng.")
+        except Exception as error:
+            print("Không thể khởi động trước model:", error)
+
+    threading.Thread(target=_run, name="ew-warmup", daemon=True).start()
 
 
 def pipeline_stats() -> dict:
@@ -138,11 +173,14 @@ def get_frame(camera_id: int, slot: int, session: str = "study") -> bytes | None
         return image.jpeg
 
     with image.lock:
-        if image.annotated is not None:
-            return image.annotated
-        if image.pending is None:
-            image.pending = pipeline.submit(image.frame, camera_id, slot, session)
-        future = image.pending
+        if session in image.annotated:  # mỗi loại phòng dự đoán một lần
+            return image.annotated[session]
+        if session not in image.pending:
+            image.pending[session] = pipeline.submit(
+                image.frame, camera_id, slot, session,
+                skip_labels=frozenset(image.logged_labels), logged=image.logged_labels,
+            )
+        future = image.pending[session]
 
     try:
         annotated = future.result(timeout=INFERENCE_TIMEOUT)  # ndarray đã vẽ bounding box
@@ -151,11 +189,11 @@ def get_frame(camera_id: int, slot: int, session: str = "study") -> bytes | None
     except Exception as error:
         print("Lỗi nhận diện ảnh:", error)
         with image.lock:
-            if image.pending is future:
-                image.pending = None  # cho phép thử lại ở lần tải sau
+            if image.pending.get(session) is future:
+                image.pending.pop(session, None)  # cho phép thử lại ở lần tải sau
         return image.jpeg
 
     with image.lock:
-        if image.annotated is None:
-            image.annotated = _encode(annotated)  # mã hóa JPEG chạy song song giữa các khung
-        return image.annotated
+        if session not in image.annotated:
+            image.annotated[session] = _encode(annotated)  # mã hóa JPEG chạy song song giữa các khung
+        return image.annotated[session]

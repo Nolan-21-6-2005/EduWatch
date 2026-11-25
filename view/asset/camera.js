@@ -130,7 +130,7 @@ function bindUploads() {
 // ---------- Theo dõi bật/tắt AI: tải lại ảnh để có/không có khung nhận diện ----------
 async function refreshDetectorStatus() {
   try {
-    const response = await fetch("http://localhost:8000/camera/status");
+    const response = await fetch("__API_BASE__/camera/status");
     if (!response.ok) return;
     const active = Boolean((await response.json()).detector_active);
     if (detectorActive !== null && active !== detectorActive) {

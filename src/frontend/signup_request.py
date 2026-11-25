@@ -1,3 +1,4 @@
+from utils.config import API_BASE
 import streamlit as st
 import requests
 
@@ -15,7 +16,7 @@ def request_signup(
 ):
     try:
         response = requests.post(
-            "http://localhost:8000/signup",
+            f"{API_BASE}/signup",
             json={
                 "professor_id": professor_id,
                 "password": password,

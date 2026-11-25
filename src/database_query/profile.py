@@ -3,11 +3,11 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 import sqlite3
-from utils.helper import getdatabase_path
+from utils.db import connect as db_connect
 
 
 def get_user_by_id(user_id: int):
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.row_factory = sqlite3.Row
         
         row = conn.execute(
@@ -39,7 +39,7 @@ def get_user_by_id(user_id: int):
 
 
 def get_user_by_code(code: str):
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.row_factory = sqlite3.Row
         
         row = conn.execute(
@@ -84,7 +84,7 @@ def phone_exists(phone: str, exclude_user_id: int | None = None) -> bool:
 
     query += " LIMIT 1"
 
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         return conn.execute(query, params).fetchone() is not None
 
 
@@ -93,7 +93,7 @@ def update_profile_contact(
     so_dien_thoai: str,
     anh_dai_dien: str | None = None,
 ) -> dict[str, Any] | None:
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         if anh_dai_dien:
             conn.execute(
                 """
@@ -124,7 +124,7 @@ def hash_password(password: str) -> str:
 def verify_password(user_id: int, password: str) -> bool:
     password_hash = hash_password(password)
 
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         row = conn.execute(
             "SELECT 1 FROM Users WHERE id = ? AND password = ? LIMIT 1",
             (int(user_id), password_hash),
@@ -134,7 +134,7 @@ def verify_password(user_id: int, password: str) -> bool:
 
 
 def update_password(user_id: int, new_password: str) -> None:
-    with sqlite3.connect(getdatabase_path()) as conn:
+    with db_connect() as conn:
         conn.execute(
             "UPDATE Users SET password = ? WHERE id = ?",
             (hash_password(new_password), int(user_id)),

@@ -1,3 +1,5 @@
+> **Bản lưu:** ghi chú gốc, giữ nguyên để đối chiếu và có thể đã lỗi thời. Nội dung chính thức nằm ở [`../CHANGELOG.md`](../CHANGELOG.md) và [`../../README.md`](../../README.md).
+
 # Cập nhật detection trùng nhãn
 
 ## Thay đổi
